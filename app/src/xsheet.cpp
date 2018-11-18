@@ -25,6 +25,7 @@ GNU General Public License for more details.
 #include <QFileDialog>
 #include <QInputDialog>
 #include <QLineEdit>
+#include <QTimer>
 
 Xsheet::Xsheet(QWidget *parent) :
     BaseDockWidget(parent),
@@ -39,6 +40,7 @@ Xsheet::Xsheet(Editor *editor, QWidget *parent) :
 {
     ui->setupUi(this);
     mEditor = editor;
+    player = new QMediaPlayer;
 }
 
 
@@ -57,6 +59,7 @@ void Xsheet::initUI()
 {
     mLayerNames = new QStringList;
     mLayerCount = 0;
+    mAudioOffset = 0;
     QSettings settings(PENCIL2D, PENCIL2D);
     mTimeLineLength = settings.value(SETTING_TIMELINE_SIZE,240).toInt();
     mPapaLines = new QStringList;
@@ -101,6 +104,15 @@ void Xsheet::lengthChanged(int frames)
     updateXsheet();
 }
 
+void Xsheet::loadAudio(QString fileName)
+{
+    if (fileName.isEmpty()) { return; }
+    player->setMedia(QUrl::fromLocalFile(fileName));
+    Layer* layer = mEditor->layers()->currentLayer();
+    mAudioOffset = layer->firstKeyFramePosition();
+    qDebug() << "Audio offset: " << mAudioOffset;
+}
+
 void Xsheet::updateXsheet()
 {
     initXsheet();
@@ -118,6 +130,11 @@ void Xsheet::selectLayerFrame(const QModelIndex &current, const QModelIndex &pre
         updateXsheet();
     }
     Q_UNUSED(previous);
+    Layer* layer = mEditor->layers()->currentLayer();
+    if (getLayerType(layer) == 4)
+    {
+
+    }
     selectItem(current.row(), current.column());
     mEditor->scrubTo(current.row());
 }
@@ -502,6 +519,14 @@ void Xsheet::writePapa()
     {
         erasePapa();
     }
+}
+
+bool Xsheet::layerNameExists(QString LayerName)
+{
+    if (mLayerNames->contains(LayerName))
+        return true;
+    else
+        return false;
 }
 
 int Xsheet::getLayerType(Layer *layer)

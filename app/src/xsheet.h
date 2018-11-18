@@ -9,6 +9,7 @@
 #include "qdebug.h"
 #include <QTableWidget>
 #include <QTableWidgetItem>
+#include <QMediaPlayer>
 
 namespace Ui {
 class Xsheet;
@@ -33,6 +34,7 @@ public slots:
     void lengthChanged(int frames);
 
 private slots:
+    void loadAudio(QString fileName);
     void selectLayerFrame(const QModelIndex &current, const QModelIndex &previous);
     void addLayerFrame(int row, int column);
     void fillXsheet();
@@ -47,6 +49,7 @@ private slots:
 private:
     void initXsheet();
     void writePapa();
+    bool layerNameExists(QString LayerName);
     int getLayerType(Layer* layer);
     void selectItem(int row, int column);
     QColor getLayerColor(int color);
@@ -54,6 +57,8 @@ private:
     QStringList* mPapaLines;            // for filling DIAL column
     Ui::Xsheet *ui;
     Editor* mEditor = nullptr;
+    QMediaPlayer* player = nullptr;
+    int mAudioOffset;
     int mLayerCount;
     int mCurrentFrame;
     int mTimeLineLength;

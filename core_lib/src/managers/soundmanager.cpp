@@ -114,6 +114,7 @@ Status SoundManager::loadSound(Layer* soundLayer, int frameNumber, QString strSo
         delete soundClip;
         return st;
     }
+    emit soundLoaded(strSoundFile);
 
     return Status::OK;
 }
@@ -144,6 +145,7 @@ Status SoundManager::loadSound(SoundClip* soundClip, QString strSoundFile)
         delete soundClip;
         return st;
     }
+    emit soundLoaded(strSoundFile);
 
     return Status::OK;
 }

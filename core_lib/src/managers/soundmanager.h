@@ -44,6 +44,7 @@ public:
 
 signals:
     void soundClipDurationChanged();
+    void soundLoaded(QString fileName);
 
 private:
     void onDurationChanged(SoundPlayer* player, int64_t duration);
