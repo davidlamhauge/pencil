@@ -21,6 +21,7 @@ GNU General Public License for more details.
 #include <QMessageBox>
 #include "pencildef.h"
 #include "layer.h"
+#include "soundmanager.h"
 #include <QFile>
 #include <QFileDialog>
 #include <QInputDialog>
@@ -67,6 +68,7 @@ void Xsheet::initUI()
     mCurrentFrame = 1;
     connect(mTableWidget->selectionModel(), &QItemSelectionModel::currentChanged, this, &Xsheet::selectLayerFrame);
     connect(mTableWidget, &QTableWidget::cellDoubleClicked, this, &Xsheet::addLayerFrame);
+//    connect(mEditor->sound()->, &SoundManager::)
     connect(ui->btnPapa, &QPushButton::clicked, this, &Xsheet::loadPapa );
     connect(ui->btnNoPapa, &QPushButton::clicked, this, &Xsheet::erasePapa);
     connect(ui->btnSave, &QPushButton::clicked, this, &Xsheet::saveLipsync);
@@ -134,9 +136,14 @@ void Xsheet::selectLayerFrame(const QModelIndex &current, const QModelIndex &pre
     if (getLayerType(layer) == 4)
     {
 
+
     }
     selectItem(current.row(), current.column());
     mEditor->scrubTo(current.row());
+}
+
+void Xsheet::stopPlayback()
+{
 }
 
 void Xsheet::addLayerFrame(int row, int column)
@@ -149,6 +156,7 @@ void Xsheet::addLayerFrame(int row, int column)
         mTableItem = new QTableWidgetItem(QString::number(row));
         mTableItem->setBackgroundColor(getLayerColor(type));
         mTableWidget->setItem(row, column, mTableItem);
+        // TODO tell the system to maybe save...
     }
     else if (column == mTableWidget->columnCount() - 1)
     {
@@ -381,6 +389,7 @@ void Xsheet::addFrame()
         mTableWidget->setItem(mTableWidget->currentRow(), mTableWidget->currentColumn(), mTableItem);
         mEditor->layers()->currentLayer()->addNewKeyFrameAt(mTableWidget->currentRow());
         emit mEditor->layers()->notifyLayerChanged(mEditor->layers()->findLayerByName(name));
+        // TODO tell the system to maybe save...
     }
 }
 
@@ -412,6 +421,20 @@ void Xsheet::removeFrame()
             emit mEditor->layers()->notifyLayerChanged(mEditor->layers()->findLayerByName(name));
         }
     }
+    // TODO tell the system to maybe save...
+}
+
+void Xsheet::keyPressEvent(QKeyEvent *event)
+{
+    qDebug() << "keypress event...";
+    if (event->key() < 65) { return; }
+    Layer * layer = mEditor->layers()->currentLayer();
+    if (getLayerType(layer) == 4)
+    {
+        mTableItem = new QTableWidgetItem(Qt::Key(event->key()));
+        mTableItem->setBackgroundColor(getLayerColor(getLayerType(layer)));
+        mTableWidget->setItem(mTableWidget->currentRow(), mTableWidget->currentColumn(), mTableItem);
+    }
 }
 
 void Xsheet::initXsheet()
@@ -419,9 +442,11 @@ void Xsheet::initXsheet()
     mLayerCount = 0;
     mLayerNames->clear();
     for (int i = 0; i < mEditor->layers()->count(); i++)
-    {   // count Bitmap and Vector layers (duplicate names NOT supported)
+    {   // count Bitmap, Vector and audio layers (duplicate names NOT supported)
         bool visi = mEditor->layers()->getLayer(i)->getVisibility();
-        if (visi && (mEditor->layers()->getLayer(i)->type() == 1 || mEditor->layers()->getLayer(i)->type() == 2))
+        if (visi && (mEditor->layers()->getLayer(i)->type() == 1    // Vector
+                  || mEditor->layers()->getLayer(i)->type() == 2    // Bitmap
+                  || mEditor->layers()->getLayer(i)->type() == 4))  // Audio
         {
             if (!mLayerNames->contains(mEditor->layers()->getLayer(i)->name()))
             {
@@ -549,6 +574,7 @@ void Xsheet::selectItem(int row, int column)
 
 QColor Xsheet::getLayerColor(int color)
 {
-    if (color == 1) { return QColor(151, 176, 244); }
-    else            { return QColor(150, 242, 150); }
+    if (color == 1) { return QColor(151, 176, 244); }       // Vector
+    else if (color == 2) { return QColor(150, 242, 150); }  // Bitmap
+    else { return QColor(245, 155, 155, 150); }             // Audio
 }

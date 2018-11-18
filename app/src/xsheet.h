@@ -6,10 +6,12 @@
 #include <QDialog>
 #include "layermanager.h"
 #include "editor.h"
+#include "playbackmanager.h"
 #include "qdebug.h"
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QMediaPlayer>
+#include <QKeyEvent>
 
 namespace Ui {
 class Xsheet;
@@ -36,6 +38,7 @@ public slots:
 private slots:
     void loadAudio(QString fileName);
     void selectLayerFrame(const QModelIndex &current, const QModelIndex &previous);
+    void stopPlayback();
     void addLayerFrame(int row, int column);
     void fillXsheet();
     void loadPapa();
@@ -45,6 +48,9 @@ private slots:
     void saveCsv();
     void addFrame();
     void removeFrame();
+
+protected:
+    void keyPressEvent(QKeyEvent*) override;
 
 private:
     void initXsheet();
