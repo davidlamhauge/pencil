@@ -341,6 +341,7 @@ void MainWindow2::createMenus()
     connect(mEditor, &Editor::currentFrameChanged, mXsheet, &Xsheet::updateScrub);
     connect(ui->actionNew, &QAction::triggered, mXsheet, &Xsheet::newOpenScene);
     connect(ui->actionOpen, &QAction::triggered, mXsheet, &Xsheet::newOpenScene);
+    connect(mEditor->sound(), &SoundManager::soundLoaded, mXsheet, &Xsheet::loadAudio);
 
     /// --- Window Menu ---
     QMenu* winMenu = ui->menuWindows;

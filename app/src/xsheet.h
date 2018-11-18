@@ -34,9 +34,9 @@ public slots:
     void showScrub(int frame);
     void updateScrub(int frame);
     void lengthChanged(int frames);
+    void loadAudio(QString fileName);
 
 private slots:
-    void loadAudio(QString fileName);
     void selectLayerFrame(const QModelIndex &current, const QModelIndex &previous);
     void stopPlayback();
     void addLayerFrame(int row, int column);
@@ -68,6 +68,7 @@ private:
     int mLayerCount;
     int mCurrentFrame;
     int mTimeLineLength;
+    int mFps;
     QTableWidget* mTableWidget;
     QTableWidgetItem* mTableItem;
 };

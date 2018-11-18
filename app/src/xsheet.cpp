@@ -65,10 +65,10 @@ void Xsheet::initUI()
     mTimeLineLength = settings.value(SETTING_TIMELINE_SIZE,240).toInt();
     mPapaLines = new QStringList;
     mTableWidget = ui->tableXsheet;
+    mFps = mEditor->fps();
     mCurrentFrame = 1;
     connect(mTableWidget->selectionModel(), &QItemSelectionModel::currentChanged, this, &Xsheet::selectLayerFrame);
     connect(mTableWidget, &QTableWidget::cellDoubleClicked, this, &Xsheet::addLayerFrame);
-//    connect(mEditor->sound()->, &SoundManager::)
     connect(ui->btnPapa, &QPushButton::clicked, this, &Xsheet::loadPapa );
     connect(ui->btnNoPapa, &QPushButton::clicked, this, &Xsheet::erasePapa);
     connect(ui->btnSave, &QPushButton::clicked, this, &Xsheet::saveLipsync);
@@ -112,7 +112,6 @@ void Xsheet::loadAudio(QString fileName)
     player->setMedia(QUrl::fromLocalFile(fileName));
     Layer* layer = mEditor->layers()->currentLayer();
     mAudioOffset = layer->firstKeyFramePosition();
-    qDebug() << "Audio offset: " << mAudioOffset;
 }
 
 void Xsheet::updateXsheet()
@@ -135,8 +134,12 @@ void Xsheet::selectLayerFrame(const QModelIndex &current, const QModelIndex &pre
     Layer* layer = mEditor->layers()->currentLayer();
     if (getLayerType(layer) == 4)
     {
-
-
+        mAudioOffset = layer->firstKeyFramePosition();
+//        qDebug() << "Audio offset: " << mAudioOffset;
+        player->setPosition((1000/mFps) * (current.row() - mAudioOffset));
+//        qDebug() << "position: " << (1000/mFps) * (current.row() - mAudioOffset);
+        player->play();
+        QTimer::singleShot(150, this, SLOT(stopPlayback()));
     }
     selectItem(current.row(), current.column());
     mEditor->scrubTo(current.row());
@@ -144,12 +147,13 @@ void Xsheet::selectLayerFrame(const QModelIndex &current, const QModelIndex &pre
 
 void Xsheet::stopPlayback()
 {
+    player->stop();
 }
 
 void Xsheet::addLayerFrame(int row, int column)
 {
     selectItem(row, column);
-    if (column > 0 && column <= mLayerCount)
+    if (column > 0 && column <= mLayerCount && mEditor->layers()->currentLayer()->type() != 4)
     {
         mEditor->layers()->currentLayer()->addNewKeyFrameAt(row);
         int type = getLayerType(mEditor->layers()->findLayerByName(mTableWidget->item(0, column)->text()));
