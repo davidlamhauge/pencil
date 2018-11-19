@@ -51,7 +51,6 @@ private slots:
 private:
     void initXsheet();
     void writePapa();
-    bool layerNameExists(QString LayerName);
     int getLayerType(Layer* layer);
     void selectItem(int row, int column);
     QColor getLayerColor(int color);

@@ -536,14 +536,6 @@ void Xsheet::writePapa()
     }
 }
 
-bool Xsheet::layerNameExists(QString LayerName)
-{
-    if (mLayerNames->contains(LayerName))
-        return true;
-    else
-        return false;
-}
-
 int Xsheet::getLayerType(Layer *layer)
 {
     return layer->type();
