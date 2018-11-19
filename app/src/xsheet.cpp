@@ -44,7 +44,6 @@ Xsheet::Xsheet(Editor *editor, QWidget *parent) :
     player = new QMediaPlayer;
 }
 
-
 Xsheet::~Xsheet()
 {
     delete ui;
@@ -106,6 +105,7 @@ void Xsheet::lengthChanged(int frames)
     updateXsheet();
 }
 
+// receives signal from SoundManager
 void Xsheet::loadAudio(QString fileName)
 {
     if (fileName.isEmpty()) { return; }
@@ -131,13 +131,12 @@ void Xsheet::selectLayerFrame(const QModelIndex &current, const QModelIndex &pre
         updateXsheet();
     }
     Q_UNUSED(previous);
-    Layer* layer = mEditor->layers()->currentLayer();
-    if (getLayerType(layer) == 4)
+
+    // If it'a a sound layer, play 15o msecs from current position
+    if (getLayerType(mEditor->layers()->currentLayer()) == 4)
     {
-        mAudioOffset = layer->firstKeyFramePosition();
-//        qDebug() << "Audio offset: " << mAudioOffset;
-        player->setPosition((1000/mFps) * (current.row() - mAudioOffset));
-//        qDebug() << "position: " << (1000/mFps) * (current.row() - mAudioOffset);
+        mAudioOffset = mEditor->layers()->currentLayer()->firstKeyFramePosition();
+        player->setPosition(1000 * (current.row() - mAudioOffset) / mFps);
         player->play();
         QTimer::singleShot(150, this, SLOT(stopPlayback()));
     }
@@ -426,19 +425,6 @@ void Xsheet::removeFrame()
         }
     }
     // TODO tell the system to maybe save...
-}
-
-void Xsheet::keyPressEvent(QKeyEvent *event)
-{
-    qDebug() << "keypress event...";
-    if (event->key() < 65) { return; }
-    Layer * layer = mEditor->layers()->currentLayer();
-    if (getLayerType(layer) == 4)
-    {
-        mTableItem = new QTableWidgetItem(Qt::Key(event->key()));
-        mTableItem->setBackgroundColor(getLayerColor(getLayerType(layer)));
-        mTableWidget->setItem(mTableWidget->currentRow(), mTableWidget->currentColumn(), mTableItem);
-    }
 }
 
 void Xsheet::initXsheet()

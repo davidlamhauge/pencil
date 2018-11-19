@@ -6,12 +6,10 @@
 #include <QDialog>
 #include "layermanager.h"
 #include "editor.h"
-#include "playbackmanager.h"
 #include "qdebug.h"
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QMediaPlayer>
-#include <QKeyEvent>
 
 namespace Ui {
 class Xsheet;
@@ -28,6 +26,7 @@ public:
     explicit Xsheet(QWidget *parent = nullptr);
     explicit Xsheet(Editor* editor, QWidget *parent = nullptr);
     ~Xsheet() override;
+
 public slots:
     void newOpenScene();
     void updateXsheet();
@@ -48,9 +47,6 @@ private slots:
     void saveCsv();
     void addFrame();
     void removeFrame();
-
-protected:
-    void keyPressEvent(QKeyEvent*) override;
 
 private:
     void initXsheet();
