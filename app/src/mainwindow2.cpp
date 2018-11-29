@@ -116,6 +116,13 @@ MainWindow2::MainWindow2(QWidget *parent) :
 
     createDockWidgets();
     createMenus();
+
+    // Shortcuts inspired from related software
+    eyedropperAlt = new QAction(this);
+    connect(eyedropperAlt, &QAction::triggered, mToolBox, &ToolBoxWidget::eyedropperAltOn);
+    eraserCtrlShift = new QAction(this);
+    connect(eraserCtrlShift, &QAction::triggered, mToolBox, &ToolBoxWidget::eraserCtrlShiftOn);
+
     setupKeyboardShortcuts();
 
     readSettings();
@@ -991,6 +998,9 @@ void MainWindow2::setupKeyboardShortcuts()
         QKeySequence keySequence(pencilSettings().value(strCommandName).toString());
         return keySequence;
     };
+
+    eyedropperAlt->setShortcut(Qt::AltModifier);
+    eraserCtrlShift->setShortcut(cmdKeySeq(CMD_TOOL_ERASER_CTRL_SHIFT));
 
     ui->actionNew->setShortcut(cmdKeySeq(CMD_NEW_FILE));
     ui->actionOpen->setShortcut(cmdKeySeq(CMD_OPEN_FILE));

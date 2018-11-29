@@ -147,6 +147,9 @@ private:
 
 private:
     ActionCommands* mCommands = nullptr;
+    QAction* eyedropperAlt = nullptr;
+    QAction* eraserCtrlShift = nullptr;
+
     QList< BaseDockWidget* > mDockWidgets;
 
     QIcon mStartIcon;

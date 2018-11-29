@@ -23,6 +23,7 @@ GNU General Public License for more details.
 #include <QToolButton>
 #include <QGridLayout>
 #include <QKeySequence>
+#include <QDebug>
 
 #include "flowlayout.h"
 #include "spinslider.h"
@@ -184,6 +185,11 @@ void ToolBoxWidget::eraserOn()
     ui->eraserButton->setChecked(true);
 }
 
+void ToolBoxWidget::eraserCtrlShiftOn()
+{
+    emit ui->eraserButton->pressed();
+}
+
 void ToolBoxWidget::selectOn()
 {
     if (!leavingTool(ui->selectButton)) { return; }
@@ -251,6 +257,12 @@ void ToolBoxWidget::eyedropperOn()
 
     deselectAllTools();
     ui->eyedropperButton->setChecked(true);
+}
+
+void ToolBoxWidget::eyedropperAltOn()
+{
+    qDebug() << "alt pressed";
+    emit ui->eyedropperButton->pressed();
 }
 
 void ToolBoxWidget::brushOn()

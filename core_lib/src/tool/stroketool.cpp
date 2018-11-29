@@ -67,9 +67,11 @@ void StrokeTool::startStroke()
 bool StrokeTool::keyPressEvent(QKeyEvent *event)
 {
     switch ( event->key() ) {
+    /*
     case Qt::Key_Alt:
         mScribbleArea->setTemporaryTool( EYEDROPPER );
         return true;
+    */
     case Qt::Key_Space:
         mScribbleArea->setTemporaryTool( HAND ); // just call "setTemporaryTool()" to activate temporarily any tool
         return true;
