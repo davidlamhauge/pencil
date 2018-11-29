@@ -95,6 +95,7 @@ Q_SIGNALS:
 protected:
     void tabletEvent(QTabletEvent*) override;
     void closeEvent(QCloseEvent*) override;
+    void keyPressEvent(QKeyEvent* event) override;
 
 private slots:
     void resetAndDockAllSubWidgets();
