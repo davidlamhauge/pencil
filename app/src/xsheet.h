@@ -39,7 +39,8 @@ private slots:
     void selectLayerFrame(const QModelIndex &current, const QModelIndex &previous);
     void stopPlayback();
     void addLayerFrame(int row, int column);
-    void fillXsheet();
+    void fillLayer(int column, Layer* layer);
+    void fillNumberCol();
     void loadPapa();
     void erasePapa();
     void loadLipsync();

@@ -117,7 +117,11 @@ void Xsheet::loadAudio(QString fileName)
 void Xsheet::updateXsheet()
 {
     initXsheet();
-    fillXsheet();
+    fillNumberCol();
+    for (int i = 0; i < mLayerNames->count(); i++)
+    {
+        fillLayer(i + 1, mEditor->layers()->findLayerByName(mLayerNames->at(i)));
+    }
     writePapa();
     showScrub(mEditor->currentFrame());
 }
@@ -128,9 +132,10 @@ void Xsheet::selectLayerFrame(const QModelIndex &current, const QModelIndex &pre
     if (mTimeLineLength != settings.value(SETTING_TIMELINE_SIZE).toInt())
     {
         mTimeLineLength = settings.value(SETTING_TIMELINE_SIZE).toInt();
-        updateXsheet();
+        fillLayer(current.column(), mEditor->layers()->currentLayer());
     }
     Q_UNUSED(previous);
+    mFps = mEditor->fps();
 
     // If it'a a sound layer, play 15o msecs from current position
     if (getLayerType(mEditor->layers()->currentLayer()) == 4)
@@ -212,24 +217,26 @@ void Xsheet::addLayerFrame(int row, int column)
     }
 }
 
-void Xsheet::fillXsheet()
+void Xsheet::fillLayer(int column, Layer *layer)
 {
     for (int i = 1; i <= mTimeLineLength; i++)
     {
-        mTableWidget->setRowHeight(i,16);
+        if (layer->keyExists(i))
+        {
+            mTableItem = new QTableWidgetItem(QString::number(i));
+            mTableItem->setBackgroundColor(getLayerColor(layer->type()));
+            mTableWidget->setItem(i, column, mTableItem);
+        }
+    }
+}
+
+void Xsheet::fillNumberCol()
+{
+    for (int i = 1; i <= mTimeLineLength; i++)
+    {
         mTableItem = new QTableWidgetItem(QString::number(i));
         mTableItem->setBackgroundColor(QColor(250, 240, 160));
         mTableWidget->setItem(i, 0, mTableItem);
-        for (int j = 1; j <= mLayerCount; j++)
-        {
-            if (mEditor->layers()->findLayerByName(mTableWidget->item(0,j)->text())->keyExists(i))
-            {
-                int type = getLayerType(mEditor->layers()->findLayerByName(mTableWidget->item(0,j)->text()));
-                mTableItem = new QTableWidgetItem(QString::number(i));
-                mTableItem->setBackgroundColor(getLayerColor(type));
-                mTableWidget->setItem(i, j, mTableItem);
-            }
-        }
     }
 }
 
@@ -457,6 +464,7 @@ void Xsheet::initXsheet()
     {
         for (int j = 1; j <= mTimeLineLength; j++)
         {
+            mTableWidget->setRowHeight(j, 16);
             mTableItem = new QTableWidgetItem("");
             mTableItem->setBackgroundColor(Qt::white);
             mTableWidget->setItem(j, i, mTableItem);
