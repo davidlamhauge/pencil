@@ -138,7 +138,7 @@ void Xsheet::selectLayerFrame(const QModelIndex &current, const QModelIndex &pre
     mFps = mEditor->fps();
 
     // If it'a a sound layer, play 15o msecs from current position
-    if (getLayerType(mEditor->layers()->currentLayer()) == 4)
+    if (getLayerType(mEditor->layers()->currentLayer()) == Layer::SOUND)
     {
         mAudioOffset = mEditor->layers()->currentLayer()->firstKeyFramePosition();
         player->setPosition(1000 * (current.row() - mAudioOffset) / mFps);
@@ -441,9 +441,9 @@ void Xsheet::initXsheet()
     for (int i = 0; i < mEditor->layers()->count(); i++)
     {   // count Bitmap, Vector and audio layers (duplicate names NOT supported)
         bool visi = mEditor->layers()->getLayer(i)->getVisibility();
-        if (visi && (mEditor->layers()->getLayer(i)->type() == 1    // Vector
-                  || mEditor->layers()->getLayer(i)->type() == 2    // Bitmap
-                  || mEditor->layers()->getLayer(i)->type() == 4))  // Audio
+        if (visi && (mEditor->layers()->getLayer(i)->type() == Layer::VECTOR    // Vector
+                  || mEditor->layers()->getLayer(i)->type() == Layer::BITMAP    // Bitmap
+                  || mEditor->layers()->getLayer(i)->type() == Layer::SOUND))   // Audio
         {
             if (!mLayerNames->contains(mEditor->layers()->getLayer(i)->name()))
             {
