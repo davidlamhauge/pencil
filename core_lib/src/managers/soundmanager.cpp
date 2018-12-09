@@ -57,6 +57,7 @@ Status SoundManager::load(Object* obj)
             Q_ASSERT(clip);
 
             createMediaPlayer(clip);
+            emit soundLoaded(clip->fileName());
         });
     }
     return Status::OK;
@@ -114,7 +115,7 @@ Status SoundManager::loadSound(Layer* soundLayer, int frameNumber, QString strSo
         delete soundClip;
         return st;
     }
-    emit soundLoaded(strSoundFile);
+    emit soundLoaded(soundClip->fileName());
 
     return Status::OK;
 }
@@ -145,7 +146,7 @@ Status SoundManager::loadSound(SoundClip* soundClip, QString strSoundFile)
         delete soundClip;
         return st;
     }
-    emit soundLoaded(strSoundFile);
+    emit soundLoaded(soundClip->fileName());
 
     return Status::OK;
 }
