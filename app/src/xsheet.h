@@ -65,6 +65,7 @@ private:
     int mCurrentFrame;
     int mTimeLineLength;
     int mFps;
+    bool mLipsyncChanged;
     QTableWidget* mTableWidget;
     QTableWidgetItem* mTableItem;
 };

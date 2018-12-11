@@ -51,6 +51,7 @@ Xsheet::~Xsheet()
 
 void Xsheet::newOpenScene()
 {
+//    player = nullptr;
     erasePapa();
     updateXsheet();
 }
@@ -66,6 +67,7 @@ void Xsheet::initUI()
     mTableWidget = ui->tableXsheet;
     mFps = mEditor->fps();
     mCurrentFrame = 1;
+    mLipsyncChanged = false;
     connect(mTableWidget->selectionModel(), &QItemSelectionModel::currentChanged, this, &Xsheet::selectLayerFrame);
     connect(mTableWidget, &QTableWidget::cellDoubleClicked, this, &Xsheet::addLayerFrame);
     connect(ui->btnPapa, &QPushButton::clicked, this, &Xsheet::loadPapa );
@@ -213,6 +215,7 @@ void Xsheet::addLayerFrame(int row, int column)
                     mPapaLines->append(text + " 12 " + QString::number(mTimeLineLength));
                 }
             }
+            mLipsyncChanged = true;
         }
     }
 }
@@ -282,6 +285,21 @@ void Xsheet::loadPapa()
 
 void Xsheet::erasePapa()
 {
+    if (mLipsyncChanged)
+    {
+        int ret = QMessageBox::question(this, tr("Save lipsync?"),
+                                        tr("Save unsaved lipsync info!"),
+                                        QMessageBox::No | QMessageBox::Cancel | QMessageBox::Yes);
+        if (ret == QMessageBox::Yes)
+        {
+            saveLipsync();
+        }
+        else if (ret == QMessageBox::Cancel)
+        {
+            return;
+        }
+        mLipsyncChanged = false;
+    }
     int dial = mTableWidget->columnCount();
 
     // clear column
@@ -353,6 +371,7 @@ void Xsheet::saveLipsync()
         out << mPapaLines->at(i) << '\n';
     }
     file.close();
+    mLipsyncChanged = false;
 }
 
 void Xsheet::saveCsv()
