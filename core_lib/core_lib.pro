@@ -26,7 +26,8 @@ INCLUDEPATH += src \
     src/tool \
     src/util \
     ui \
-    src/managers
+    src/managers \
+    src/external
 
 # Input
 HEADERS +=  \
@@ -94,8 +95,9 @@ HEADERS +=  \
     src/movieexporter.h \
     src/miniz.h \
     src/qminiz.h \
-    src/activeframepool.h
-
+    src/activeframepool.h \
+    src/external/platformhandler.h \
+    src/external/macosx/macosxnative.h
 
 SOURCES +=  src/graphics/bitmap/bitmapimage.cpp \
     src/graphics/vector/bezierarea.cpp \
@@ -156,10 +158,10 @@ SOURCES +=  src/graphics/bitmap/bitmapimage.cpp \
     src/movieexporter.cpp \
     src/miniz.cpp \
     src/qminiz.cpp \
-    src/activeframepool.cpp
+    src/activeframepool.cpp \
 
 FORMS += \
-    ui/camerapropertiesdialog.ui
+    ui/camerapropertiesdialog.ui \
 
 win32 {
     CONFIG -= flat
@@ -170,7 +172,9 @@ win32 {
 
 macx {
     INCLUDEPATH += src/external/macosx
+    LIBS += -framework AppKit
     SOURCES += src/external/macosx/macosx.cpp
+    OBJECTIVE_SOURCES += src/external/macosx/macosxnative.mm
 }
 
 unix:!macx {

@@ -59,6 +59,7 @@ Q_SIGNALS:
     void addKeyClick();
     void removeKeyClick();
     void duplicateKeyClick();
+    void manipulateFramesClick();
     void toogleAbsoluteOnionClick();
 
     void newBitmapLayer();
@@ -81,6 +82,7 @@ protected:
 
 private:
     void deleteCurrentLayer();
+
 
     QScrollBar* mHScrollbar = nullptr;
     QScrollBar* mVScrollbar = nullptr;
