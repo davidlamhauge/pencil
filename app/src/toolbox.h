@@ -46,6 +46,7 @@ public:
 public slots:
     void pencilOn();
     void eraserOn();
+    void eraserCtrlShiftOn();
     void selectOn();
     void moveOn();
     void penOn();
@@ -53,6 +54,7 @@ public slots:
     void polylineOn();
     void bucketOn();
     void eyedropperOn();
+    void eyedropperAltOn();
     void brushOn();
     void smudgeOn();
 

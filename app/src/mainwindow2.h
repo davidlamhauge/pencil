@@ -99,6 +99,7 @@ Q_SIGNALS:
 protected:
     void tabletEvent(QTabletEvent*) override;
     void closeEvent(QCloseEvent*) override;
+    void keyPressEvent(QKeyEvent* event) override;
 
 private slots:
     void resetAndDockAllSubWidgets();
@@ -152,6 +153,9 @@ private:
 
 private:
     ActionCommands* mCommands = nullptr;
+    QAction* eyedropperAlt = nullptr;
+    QAction* eraserCtrlShift = nullptr;
+
     QList< BaseDockWidget* > mDockWidgets;
 
     QIcon mStartIcon;

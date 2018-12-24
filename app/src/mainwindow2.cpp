@@ -30,6 +30,7 @@ GNU General Public License for more details.
 #include <QProgressDialog>
 #include <QFileIconProvider>
 #include <QTabletEvent>
+#include <QSettings>
 
 // core_lib headers
 #include "pencildef.h"
@@ -116,6 +117,13 @@ MainWindow2::MainWindow2(QWidget *parent) :
 
     createDockWidgets();
     createMenus();
+
+    // Shortcuts inspired from related software
+    eyedropperAlt = new QAction(this);
+    connect(eyedropperAlt, &QAction::triggered, mToolBox, &ToolBoxWidget::eyedropperAltOn);
+    eraserCtrlShift = new QAction(this);
+    connect(eraserCtrlShift, &QAction::triggered, mToolBox, &ToolBoxWidget::eraserCtrlShiftOn);
+
     setupKeyboardShortcuts();
 
     readSettings();
@@ -442,6 +450,25 @@ void MainWindow2::closeEvent(QCloseEvent* event)
     else
     {
         event->ignore();
+    }
+}
+
+void MainWindow2::keyPressEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Alt)
+    {
+        QSettings settings (PENCIL2D, PENCIL2D);
+        qDebug() << settings.value(CMD_TOOL_EYEDROPPER_ALT) << " " << Qt::Key_Alt;
+        if (settings.value(CMD_TOOL_EYEDROPPER_ALT) == Qt::Key_Alt)
+        {
+            qDebug() << "Alt pressed";
+        }
+        else
+            QMainWindow::keyPressEvent(event); // process other keys normally
+    }
+    else
+    {
+      QMainWindow::keyPressEvent(event); // process other keys normally
     }
 }
 
@@ -1102,6 +1129,9 @@ void MainWindow2::setupKeyboardShortcuts()
         QKeySequence keySequence(pencilSettings().value(strCommandName).toString());
         return keySequence;
     };
+
+    eyedropperAlt->setShortcut(cmdKeySeq(CMD_TOOL_EYEDROPPER_ALT));
+    eraserCtrlShift->setShortcut(cmdKeySeq(CMD_TOOL_ERASER_CTRL_SHIFT));
 
     ui->actionNew->setShortcut(cmdKeySeq(CMD_NEW_FILE));
     ui->actionOpen->setShortcut(cmdKeySeq(CMD_OPEN_FILE));
