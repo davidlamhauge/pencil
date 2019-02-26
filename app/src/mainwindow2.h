@@ -100,6 +100,7 @@ protected:
 
 private slots:
     void resetAndDockAllSubWidgets();
+    void showHideAllDocks();
 
 private:
     bool openObject(QString strFilename, bool checkForChanges);

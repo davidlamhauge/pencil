@@ -361,10 +361,12 @@ void MainWindow2::createMenus()
     lockWidgets->setCheckable(true);
     winMenu->addAction(lockWidgets);
     winMenu->addAction(ui->actionReset_Windows);
+    winMenu->addAction(ui->actionToggle_Hide_Show_All);
 
     connect(lockWidgets, &QAction::toggled, this, &MainWindow2::lockWidgets);
     bindActionWithSetting(lockWidgets, SETTING::LAYOUT_LOCK);
     connect(ui->actionReset_Windows, &QAction::triggered, this, &MainWindow2::resetAndDockAllSubWidgets);
+    connect(ui->actionToggle_Hide_Show_All, &QAction::triggered, this, &MainWindow2::showHideAllDocks);
 
     // -------------- Help Menu ---------------
     connect(ui->actionHelp, &QAction::triggered, mCommands, &ActionCommands::help);
@@ -1057,6 +1059,18 @@ void MainWindow2::resetAndDockAllSubWidgets()
     }
 }
 
+void MainWindow2::showHideAllDocks()
+{
+    for (BaseDockWidget* dock : mDockWidgets)
+    {
+        if (dock->isHidden())
+            dock->show();
+        else
+            dock->hide();
+
+    }
+}
+
 void MainWindow2::readSettings()
 {
     QSettings settings(PENCIL2D, PENCIL2D);
@@ -1196,6 +1210,7 @@ void MainWindow2::setupKeyboardShortcuts()
     mTimeLine->toggleViewAction()->setShortcut(cmdKeySeq(CMD_TOGGLE_TIMELINE));
     mDisplayOptionWidget->toggleViewAction()->setShortcut(cmdKeySeq(CMD_TOGGLE_DISPLAY_OPTIONS));
     mColorInspector->toggleViewAction()->setShortcut(cmdKeySeq(CMD_TOGGLE_COLOR_INSPECTOR));
+    ui->actionToggle_Hide_Show_All->setShortcut(cmdKeySeq(CMD_TOGGLE_SHOWHIDEALL));
 
     ui->actionHelp->setShortcut(cmdKeySeq(CMD_HELP));
     ui->actionExit->setShortcut(cmdKeySeq(CMD_EXIT));

@@ -234,6 +234,7 @@
      <string>Windows</string>
     </property>
     <addaction name="actionReset_Windows"/>
+    <addaction name="actionToggle_Hide_Show_All"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -972,6 +973,11 @@
   <action name="actionFlip_rolling">
    <property name="text">
     <string>Flip Rolling</string>
+   </property>
+  </action>
+  <action name="actionToggle_Hide_Show_All">
+   <property name="text">
+    <string>Toggle Show/Hide All Windows</string>
    </property>
   </action>
  </widget>
