@@ -96,6 +96,7 @@ void MoveTool::pointerReleaseEvent(PointerEvent*)
 
     mScribbleArea->updateToolCursor();
     mScribbleArea->updateCurrentFrame();
+    emit mScribbleArea->selectionMoved();
 }
 
 void MoveTool::updateTransformation()

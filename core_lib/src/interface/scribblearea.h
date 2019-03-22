@@ -141,7 +141,7 @@ signals:
     void modification(int);
     void multiLayerOnionSkinChanged(bool);
     void refreshPreview();
-    void selectionChanged(QRectF rectF);
+    void selectionMoved();
 
 public slots:
     void clearImage();

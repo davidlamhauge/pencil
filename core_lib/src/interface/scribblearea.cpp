@@ -1676,7 +1676,6 @@ void ScribbleArea::applySelectionChanges()
 
     // apply the transformed selection to make the selection modification absolute.
     applyTransformedSelection();
-
 }
 
 void ScribbleArea::applyTransformedSelection()

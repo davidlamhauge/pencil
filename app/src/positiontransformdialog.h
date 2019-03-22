@@ -21,9 +21,10 @@ public:
     void initDialog(Editor* editor);
 
 private:
-    void updateSelectionValues(QRectF rectF);
 
 public slots:
+    void movePatternChanged();
+    void updateSelectionValues();
     void closeUi();
 
 private:
