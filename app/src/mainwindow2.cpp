@@ -320,6 +320,7 @@ void MainWindow2::createMenus()
     connect(ui->actionDuplicate_Frame, &QAction::triggered, mCommands, &ActionCommands::duplicateKey);
     connect(ui->actionMove_Frame_Forward, &QAction::triggered, mCommands, &ActionCommands::moveFrameForward);
     connect(ui->actionMove_Frame_Backward, &QAction::triggered, mCommands, &ActionCommands::moveFrameBackward);
+    connect(ui->actionPosition_Transforms, &QAction::triggered, this, &MainWindow2::positionTransforms);
 
     //--- Tool Menu ---
     connect(ui->actionMove, &QAction::triggered, mToolBox, &ToolBoxWidget::moveOn);
@@ -414,6 +415,15 @@ void MainWindow2::clearRecentFilesList()
                                  QMessageBox::Ok);
     }
     getPrefDialog()->updateRecentListBtn(!recentFilesList.isEmpty());
+}
+
+void MainWindow2::positionTransforms()
+{
+    if (!mEditor->getScribbleArea()->isSomethingSelected()) { return; }
+    posdialog = new PositionTransformDialog(this);
+    posdialog->setAttribute(Qt::WA_DeleteOnClose);
+    posdialog->initDialog(mEditor);
+    posdialog->show();
 }
 
 void MainWindow2::closeEvent(QCloseEvent* event)

@@ -97,23 +97,51 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QSpinBox" name="sbXNew"/>
+         <widget class="QSpinBox" name="sbXNew">
+          <property name="minimum">
+           <number>-9999</number>
+          </property>
+          <property name="maximum">
+           <number>9999</number>
+          </property>
+         </widget>
         </item>
         <item row="1" column="2">
-         <widget class="QSpinBox" name="sbYNew"/>
+         <widget class="QSpinBox" name="sbYNew">
+          <property name="minimum">
+           <number>-9999</number>
+          </property>
+          <property name="maximum">
+           <number>9999</number>
+          </property>
+         </widget>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="labMoveParams">
           <property name="text">
-           <string>Following keyframes are moved relatively:</string>
+           <string>Following keyframes are moved... :</string>
           </property>
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QSpinBox" name="sbXMove"/>
+         <widget class="QSpinBox" name="sbXMove">
+          <property name="minimum">
+           <number>-9999</number>
+          </property>
+          <property name="maximum">
+           <number>9999</number>
+          </property>
+         </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QSpinBox" name="sbYMove"/>
+         <widget class="QSpinBox" name="sbYMove">
+          <property name="minimum">
+           <number>-9999</number>
+          </property>
+          <property name="maximum">
+           <number>9999</number>
+          </property>
+         </widget>
         </item>
         <item row="3" column="1">
          <widget class="QPushButton" name="btnReset">

@@ -20,6 +20,7 @@ GNU General Public License for more details.
 
 #include <QMainWindow>
 #include "preferencemanager.h"
+#include "positiontransformdialog.h"
 
 
 template<typename T> class QList;
@@ -60,11 +61,12 @@ public:
 
     Editor* mEditor = nullptr;
 
-    public slots:
+public slots:
     void undoActSetText();
     void undoActSetEnabled();
     void updateSaveState();
     void clearRecentFilesList();
+    void positionTransforms();
 
 public:
     void setOpacity(int opacity);
@@ -161,6 +163,7 @@ private:
     bool mIsImportingImageSequence = false;
     
     Ui::MainWindow2* ui = nullptr;
+    PositionTransformDialog* posdialog = nullptr;
 };
 
 #endif // MAINWINDOW2_H

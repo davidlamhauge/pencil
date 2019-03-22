@@ -1753,7 +1753,6 @@ void ScribbleArea::setSelection(QRectF rect)
     myTempTransformedSelection = rect;
     mSomethingSelected = (mySelection.isNull() ? false : true);
 
-
     // Temporary disabled this as it breaks selection rotate key (ctrl) event.
     // displaySelectionProperties();
 }

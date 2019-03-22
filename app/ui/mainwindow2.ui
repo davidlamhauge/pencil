@@ -183,6 +183,8 @@
     <addaction name="separator"/>
     <addaction name="actionFlip_inbetween"/>
     <addaction name="actionFlip_rolling"/>
+    <addaction name="separator"/>
+    <addaction name="actionPosition_Transforms"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -972,6 +974,11 @@
   <action name="actionFlip_rolling">
    <property name="text">
     <string>Flip Rolling</string>
+   </property>
+  </action>
+  <action name="actionPosition_Transforms">
+   <property name="text">
+    <string>Position Transforms</string>
    </property>
   </action>
  </widget>
