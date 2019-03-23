@@ -1,6 +1,10 @@
 #include "positiontransformdialog.h"
 #include "ui_positiontransformdialog.h"
 
+#include <QFile>
+#include <QStandardPaths>
+#include <QDir>
+
 PositionTransformDialog::PositionTransformDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::PositionTransformDialog)
@@ -10,6 +14,7 @@ PositionTransformDialog::PositionTransformDialog(QWidget *parent) :
     ui->sbYMove->setEnabled(false);
     connect(ui->rbEvenlyPosition, &QRadioButton::released, this, &PositionTransformDialog::movePatternChanged);
     connect(ui->rbUnevenlyPosition, &QRadioButton::released, this, &PositionTransformDialog::movePatternChanged);
+    connect(ui->btnReset, &QPushButton::clicked, this, &PositionTransformDialog::resetPositions);
     connect(ui->btnCancel, &QPushButton::clicked, this, &PositionTransformDialog::closeUi);
 }
 
@@ -21,6 +26,7 @@ PositionTransformDialog::~PositionTransformDialog()
 void PositionTransformDialog::initDialog(Editor *editor)
 {
     mEditor = editor;
+    mLayerMgr = mEditor->layers();
     mScribb = mEditor->getScribbleArea();
     connect(mScribb, &ScribbleArea::selectionMoved, this, &PositionTransformDialog::updateSelectionValues);
     ui->labStartX->setText(QString::number(mScribb->getSelection().left()));
@@ -29,6 +35,23 @@ void PositionTransformDialog::initDialog(Editor *editor)
     ui->labDiffY->setText("0");
     ui->labNewX->setText(QString::number(mScribb->getSelection().left()));
     ui->labNewY->setText(QString::number(mScribb->getSelection().top()));
+}
+
+void PositionTransformDialog::initTempLayer()
+{
+    if (mLayerMgr->currentLayer()->type() == Layer::BITMAP)
+    {
+        tmpLayer = static_cast<LayerBitmap*>(mLayerMgr->createBitmapLayer("TMP"));
+    }
+    if (mLayerMgr->currentLayer()->type() == Layer::VECTOR)
+    {
+        tmpLayer = static_cast<LayerVector*>(mLayerMgr->createVectorLayer("TMP"));
+    }
+    if (tmpLayer == nullptr) { closeUi(); }
+    for (int i = mLayerMgr->currentLayer()->firstKeyFramePosition(); i <= mLayerMgr->currentLayer()->getMaxKeyFramePosition(); i++)
+    {
+
+    }
 }
 
 void PositionTransformDialog::movePatternChanged()
@@ -49,12 +72,23 @@ void PositionTransformDialog::movePatternChanged()
 
 void PositionTransformDialog::updateSelectionValues()
 {
-    QRectF org = mScribb->getSelection();
+    mOrg = mScribb->getSelection();
+    setOrg(mOrg);
     QRectF rect = mScribb->myTransformedSelection;
     ui->labNewX->setText(QString::number(rect.left()));
     ui->labNewY->setText(QString::number(rect.top()));
-    ui->labDiffX->setText(QString::number(rect.left() - org.left()));
-    ui->labDiffY->setText(QString::number(rect.top() - org.top()));
+    ui->labDiffX->setText(QString::number(rect.left() - mOrg.left()));
+    ui->labDiffY->setText(QString::number(rect.top() - mOrg.top()));
+}
+
+void PositionTransformDialog::resetPositions()
+{
+    mScribb->myTempTransformedSelection = mOrg;
+    qDebug() << "myTemp: " << mScribb->myTempTransformedSelection;
+
+    mScribb->setSelection(mOrg);
+    mScribb->applySelectionChanges();
+    mScribb->deselectAll();
 }
 
 void PositionTransformDialog::closeUi()
