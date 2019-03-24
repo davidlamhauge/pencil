@@ -62,8 +62,9 @@ HEADERS += \
     src/colorslider.h \
     src/xsheet.h \
     src/copymultiplekeyframesdialog.h \
+    src/bitmapcoloring.h \
     src/checkupdatesdialog.h \
-    src/bitmapcoloring.h
+    src/pegbarregistration.h
 
 SOURCES += \
     src/main.cpp \
@@ -94,8 +95,9 @@ SOURCES += \
     src/colorslider.cpp \
     src/xsheet.cpp \
     src/copymultiplekeyframesdialog.cpp \
+    src/bitmapcoloring.cpp \
     src/checkupdatesdialog.cpp \
-    src/bitmapcoloring.cpp
+    src/pegbarregistration.cpp
 
 FORMS += \
     ui/mainwindow2.ui \
@@ -120,7 +122,8 @@ FORMS += \
     ui/toolboxwidget.ui \
     ui/xsheet.ui \
     ui/copymultiplekeyframesdialog.ui \
-    ui/bitmapcoloringwidget.ui
+    ui/bitmapcoloringwidget.ui \
+    ui/pegbarregistration.ui
 
 
 

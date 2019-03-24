@@ -1103,6 +1103,44 @@ int BitmapImage::fillWithColor(QPoint point, QRgb orgColor, QRgb newColor, Bitma
     return pixels;
 }
 
+int BitmapImage::findLeft(QRectF rect, int grayValue)
+{
+    int left = static_cast<int>(rect.left());
+    int right = static_cast<int>(rect.right());
+    int top = static_cast<int>(rect.top());
+    int bottom = static_cast<int>(rect.bottom());
+    for (int x = left; x <= right; x++)
+    {
+        for (int y = top; y <= bottom; y++)
+        {
+            if (qGray(constScanLine(x,y)) < grayValue)
+            {
+                return x;
+            }
+        }
+    }
+    return 10000;
+}
+
+int BitmapImage::findTop(QRectF rect, int grayValue)
+{
+    int left = static_cast<int>(rect.left());
+    int right = static_cast<int>(rect.right());
+    int top = static_cast<int>(rect.top());
+    int bottom = static_cast<int>(rect.bottom());
+    for (int y = top; y <= bottom; y++)
+    {
+        for (int x = left; x <= right; x++)
+        {
+            if (qGray(constScanLine(x,y)) < grayValue)
+            {
+                return y;
+            }
+        }
+    }
+    return 10000;
+}
+
 Status BitmapImage::writeFile(const QString& filename)
 {
     if (mImage && !mImage->isNull())

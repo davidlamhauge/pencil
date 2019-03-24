@@ -45,7 +45,11 @@ GNU General Public License for more details.
 #include "soundmanager.h"
 #include "viewmanager.h"
 
+#include "layer.h"
 #include "layercamera.h"
+#include "layerbitmap.h"
+#include "bitmapimage.h"
+#include "pegbarregistration.h"
 #include "actioncommands.h"
 #include "fileformat.h"     //contains constants used by Pencil File Format
 #include "util.h"
@@ -282,6 +286,7 @@ void MainWindow2::createMenus()
     connect(ui->actionFlip_Y, &QAction::triggered, mCommands, &ActionCommands::flipSelectionY);
     connect(ui->actionSelect_All, &QAction::triggered, ui->scribbleArea, &ScribbleArea::selectAll);
     connect(ui->actionDeselect_All, &QAction::triggered, ui->scribbleArea, &ScribbleArea::deselectAll);
+    connect(ui->actionPegbarAlignment, &QAction::triggered, this, &MainWindow2::pegBarReg);
     connect(ui->actionPreference, &QAction::triggered, [=] { preferences(); });
 
     //--- Layer Menu ---
@@ -446,6 +451,74 @@ void MainWindow2::clearRecentFilesList()
                                  QMessageBox::Ok);
     }
     getPrefDialog()->updateRecentListBtn(!recentFilesList.isEmpty());
+}
+
+void MainWindow2::pegBarReg()
+{
+
+    if (mEditor->layers()->currentLayer()->type() != Layer::BITMAP) { return; }
+    if (!ui->scribbleArea->isSomethingSelected())
+    {
+        QMessageBox::information(this, nullptr,
+                                 tr("Please select an area around center peg!\n"
+                                    "Area must cover all pegs to be aligned."),
+                                 QMessageBox::Ok);
+        return;
+    }
+
+    if (!mEditor->layers()->currentLayer()->keyExists(mEditor->currentFrame()))
+    {
+        QMessageBox::information(this, nullptr,
+                                 tr("No reference Key selected!"),
+                                 QMessageBox::Ok);
+        return;
+    }
+
+    PegBarRegistration* pegreg = new PegBarRegistration(this);
+    pegreg->initLayerList(mEditor);
+    int ret = pegreg->exec();
+    QStringList* sl = pegreg->getLayerList();
+    if (sl->isEmpty())
+    {
+        QMessageBox::information(this, nullptr,
+                                 tr("No Layer selected!"),
+                                 QMessageBox::Ok);
+        return;
+    }
+
+    if (ret == pegreg->Accepted)
+    {
+        // register Reference
+        QRectF rect = ui->scribbleArea->getSelection();
+        LayerBitmap* layerbitmap = static_cast<LayerBitmap*>(mEditor->layers()->currentLayer());
+        BitmapImage* img = layerbitmap->getBitmapImageAtFrame(mEditor->currentFrame());
+        int peg_x = img->findLeft(rect, 121);
+        int peg_y = img->findTop(rect, 121);
+
+        // move other layers
+        for (int i = 0; i < sl->count(); i++)
+        {
+            layerbitmap = static_cast<LayerBitmap*>(mEditor->layers()->findLayerByName(sl->at(i)));
+            for (int k = layerbitmap->firstKeyFramePosition(); k <= layerbitmap->getMaxKeyFramePosition(); k++)
+            {
+                if (layerbitmap->keyExists(k))
+                {
+                    img = layerbitmap->getBitmapImageAtFrame(k);
+                    int tmp_x = img->findLeft(rect, 121);
+                    if (tmp_x == 10000)
+                    {
+                        QMessageBox::information(this, nullptr,
+                                                 tr("Peg bar not found at %1, %2").arg(layerbitmap->name()).arg(k),
+                                                 QMessageBox::Ok);
+                        return;
+                    }
+                    int tmp_y = img->findTop(rect, 121);
+                    img->moveTopLeft(QPoint(img->left() + (peg_x - tmp_x), img->top() + (peg_y - tmp_y)));
+                }
+            }
+        }
+        ui->scribbleArea->deselectAll();
+    }
 }
 
 void MainWindow2::closeEvent(QCloseEvent* event)
