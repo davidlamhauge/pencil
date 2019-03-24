@@ -65,6 +65,11 @@ public:
     bool visible() const { return mVisible; }
     void setVisible(bool b) { mVisible = b; }
 
+    void setHasColorLayer(bool b) { mHasColorLayer = b; }
+    bool getHasColorLayer() { return mHasColorLayer; }
+    void setIsColorLayer(bool b) { mIsColorLayer = b; }
+    bool getIsColorLayer() { return mIsColorLayer; }
+
     virtual Status saveKeyFrameFile(KeyFrame*, QString dataPath) = 0;
     virtual void loadDomElement(QDomElement element, QString dataDirPath, ProgressCallback progressForward) = 0;
     virtual QDomElement createDomElement(QDomDocument& doc) = 0;
@@ -97,7 +102,7 @@ public:
     void foreachKeyFrame(std::function<void(KeyFrame*)>);
 
     void setModified(int position, bool isModified);
-
+    void copyFrame(Layer *fromLayer, Layer *toLayer, int frame);
     // Handle selection
     bool isFrameSelected(int position) const;
     void setFrameSelected(int position, bool isSelected);
@@ -132,6 +137,8 @@ private:
     int        mId = 0;
     bool       mVisible = true;
     QString    mName;
+    bool       mHasColorLayer = false;
+    bool       mIsColorLayer = false;
 
     std::map<int, KeyFrame*, std::greater<int>> mKeyFrames;
 

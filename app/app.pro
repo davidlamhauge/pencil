@@ -62,7 +62,8 @@ HEADERS += \
     src/colorslider.h \
     src/xsheet.h \
     src/copymultiplekeyframesdialog.h \
-    src/checkupdatesdialog.h
+    src/checkupdatesdialog.h \
+    src/bitmapcoloring.h
 
 SOURCES += \
     src/main.cpp \
@@ -93,7 +94,8 @@ SOURCES += \
     src/colorslider.cpp \
     src/xsheet.cpp \
     src/copymultiplekeyframesdialog.cpp \
-    src/checkupdatesdialog.cpp
+    src/checkupdatesdialog.cpp \
+    src/bitmapcoloring.cpp
 
 FORMS += \
     ui/mainwindow2.ui \
@@ -117,7 +119,8 @@ FORMS += \
     ui/toolspage.ui \
     ui/toolboxwidget.ui \
     ui/xsheet.ui \
-    ui/copymultiplekeyframesdialog.ui
+    ui/copymultiplekeyframesdialog.ui \
+    ui/bitmapcoloringwidget.ui
 
 
 

@@ -61,6 +61,7 @@ GNU General Public License for more details.
 #include "preferencesdialog.h"
 #include "timeline.h"
 #include "toolbox.h"
+#include "bitmapcoloring.h"
 
 //#include "preview.h"
 #include "timeline2.h"
@@ -171,6 +172,9 @@ void MainWindow2::createDockWidgets()
     mXsheet = new Xsheet(mEditor, this);
     mXsheet->setObjectName("Xsheet");
 
+    mBitmapColoring = new BitmapColoring(mEditor, this);
+    mBitmapColoring->setObjectName("BitmapColoring");
+
     /*
     mTimeline2 = new Timeline2;
     mTimeline2->setObjectName( "Timeline2" );
@@ -185,7 +189,8 @@ void MainWindow2::createDockWidgets()
         << mDisplayOptionWidget
         << mToolOptions
         << mToolBox
-        << mXsheet;
+        << mXsheet
+        << mBitmapColoring;
 
     mStartIcon = QIcon(":icons/controls/play.png");
     mStopIcon = QIcon(":icons/controls/stop.png");
@@ -207,6 +212,8 @@ void MainWindow2::createDockWidgets()
     addDockWidget(Qt::RightDockWidgetArea, mColorPalette);
     addDockWidget(Qt::RightDockWidgetArea, mXsheet);
     mXsheet->hide();
+    addDockWidget(Qt::RightDockWidgetArea, mBitmapColoring);
+    mBitmapColoring->hide();
     addDockWidget(Qt::LeftDockWidgetArea, mToolBox);
     addDockWidget(Qt::LeftDockWidgetArea, mToolOptions);
     addDockWidget(Qt::LeftDockWidgetArea, mDisplayOptionWidget);
@@ -370,7 +377,8 @@ void MainWindow2::createMenus()
         mTimeLine->toggleViewAction(),
         mDisplayOptionWidget->toggleViewAction(),
         mColorInspector->toggleViewAction(),
-        mXsheet->toggleViewAction()
+        mXsheet->toggleViewAction(),
+        mBitmapColoring->toggleViewAction()
     };
 
     for (QAction* action : actions)
@@ -657,6 +665,23 @@ bool MainWindow2::openObject(QString strFilePath, bool checkForChanges)
     mColorPalette->refreshColorList();
     mEditor->layers()->notifyAnimationLengthChanged();
 
+    // identify color layers
+    for (int i = 1; i < mEditor->layers()->count(); i++)
+    {
+        Layer* color = mEditor->layers()->getLayer(i);
+        if (color->type() == Layer::BITMAP && color->name().endsWith("_C"))
+        {
+            QString tmp = color->name();
+            tmp.chop(2);
+            Layer* org = mEditor->layers()->findLayerByName(tmp);
+            if (org != nullptr)
+            {
+                color->setIsColorLayer(true);
+                org->setHasColorLayer(true);
+            }
+        }
+    }
+
     progress.setValue(progress.maximum());
 
     updateSaveState();
@@ -808,6 +833,7 @@ void MainWindow2::importImage()
                              QMessageBox::Ok);
         return;
     }
+
 
     ui->scribbleArea->updateCurrentFrame();
     mTimeLine->updateContent();
@@ -1374,6 +1400,8 @@ void MainWindow2::makeConnections(Editor* pEditor, TimeLine* pTimeline)
     connect(pEditor, &Editor::updateTimeLine, pTimeline, &TimeLine::updateUI);
 
     connect(pEditor->layers(), &LayerManager::currentLayerChanged, mToolOptions, &ToolOptionWidget::updateUI);
+    connect(pEditor->layers(), &LayerManager::currentLayerChanged, mBitmapColoring, &BitmapColoring::updateUI);
+    connect(mBitmapColoring, &QDockWidget::visibilityChanged, mBitmapColoring, &BitmapColoring::visibilityChanged);
 }
 
 void MainWindow2::makeConnections(Editor*, DisplayOptionWidget*)

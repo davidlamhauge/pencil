@@ -30,6 +30,7 @@ class Editor;
 class ScribbleArea;
 class BaseDockWidget;
 class ColorPaletteWidget;
+class BitmapColoring;
 class DisplayOptionWidget;
 class ToolOptionWidget;
 class TimeLine;
@@ -147,6 +148,7 @@ private:
     TimeLine*             mTimeLine = nullptr; // be public temporary
     ColorInspector*       mColorInspector = nullptr;
     Xsheet*               mXsheet = nullptr;
+    BitmapColoring*       mBitmapColoring = nullptr;
 
     // backup
     BackupElement* mBackupAtSave = nullptr;

@@ -27,8 +27,9 @@ class LayerBitmap : public Layer
     Q_OBJECT
 
 public:
+
     LayerBitmap(Object* object);
-    ~LayerBitmap();
+    ~LayerBitmap() override;
 
     QDomElement createDomElement(QDomDocument& doc) override;
     void loadDomElement(QDomElement element, QString dataDirPath, ProgressCallback progressStep) override;
