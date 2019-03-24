@@ -64,7 +64,8 @@ HEADERS += \
     src/copymultiplekeyframesdialog.h \
     src/bitmapcoloring.h \
     src/checkupdatesdialog.h \
-    src/pegbarregistration.h
+    src/pegbarregistration.h \
+    src/mergelayers.h
 
 SOURCES += \
     src/main.cpp \
@@ -97,7 +98,8 @@ SOURCES += \
     src/copymultiplekeyframesdialog.cpp \
     src/bitmapcoloring.cpp \
     src/checkupdatesdialog.cpp \
-    src/pegbarregistration.cpp
+    src/pegbarregistration.cpp \
+    src/mergelayers.cpp
 
 FORMS += \
     ui/mainwindow2.ui \
@@ -123,7 +125,8 @@ FORMS += \
     ui/xsheet.ui \
     ui/copymultiplekeyframesdialog.ui \
     ui/bitmapcoloringwidget.ui \
-    ui/pegbarregistration.ui
+    ui/pegbarregistration.ui \
+    ui/mergelayers.ui
 
 
 

@@ -214,6 +214,8 @@
     <addaction name="actionNew_Sound_Layer"/>
     <addaction name="actionNew_Camera_Layer"/>
     <addaction name="separator"/>
+    <addaction name="actionMerge_Layer"/>
+    <addaction name="separator"/>
     <addaction name="actionDelete_Current_Layer"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -989,6 +991,11 @@
   <action name="actionPegbarAlignment">
    <property name="text">
     <string>Peg bar Alignment</string>
+   </property>
+  </action>
+  <action name="actionMerge_Layer">
+   <property name="text">
+    <string>Merge Layers</string>
    </property>
   </action>
  </widget>

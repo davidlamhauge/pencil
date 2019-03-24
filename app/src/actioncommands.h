@@ -78,6 +78,7 @@ public:
     Status addNewVectorLayer();
     Status addNewCameraLayer();
     Status addNewSoundLayer();
+    Status mergeLayers();
     Status deleteCurrentLayer();
     QString nameSuggest(QString s);
 
