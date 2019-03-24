@@ -53,13 +53,13 @@ bool PlaybackManager::init()
 
 Status PlaybackManager::load(Object* o)
 {
-    const ObjectData* e = o->data();
+    const ObjectData* data = o->data();
 
-    mIsLooping = e->isLooping();
-    mIsRangedPlayback = e->isRangedPlayback();
-    mMarkInFrame = e->getMarkInFrameNumber();
-    mMarkOutFrame = e->getMarkOutFrameNumber();
-    mFps = e->getFrameRate();
+    mIsLooping = data->isLooping();
+    mIsRangedPlayback = data->isRangedPlayback();
+    mMarkInFrame = data->getMarkInFrameNumber();
+    mMarkOutFrame = data->getMarkOutFrameNumber();
+    mFps = data->getFrameRate();
 
     updateStartFrame();
     updateEndFrame();
@@ -89,7 +89,7 @@ void PlaybackManager::play()
     updateEndFrame();
 
     int frame = editor()->currentFrame();
-    if (frame >= mEndFrame)
+    if (frame >= mEndFrame || frame < mStartFrame)
     {
         editor()->scrubTo(mStartFrame);
     }
@@ -147,6 +147,7 @@ void PlaybackManager::stop()
 void PlaybackManager::playFlipRoll()
 {
     if (isPlaying()) { return; }
+
     int start = editor()->currentFrame();
     int tmp = start;
     mFlipList.clear();
@@ -157,44 +158,54 @@ void PlaybackManager::playFlipRoll()
         int prev = editor()->layers()->currentLayer()->getPreviousKeyFramePosition(tmp);
         if (prev < tmp)
         {
-            mFlipList.prepend(QString::number(prev));
+            mFlipList.prepend(prev);
             tmp = prev;
         }
     }
     if (mFlipList.isEmpty()) { return; }
+
     // run the roll...
     mFlipRollInterval = settings.value(SETTING_FLIP_ROLL_MSEC).toInt();
-    mFlipList.append(QString::number(start));
+    mFlipList.append(start);
     mFlipTimer->setInterval(mFlipRollInterval);
-    editor()->scrubTo(mFlipList[0].toInt());
+
+    editor()->scrubTo(mFlipList[0]);
     mFlipTimer->start();
     emit playStateChanged(true);
 }
 
-void PlaybackManager::playFlipBtwn()
+void PlaybackManager::playFlipInBetween()
 {
     if (isPlaying()) { return; }
+
+    LayerManager* layerMgr = editor()->layers();
     int start = editor()->currentFrame();
-    int prev = editor()->layers()->currentLayer()->getPreviousKeyFramePosition(start);
-    int next = editor()->layers()->currentLayer()->getNextKeyFramePosition(start);
-    if (editor()->layers()->currentLayer()->keyExists(prev) &&
-        editor()->layers()->currentLayer()->keyExists(next))
+
+    int prev = layerMgr->currentLayer()->getPreviousKeyFramePosition(start);
+    int next = layerMgr->currentLayer()->getNextKeyFramePosition(start);
+
+    if (prev < start && next > start &&
+            layerMgr->currentLayer()->keyExists(prev) &&
+            layerMgr->currentLayer()->keyExists(next))
     {
         mFlipList.clear();
-        mFlipList.append(QString::number(prev));
-        mFlipList.append(QString::number(start));
-        mFlipList.append(QString::number(next));
-        mFlipList.append(QString::number(start));
+        mFlipList.append(prev);
+        mFlipList.append(prev);
+        mFlipList.append(start);
+        mFlipList.append(next);
+        mFlipList.append(next);
+        mFlipList.append(start);
     }
     else
     {
         return;
     }
-    // run the flip inbetween...
+    // run the flip in-between...
     QSettings settings(PENCIL2D, PENCIL2D);
     mFlipInbetweenInterval = settings.value(SETTING_FLIP_INBETWEEN_MSEC).toInt();
+
     mFlipTimer->setInterval(mFlipInbetweenInterval);
-    editor()->scrubTo(mFlipList[0].toInt());
+    editor()->scrubTo(mFlipList[0]);
     mFlipTimer->start();
     emit playStateChanged(true);
 }
@@ -308,12 +319,12 @@ void PlaybackManager::playSounds(int frame)
 
 /**
  * @brief PlaybackManager::skipFrame()
- * Small errors will accumulate while playing animation
- * If the error time is larger than a frame interval, skip a frame.
+ * Small errors accumulate while playing animation
+ * If the error is greater than a frame interval, skip a frame
  */
 bool PlaybackManager::skipFrame()
 {
-    // uncomment these debug output to see what happens
+    // uncomment these debug outputs to see what happens
     //float expectedTime = (mPlayingFrameCounter) * (1000.f / mFps);
     //qDebug("Expected:  %.2f ms", expectedTime);
     //qDebug("Actual:    %d   ms", mElapsedTimer->elapsed());
@@ -381,17 +392,16 @@ void PlaybackManager::timerTick()
 
 void PlaybackManager::flipTimerTick()
 {
-    int curr = editor()->currentFrame();
-    int pos = mFlipList.indexOf(QString::number(curr));
-    if (pos == mFlipList.count() - 1)
+    if (mFlipList.count() < 2 || editor()->currentFrame() != mFlipList[0])
     {
         mFlipTimer->stop();
+        editor()->scrubTo(mFlipList.last());
         emit playStateChanged(false);
     }
     else
     {
-        editor()->scrubTo(mFlipList[pos + 1].toInt());
-        mFlipList.removeAt(pos);
+        editor()->scrubTo(mFlipList[1]);
+        mFlipList.removeFirst();
     }
 }
 
