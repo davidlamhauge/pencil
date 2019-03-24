@@ -29,8 +29,6 @@ void PositionTransformDialog::initDialog(Editor *editor)
     mLayerMgr = mEditor->layers();
     mScribb = mEditor->getScribbleArea();
     connect(mScribb, &ScribbleArea::selectionMoved, this, &PositionTransformDialog::updateSelectionValues);
-    ui->labStartX->setText(QString::number(mScribb->getSelection().left()));
-    ui->labStartY->setText(QString::number(mScribb->getSelection().top()));
     ui->labDiffX->setText("0");
     ui->labDiffY->setText("0");
     ui->labNewX->setText(QString::number(mScribb->getSelection().left()));
