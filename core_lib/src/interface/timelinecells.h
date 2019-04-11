@@ -64,6 +64,7 @@ public:
     bool didDetatchLayer();
 
     void showContextMenu(QPoint pos);
+    void duplicateLayer();
     void deleteLayer();
     void mergeLayers();
 

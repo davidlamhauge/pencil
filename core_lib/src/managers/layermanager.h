@@ -51,6 +51,7 @@ public:
 
     Status deleteLayer(int index);
     void mergeLayers(Layer* fromLayer, Layer* toLayer);
+    void duplicateBitmapLayer(Layer* layer);
     Status renameLayer(Layer*, const QString& newName);
     void notifyLayerChanged(Layer*);
 

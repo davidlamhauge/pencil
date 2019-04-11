@@ -291,6 +291,27 @@ void LayerManager::mergeLayers(Layer *fromLayer, Layer *toLayer)
     deleteLayer(getIndex(fromLayer));
 }
 
+void LayerManager::duplicateBitmapLayer(Layer *layer)
+{
+    if (layer == nullptr || layer->type() != Layer::BITMAP) { return; }
+
+    QString newName = layer->name() + tr("_COPY");
+    LayerBitmap* bitmapLayer = createBitmapLayer(newName);
+
+    for (int i = layer->firstKeyFramePosition(); i <= layer->getMaxKeyFramePosition(); i++)
+    {
+        editor()->scrubTo(i);
+        if (layer->keyExists(i))
+        {
+            editor()->layers()->setCurrentLayer(layer);
+            editor()->copy();
+            editor()->layers()->setCurrentLayer(bitmapLayer);
+            bitmapLayer->addNewKeyFrameAt(i);
+            editor()->paste();
+        }
+    }
+}
+
 Status LayerManager::renameLayer(Layer* layer, const QString& newName)
 {
     if (newName.isEmpty()) return Status::FAIL;

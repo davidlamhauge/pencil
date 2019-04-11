@@ -176,6 +176,7 @@ void TimeLineCells::showContextMenu(QPoint pos)
     int index = mEditor->layers()->currentLayerIndex();
 
     QMenu* menu = new QMenu();
+    menu->addAction(tr("Duplicate Layer: %1").arg(mEditor->layers()->currentLayer()->name()), this, &TimeLineCells::duplicateLayer);
     if (mEditor->layers()->currentLayerIndex() > 0 &&
             mEditor->layers()->currentLayer()->type() == Layer::BITMAP &&
             mEditor->layers()->getLayer(index)->type() == mEditor->layers()->getLayer(index-1)->type())
@@ -186,6 +187,12 @@ void TimeLineCells::showContextMenu(QPoint pos)
     menu->addAction(tr("Delete Layer: %1").arg(mEditor->layers()->currentLayer()->name()), this, &TimeLineCells::deleteLayer);
 
     menu->exec(pos);
+}
+
+void TimeLineCells::duplicateLayer()
+{
+    mEditor->layers()->duplicateBitmapLayer(mEditor->layers()->currentLayer());
+    mEditor->backup("Layer duplicated");
 }
 
 void TimeLineCells::deleteLayer()
