@@ -191,6 +191,7 @@ void TimeLineCells::showContextMenu(QPoint pos)
 void TimeLineCells::deleteLayer()
 {
     mEditor->layers()->deleteLayer(mEditor->layers()->currentLayerIndex());
+    mEditor->backup("Layer deleted");
 }
 
 void TimeLineCells::mergeLayers()
@@ -199,6 +200,7 @@ void TimeLineCells::mergeLayers()
     if (mEditor->layers()->getLayer(index)->type() == mEditor->layers()->getLayer(index-1)->type())
     {
         mEditor->layers()->mergeLayers(mEditor->layers()->currentLayer(), mEditor->layers()->getLayer(index-1));
+        mEditor->backup("Layers merged");
     }
 }
 
