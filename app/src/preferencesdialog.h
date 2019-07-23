@@ -40,7 +40,7 @@ class PreferencesDialog : public QDialog
 
 public:
     PreferencesDialog(QWidget* parent);
-    ~PreferencesDialog();
+    ~PreferencesDialog() override;
 
     void init(PreferenceManager* m);
     void updateRecentListBtn(bool isEmpty);
@@ -111,10 +111,15 @@ public slots:
 
     void timelineLengthChanged(int);
     void fontSizeChanged(int);
-    void frameSizeChanged(int);
     void scrubChanged(int);
     void playbackStateChanged(int);
     void drawEmptyKeyRadioButtonToggled(bool);
+    void flipRollMsecSliderChanged(int value);
+    void flipRollMsecSpinboxChanged(int value);
+    void flipRollNumDrawingdSliderChanged(int value);
+    void flipRollNumDrawingdSpinboxChanged(int value);
+    void flipInbetweenMsecSliderChanged(int value);
+    void flipInbetweenMsecSpinboxChanged(int value);
 
 private:
     Ui::TimelinePage* ui = nullptr;
@@ -159,6 +164,8 @@ public slots:
     void onionPrevFramesNumChange(int);
     void onionNextFramesNumChange(int);
     void quickSizingChange(int);
+    void setRotationIncrement(int);
+    void rotationIncrementChange(int);
 private:
     Ui::ToolsPage* ui = nullptr;
     PreferenceManager* mManager = nullptr;

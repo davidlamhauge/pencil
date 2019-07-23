@@ -20,6 +20,7 @@ GNU General Public License for more details.
 
 #include "basetool.h"
 #include "movemode.h"
+#include "preferencemanager.h"
 
 class Layer;
 class VectorImage;
@@ -34,9 +35,9 @@ public:
     void loadSettings() override;
     QCursor cursor() override;
 
-    void mousePressEvent(QMouseEvent*) override;
-    void mouseReleaseEvent(QMouseEvent*) override;
-    void mouseMoveEvent(QMouseEvent*) override;
+    void pointerPressEvent(PointerEvent*) override;
+    void pointerReleaseEvent(PointerEvent*) override;
+    void pointerMoveEvent(PointerEvent*) override;
 
     bool leavingThisTool() override;
     bool switchingLayer() override;
@@ -45,31 +46,29 @@ private:
     void cancelChanges();
     void applyTransformation();
     void applySelectionChanges();
-    void resetSelectionProperties();
     void paintTransformedSelection();
-    void whichAnchorPoint();
     void setAnchorToLastPoint();
     void updateTransformation();
+    void updateSettings(const SETTING setting);
 
     int showTransformWarning();
 
-    void beginInteraction(QMouseEvent* event, Layer* layer);
-    void createVectorSelection(QMouseEvent* event, Layer* layer);
-    void transformSelection(QMouseEvent* event, Layer* layer);
+    void beginInteraction(Qt::KeyboardModifiers keyMod, Layer* layer);
+    void createVectorSelection(Qt::KeyboardModifiers keyMod, Layer* layer);
+    void transformSelection(Qt::KeyboardModifiers keyMod, Layer* layer);
     void storeClosestVectorCurve(Layer* layer);
 
-    void setCurveSelected(VectorImage* vectorImage, QMouseEvent* event);
-    void setAreaSelected(VectorImage* vectorImage, QMouseEvent* event);
+    void setCurveSelected(VectorImage* vectorImage, Qt::KeyboardModifiers keyMod);
+    void setAreaSelected(VectorImage* vectorImage, Qt::KeyboardModifiers keyMod);
 
-    bool transformHasBeenModified();
-    bool shouldDeselect();
+    QPointF offsetFromPressPos();
 
-    QPointF maintainAspectRatio(qreal offsetX, qreal offsetY);
     Layer* currentPaintableLayer();
 
     QPointF anchorOriginPoint;
     Layer* mCurrentLayer = nullptr;
     qreal mRotatedAngle = 0.0;
+    int mRotationIncrement = 0;
 };
 
 #endif

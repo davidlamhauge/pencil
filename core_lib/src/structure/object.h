@@ -114,7 +114,7 @@ public:
     Layer* getLayer(int i) const;
     Layer* findLayerByName(QString strName, Layer::LAYER_TYPE type = Layer::UNDEFINED) const;
 
-    bool moveLayer(int i, int j);
+    bool swapLayers(int i, int j);
     void deleteLayer(int i);
     void deleteLayer(Layer*);
 
@@ -132,7 +132,8 @@ public:
     }
 
     // these functions need to be moved to somewhere...
-    bool exportFrames(int frameStart, int frameEnd, LayerCamera* cameraLayer, QSize exportSize, QString filePath, QString format, bool transparency, bool antialiasing, QProgressDialog* progress, int progressMax);
+    bool exportFrames(int frameStart, int frameEnd, LayerCamera* cameraLayer, QSize exportSize, QString filePath, QString format,
+                      bool transparency, bool exportKeyframesOnly, QString layerName, bool antialiasing, QProgressDialog* progress, int progressMax);
     bool exportX(int frameStart, int frameEnd, QTransform view, QSize exportSize, QString filePath, bool antialiasing);
     bool exportIm(int frameStart, QTransform view, QSize cameraSize, QSize exportSize, QString filePath, QString format, bool antialiasing, bool transparency);
 

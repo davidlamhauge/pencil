@@ -87,7 +87,7 @@ void Xsheet::updateUI()
 void Xsheet::showScrub(int frame)
 {
     mTableItem = new QTableWidgetItem(QString::number(frame));
-    mTableItem->setBackgroundColor(QColor(250, 150, 150));
+    mTableItem->setBackground(QColor(250, 150, 150));
     mTableWidget->setItem(frame, 0, mTableItem);
     mTableWidget->scrollToItem(mTableItem);
     mCurrentFrame = frame;
@@ -96,7 +96,7 @@ void Xsheet::showScrub(int frame)
 void Xsheet::updateScrub(int frame)
 {
     mTableItem = new QTableWidgetItem(QString::number(mCurrentFrame));
-    mTableItem->setBackgroundColor(QColor(250, 240, 160));
+    mTableItem->setBackground(QColor(250, 240, 160));
     mTableWidget->setItem(mCurrentFrame, 0, mTableItem);
     showScrub(frame);
 }
@@ -164,7 +164,7 @@ void Xsheet::addLayerFrame(int row, int column)
         mEditor->layers()->currentLayer()->addNewKeyFrameAt(row);
         int type = getLayerType(mEditor->layers()->findLayerByName(mTableWidget->item(0, column)->text()));
         mTableItem = new QTableWidgetItem(QString::number(row));
-        mTableItem->setBackgroundColor(getLayerColor(type));
+        mTableItem->setBackground(getLayerColor(type));
         mTableWidget->setItem(row, column, mTableItem);
         // TODO tell the system to maybe save...
     }
@@ -191,7 +191,7 @@ void Xsheet::addLayerFrame(int row, int column)
         if (ok && !text.isEmpty())
         {
             mTableItem = new QTableWidgetItem(text.left(len));
-            mTableItem->setBackgroundColor(QColor(245, 155, 155, 150));
+            mTableItem->setBackground(QColor(245, 155, 155, 150));
             mTableWidget->setItem(row, column, mTableItem);
             if (mPapaLines->size() > 0 && row > 0)
             {   // if mPapaLines was NOT EMPTY and you typed a Text
@@ -227,7 +227,7 @@ void Xsheet::fillLayer(int column, Layer *layer)
         if (layer->keyExists(i))
         {
             mTableItem = new QTableWidgetItem(QString::number(i));
-            mTableItem->setBackgroundColor(getLayerColor(layer->type()));
+            mTableItem->setBackground(getLayerColor(layer->type()));
             mTableWidget->setItem(i, column, mTableItem);
         }
     }
@@ -238,7 +238,7 @@ void Xsheet::fillNumberCol()
     for (int i = 1; i <= mTimeLineLength; i++)
     {
         mTableItem = new QTableWidgetItem(QString::number(i));
-        mTableItem->setBackgroundColor(QColor(250, 240, 160));
+        mTableItem->setBackground(QColor(250, 240, 160));
         mTableWidget->setItem(i, 0, mTableItem);
     }
 }
@@ -306,11 +306,11 @@ void Xsheet::erasePapa()
     for (int i = 0; i <= mTimeLineLength; i++)
     {
         mTableItem = new QTableWidgetItem("");
-        mTableItem->setBackgroundColor(Qt::white);
+        mTableItem->setBackground(Qt::white);
         mTableWidget->setItem(i, dial - 1, mTableItem);
     }
     mTableItem = new QTableWidgetItem("DIAL");
-    mTableItem->setBackgroundColor(QColor(244, 167, 167, 150));
+    mTableItem->setBackground(QColor(244, 167, 167, 150));
     mTableWidget->setItem(0, mLayerNames->size() + 1, mTableItem);
     mPapaLines->clear();
 }
@@ -333,12 +333,12 @@ void Xsheet::loadLipsync()
     QString first = in.readLine();
     QStringList lipsync = first.split(" ");
     mTableItem = new QTableWidgetItem(lipsync.at(0));
-    mTableItem->setBackgroundColor(QColor(250, 240, 160));
+    mTableItem->setBackground(QColor(250, 240, 160));
     mTableWidget->setItem(0, mTableWidget->columnCount() - 1, mTableItem);
     if (lipsync.size() > 2)
     {
         mTableItem = new QTableWidgetItem(lipsync.at(2));
-        mTableItem->setBackgroundColor(QColor(250, 240, 160));
+        mTableItem->setBackground(QColor(250, 240, 160));
         QString tmp = lipsync.at(2);
         mTableWidget->setItem(tmp.toInt(), mTableWidget->columnCount() - 1, mTableItem);
     }
@@ -414,7 +414,7 @@ void Xsheet::addFrame()
     if (!mEditor->layers()->findLayerByName(name)->keyExists(frame))
     {
         mTableItem = new QTableWidgetItem(QString::number(mTableWidget->currentRow()));
-        mTableItem->setBackgroundColor(QColor(getLayerColor(getLayerType(mEditor->layers()->currentLayer()))));
+        mTableItem->setBackground(QColor(getLayerColor(getLayerType(mEditor->layers()->currentLayer()))));
         mTableWidget->setItem(mTableWidget->currentRow(), mTableWidget->currentColumn(), mTableItem);
         mEditor->layers()->currentLayer()->addNewKeyFrameAt(mTableWidget->currentRow());
         emit mEditor->layers()->notifyLayerChanged(mEditor->layers()->findLayerByName(name));
@@ -427,7 +427,7 @@ void Xsheet::removeFrame()
     QString tmp = mTableWidget->item(mTableWidget->currentRow(), mTableWidget->currentColumn())->text();
     if (mTableWidget->currentColumn() == 0) { return; }
     mTableItem = new QTableWidgetItem("");
-    mTableItem->setBackgroundColor(QColor(Qt::white));
+    mTableItem->setBackground(QColor(Qt::white));
     mTableWidget->setItem(mTableWidget->currentRow(), mTableWidget->currentColumn(), mTableItem);
     if (mTableWidget->currentColumn() == mTableWidget->columnCount() - 1)
     {   // if it is a lipsync column
@@ -485,7 +485,7 @@ void Xsheet::initXsheet()
         {
             mTableWidget->setRowHeight(j, 16);
             mTableItem = new QTableWidgetItem("");
-            mTableItem->setBackgroundColor(Qt::white);
+            mTableItem->setBackground(Qt::white);
             mTableWidget->setItem(j, i, mTableItem);
         }
     }
@@ -500,18 +500,18 @@ void Xsheet::initXsheet()
     // set headers of Xsheet
     mTableWidget->setRowHeight(0,16);
     mTableItem = new QTableWidgetItem("#");
-    mTableItem->setBackgroundColor(QColor(250, 240, 160));
+    mTableItem->setBackground(QColor(250, 240, 160));
     mTableWidget->setItem(0, 0, mTableItem);
     for (int i = 0; i < mLayerNames->size(); i++)
     {
         int type = getLayerType(mEditor->layers()->findLayerByName(mLayerNames->at(i)));
         mTableItem = new QTableWidgetItem(mLayerNames->at(i));
-        mTableItem->setBackgroundColor(getLayerColor(type));
+        mTableItem->setBackground(getLayerColor(type));
         mTableWidget->setItem(0, i + 1, mTableItem);
     }
 //    if (!mPapaLines->isEmpty()) { return; }
     mTableItem = new QTableWidgetItem("DIAL");
-    mTableItem->setBackgroundColor(QColor(244, 167, 167, 150));
+    mTableItem->setBackground(QColor(244, 167, 167, 150));
     mTableWidget->setItem(0, mLayerNames->size() + 1, mTableItem);
 }
 
@@ -525,7 +525,7 @@ void Xsheet::writePapa()
         for (int i = 0; i < mTimeLineLength; i++)
         {
             mTableItem = new QTableWidgetItem("");
-            mTableItem->setBackgroundColor(Qt::white);
+            mTableItem->setBackground(Qt::white);
             mTableWidget->setItem(i, dial - 1, mTableItem);
         }
 
@@ -535,7 +535,7 @@ void Xsheet::writePapa()
         tmp = mPapaLines->at(0);
         lipsync = tmp.split(" ");
         mTableItem = new QTableWidgetItem(lipsync.at(0));
-        mTableItem->setBackgroundColor(QColor(245, 155, 155, 150));
+        mTableItem->setBackground(QColor(245, 155, 155, 150));
         mTableWidget->setItem(0, dial - 1, mTableItem);
         if (lipsync.size() > 2)
         {
@@ -552,7 +552,7 @@ void Xsheet::writePapa()
                 tmp = lipsync.at(0);    // frame number
                 int row = tmp.toInt();
                 mTableItem = new QTableWidgetItem(lipsync.at(1)); // audio to animate
-                mTableItem->setBackgroundColor(QColor(245, 155, 155, 150));
+                mTableItem->setBackground(QColor(245, 155, 155, 150));
                 mTableWidget->setItem(row, dial - 1, mTableItem);
             }
         }

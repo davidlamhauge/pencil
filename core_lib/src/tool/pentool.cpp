@@ -24,9 +24,11 @@ GNU General Public License for more details.
 #include "strokemanager.h"
 #include "layermanager.h"
 #include "viewmanager.h"
+#include "selectionmanager.h"
 #include "editor.h"
 #include "scribblearea.h"
 #include "blitrect.h"
+#include "pointerevent.h"
 
 
 PenTool::PenTool(QObject* parent) : StrokeTool(parent)
@@ -35,29 +37,29 @@ PenTool::PenTool(QObject* parent) : StrokeTool(parent)
 
 void PenTool::loadSettings()
 {
-    m_enabledProperties[WIDTH] = true;
-    m_enabledProperties[PRESSURE] = true;
-    m_enabledProperties[VECTORMERGE] = true;
-    m_enabledProperties[ANTI_ALIASING] = true;
-    m_enabledProperties[STABILIZATION] = true;
+    mPropertyEnabled[WIDTH] = true;
+    mPropertyEnabled[PRESSURE] = true;
+    mPropertyEnabled[VECTORMERGE] = true;
+    mPropertyEnabled[ANTI_ALIASING] = true;
+    mPropertyEnabled[STABILIZATION] = true;
 
     QSettings settings(PENCIL2D, PENCIL2D);
 
-    properties.width = settings.value("penWidth").toDouble();
-    properties.pressure = settings.value("penPressure").toBool();
+    properties.width = settings.value("penWidth", 12.0).toDouble();
+    properties.pressure = settings.value("penPressure", true).toBool();
     properties.invisibility = OFF;
     properties.preserveAlpha = OFF;
-    properties.useAA = settings.value("penAA").toBool();
-    properties.stabilizerLevel = settings.value("penLineStabilization").toInt();
+    properties.useAA = settings.value("penAA", true).toBool();
+    properties.stabilizerLevel = settings.value("penLineStabilization", StabilizationLevel::STRONG).toInt();
+}
 
-    // First run
-    if (properties.width <= 0)
-    {
-        setWidth(1.5);
-        setPressure(true);
-    }
-
-    mCurrentWidth = properties.width;
+void PenTool::resetToDefault()
+{
+    setWidth(12.0);
+    setUseFeather(false);
+    setPressure(true);
+    setStabilizerLevel(StabilizationLevel::STRONG);
+    setAA(1);
 }
 
 void PenTool::setWidth(const qreal width)
@@ -111,26 +113,9 @@ QCursor PenTool::cursor()
     return Qt::CrossCursor;
 }
 
-void PenTool::adjustPressureSensitiveProperties(qreal pressure, bool mouseDevice)
+void PenTool::pointerPressEvent(PointerEvent *)
 {
-    mCurrentWidth = properties.width;
-
-    if (properties.pressure && !mouseDevice)
-    {
-        mCurrentPressure = pressure;
-    }
-    else
-    {
-        mCurrentPressure = 1.0;
-    }
-}
-
-void PenTool::mousePressEvent(QMouseEvent* event)
-{
-    if (event->button() == Qt::LeftButton)
-    {
-        mScribbleArea->setAllDirty();
-    }
+    mScribbleArea->setAllDirty();
 
     mMouseDownPoint = getCurrentPoint();
     mLastBrushPoint = getCurrentPoint();
@@ -138,67 +123,52 @@ void PenTool::mousePressEvent(QMouseEvent* event)
     startStroke();
 }
 
-void PenTool::mouseReleaseEvent(QMouseEvent* event)
+void PenTool::pointerMoveEvent(PointerEvent* event)
 {
-    if (event->button() == Qt::LeftButton)
+    if (event->buttons() & Qt::LeftButton)
     {
-        mEditor->backup(typeName());
-
-        Layer* layer = mEditor->layers()->currentLayer();
-        if (mScribbleArea->isLayerPaintable())
-        {
-            qreal distance = QLineF(getCurrentPoint(), mMouseDownPoint).length();
-            if (distance < 1)
-            {
-                paintAt(mMouseDownPoint);
-            }
-            else
-            {
-                drawStroke();
-            }
-        }
-
-        if (layer->type() == Layer::BITMAP)
-            paintBitmapStroke();
-        else if (layer->type() == Layer::VECTOR)
-            paintVectorStroke(layer);
+        mCurrentPressure = strokeManager()->getPressure();
+        drawStroke();
+        if (properties.stabilizerLevel != strokeManager()->getStabilizerLevel())
+            strokeManager()->setStabilizerLevel(properties.stabilizerLevel);
     }
-    endStroke();
 }
 
-void PenTool::mouseMoveEvent(QMouseEvent* event)
+void PenTool::pointerReleaseEvent(PointerEvent*)
 {
+    mEditor->backup(typeName());
+
     Layer* layer = mEditor->layers()->currentLayer();
-    if (layer->type() == Layer::BITMAP || layer->type() == Layer::VECTOR)
+
+    qreal distance = QLineF(getCurrentPoint(), mMouseDownPoint).length();
+    if (distance < 1)
     {
-        if (event->buttons() & Qt::LeftButton)
-        {
-            drawStroke();
-            if (properties.stabilizerLevel != m_pStrokeManager->getStabilizerLevel()) {
-                m_pStrokeManager->setStabilizerLevel(properties.stabilizerLevel);
-            }
-            //qDebug() << "DrawStroke" << event->pos() ;
-        }
+        paintAt(mMouseDownPoint);
     }
+    else
+    {
+        drawStroke();
+    }
+
+    if (layer->type() == Layer::BITMAP)
+        paintBitmapStroke();
+    else if (layer->type() == Layer::VECTOR)
+        paintVectorStroke(layer);
+    endStroke();
 }
 
 // draw a single paint dab at the given location
 void PenTool::paintAt(QPointF point)
 {
-    qDebug() << "Made a single dab at " << point;
+    //qDebug() << "Made a single dab at " << point;
+
     Layer* layer = mEditor->layers()->currentLayer();
     if (layer->type() == Layer::BITMAP)
     {
-        mCurrentWidth = properties.width;
-        if (properties.pressure == true)
-        {
-            mCurrentWidth *= mCurrentPressure;
-        }
-        qreal brushWidth = mCurrentWidth;
+        qreal pressure = (properties.pressure) ? mCurrentPressure : 1.0;
+        qreal brushWidth = properties.width * pressure;
+        mCurrentWidth = brushWidth;
 
-        BlitRect rect;
-
-        rect.extend(point.toPoint());
         mScribbleArea->drawPen(point,
                                brushWidth,
                                mEditor->color()->frontColor(),
@@ -206,6 +176,7 @@ void PenTool::paintAt(QPointF point)
 
         int rad = qRound(brushWidth) / 2 + 2;
 
+        BlitRect rect(point.toPoint());
         mScribbleArea->refreshBitmap(rect, rad);
     }
 }
@@ -213,7 +184,7 @@ void PenTool::paintAt(QPointF point)
 void PenTool::drawStroke()
 {
     StrokeTool::drawStroke();
-    QList<QPointF> p = m_pStrokeManager->interpolateStroke();
+    QList<QPointF> p = strokeManager()->interpolateStroke();
 
     Layer* layer = mEditor->layers()->currentLayer();
 
@@ -224,12 +195,9 @@ void PenTool::drawStroke()
             p[i] = mEditor->view()->mapScreenToCanvas(p[i]);
         }
 
-        mCurrentWidth = properties.width;
-        if (properties.pressure == true)
-        {
-            mCurrentWidth = properties.width * mCurrentPressure;
-        }
-        qreal brushWidth = mCurrentWidth;
+        qreal pressure = (properties.pressure) ? mCurrentPressure : 1.0;
+        qreal brushWidth = properties.width * pressure;
+        mCurrentWidth = brushWidth;
 
         // TODO: Make popup widget for less important properties,
         // Eg. stepsize should be a slider.. will have fixed (0.3) value for now.
@@ -266,12 +234,8 @@ void PenTool::drawStroke()
     }
     else if (layer->type() == Layer::VECTOR)
     {
-        qreal brushWidth = 0;
-        brushWidth = properties.width;
-        if (properties.pressure == true)
-        {
-            brushWidth = properties.width * mCurrentPressure;
-        }
+        qreal pressure = (properties.pressure) ? mCurrentPressure : 1.0;
+        qreal brushWidth = properties.width * pressure;
 
         int rad = qRound((brushWidth / 2 + 2) * mEditor->view()->scaling());
 
@@ -300,6 +264,9 @@ void PenTool::paintBitmapStroke()
 
 void PenTool::paintVectorStroke(Layer* layer)
 {
+    if (mStrokePoints.empty())
+        return;
+
     // Clear the temporary pixel path
     mScribbleArea->clearBitmapBuffer();
     qreal tol = mScribbleArea->getCurveSmoothing() / mEditor->view()->scaling();
@@ -316,9 +283,9 @@ void PenTool::paintVectorStroke(Layer* layer)
     VectorImage* vectorImage = pLayerVector->getLastVectorImageAtFrame(mEditor->currentFrame(), 0);
     vectorImage->addCurve(curve, mEditor->view()->scaling(), false);
 
-    if (vectorImage->isAnyCurveSelected() || mScribbleArea->isSomethingSelected())
+    if (vectorImage->isAnyCurveSelected() || mEditor->select()->somethingSelected())
     {
-        mScribbleArea->deselectAll();
+        mEditor->deselectAll();
     }
 
     vectorImage->setSelected(vectorImage->getLastCurveNumber(), true);

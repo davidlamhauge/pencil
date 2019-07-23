@@ -26,7 +26,8 @@ INCLUDEPATH += src \
     src/tool \
     src/util \
     ui \
-    src/managers
+    src/managers \
+    src/external
 
 # Input
 HEADERS +=  \
@@ -48,6 +49,7 @@ HEADERS +=  \
     src/interface/basedockwidget.h \
     src/interface/backgroundwidget.h \
     src/managers/basemanager.h \
+    src/managers/selectionmanager.h \
     src/managers/colormanager.h \
     src/managers/layermanager.h \
     src/managers/toolmanager.h \
@@ -83,6 +85,7 @@ HEADERS +=  \
     src/util/blitrect.h \
     src/util/colordictionary.h \
     src/util/fileformat.h \
+    src/util/mathutils.h \
     src/util/pencildef.h \
     src/util/pencilerror.h \
     src/util/pencilsettings.h \
@@ -94,7 +97,11 @@ HEADERS +=  \
     src/movieexporter.h \
     src/miniz.h \
     src/qminiz.h \
-    src/activeframepool.h
+    src/activeframepool.h \
+    src/external/platformhandler.h \
+    src/external/macosx/macosxnative.h \
+    src/util/pointerevent.h \
+    src/selectionpainter.h
 
 
 SOURCES +=  src/graphics/bitmap/bitmapimage.cpp \
@@ -114,6 +121,7 @@ SOURCES +=  src/graphics/bitmap/bitmapimage.cpp \
     src/interface/basedockwidget.cpp \
     src/interface/backgroundwidget.cpp \
     src/managers/basemanager.cpp \
+    src/managers/selectionmanager.cpp \
     src/managers/colormanager.cpp \
     src/managers/layermanager.cpp \
     src/managers/toolmanager.cpp \
@@ -156,7 +164,9 @@ SOURCES +=  src/graphics/bitmap/bitmapimage.cpp \
     src/movieexporter.cpp \
     src/miniz.cpp \
     src/qminiz.cpp \
-    src/activeframepool.cpp
+    src/activeframepool.cpp \
+    src/util/pointerevent.cpp \
+    src/selectionpainter.cpp
 
 FORMS += \
     ui/camerapropertiesdialog.ui
@@ -170,7 +180,9 @@ win32 {
 
 macx {
     INCLUDEPATH += src/external/macosx
+    LIBS += -framework AppKit
     SOURCES += src/external/macosx/macosx.cpp
+    OBJECTIVE_SOURCES += src/external/macosx/macosxnative.mm
 }
 
 unix:!macx {

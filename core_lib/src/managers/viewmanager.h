@@ -48,6 +48,9 @@ public:
     QRectF mapCanvasToScreen(const QRectF& rect);
     QRectF mapScreenToCanvas(const QRectF& rect);
 
+    QPolygonF mapPolygonToScreen(const QPolygonF& polygon);
+    QPolygonF mapPolygonToCanvas(const QPolygonF& polygon);
+
     QPainterPath mapCanvasToScreen(const QPainterPath& path);
     QPainterPath mapScreenToCanvas(const QPainterPath& path);
 
@@ -62,6 +65,13 @@ public:
     void scale(float scaleValue);
     void scaleUp();
     void scaleDown();
+    void scale400();
+    void scale300();
+    void scale200();
+    void scale100();
+    void scale50();
+    void scale33();
+    void scale25();
 
     void flipHorizontal(bool b);
     void flipVertical(bool b);

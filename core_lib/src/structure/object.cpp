@@ -241,7 +241,7 @@ Layer* Object::findLayerByName(QString strName, Layer::LAYER_TYPE type) const
     return nullptr;
 }
 
-bool Object::moveLayer(int i, int j)
+bool Object::swapLayers(int i, int j)
 {
     if (i < 0 || i >= mLayers.size())
     {
@@ -429,7 +429,7 @@ bool Object::exportPalette(QString filePath)
  * This should load colors the same as GIMP, with the following intentional exceptions:
  * - Whitespace before and after a name does not appear in the name
  * - The last line is processed, even if there is not a trailing newline
- * - Colours without a name will use are automatic naming system rather than "Untitled"
+ * - Colours without a name will use our automatic naming system rather than "Untitled"
  */
 void Object::importPaletteGPL(QFile& file)
 {
@@ -669,6 +669,8 @@ bool Object::exportFrames(int frameStart, int frameEnd,
                           QString filePath,
                           QString format,
                           bool transparency,
+                          bool exportKeyframesOnly,
+                          QString layerName,
                           bool antialiasing,
                           QProgressDialog* progress = nullptr,
                           int progressMax = 50)
@@ -694,6 +696,12 @@ bool Object::exportFrames(int frameStart, int frameEnd,
     {
         format = "TIFF";
         extension = ".tiff";
+    }
+    if (formatStr == "BMP" || formatStr == "bmp")
+    {
+        format = "BMP";
+        extension = ".bmp";
+        transparency = false;
     }
     if (filePath.endsWith(extension, Qt::CaseInsensitive))
     {
@@ -731,8 +739,16 @@ bool Object::exportFrames(int frameStart, int frameEnd,
             frameNumberString.prepend("0");
         }
         QString sFileName = filePath + frameNumberString + extension;
-
-        exportIm(currentFrame, view, camSize, exportSize, sFileName, format, antialiasing, transparency);
+        Layer* layer = findLayerByName(layerName);
+        if (exportKeyframesOnly)
+        {
+            if (layer->keyExists(currentFrame))
+                exportIm(currentFrame, view, camSize, exportSize, sFileName, format, antialiasing, transparency);
+        }
+        else
+        {
+            exportIm(currentFrame, view, camSize, exportSize, sFileName, format, antialiasing, transparency);
+        }
     }
 
     return true;
