@@ -21,6 +21,7 @@ GNU General Public License for more details.
 #include "strokemanager.h"
 #include "layervector.h"
 #include "scribblearea.h"
+#include "backupmanager.h"
 #include "layermanager.h"
 #include "toolmanager.h"
 #include "selectionmanager.h"
@@ -120,6 +121,7 @@ void SelectTool::pointerMoveEvent(PointerEvent* event)
     }
 
     mScribbleArea->updateCurrentFrame();
+
 }
 
 void SelectTool::pointerReleaseEvent(PointerEvent* event)
@@ -149,7 +151,11 @@ void SelectTool::pointerReleaseEvent(PointerEvent* event)
 
     mScribbleArea->updateToolCursor();
     mScribbleArea->updateCurrentFrame();
-//    mScribbleArea->setAllDirty();
+    if (!selectMan->mySelectionRect().isEmpty())
+    {
+        mEditor->backups()->selection();
+    }
+    //mScribbleArea->setAllDirty();
 }
 
 bool SelectTool::maybeDeselect()

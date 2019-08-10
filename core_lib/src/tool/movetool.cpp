@@ -22,16 +22,20 @@ GNU General Public License for more details.
 
 #include "pointerevent.h"
 #include "editor.h"
+
 #include "toolmanager.h"
 #include "viewmanager.h"
 #include "strokemanager.h"
 #include "selectionmanager.h"
+#include "backupmanager.h"
+#include "layermanager.h"
 #include "scribblearea.h"
 #include "layervector.h"
-#include "layermanager.h"
-#include "mathutils.h"
 #include "vectorimage.h"
+#include "mathutils.h"
 
+#include "bitmapimage.h"
+#include "layerbitmap.h"
 
 MoveTool::MoveTool(QObject* parent) : BaseTool(parent)
 {
@@ -129,6 +133,9 @@ void MoveTool::pointerReleaseEvent(PointerEvent*)
 
     mScribbleArea->updateToolCursor();
     mScribbleArea->updateCurrentFrame();
+
+    mScribbleArea->setModified(mEditor->currentLayerIndex(), mEditor->currentFrame());
+    mEditor->backups()->transform();
 }
 
 void MoveTool::updateTransformation()
@@ -186,7 +193,7 @@ void MoveTool::beginInteraction(Qt::KeyboardModifiers keyMod, Layer* layer)
     QRectF selectionRect = selectMan->myTransformedSelectionRect();
     if (!selectionRect.isNull())
     {
-        mEditor->backup(typeName());
+    	mEditor->backups()->saveStates();
     }
 
     if (keyMod != Qt::ShiftModifier)
@@ -195,6 +202,7 @@ void MoveTool::beginInteraction(Qt::KeyboardModifiers keyMod, Layer* layer)
         {
             applyTransformation();
             mEditor->deselectAll();
+            mEditor->backups()->deselect();
         }
     }
 
@@ -287,10 +295,12 @@ void MoveTool::setAnchorToLastPoint()
 
 void MoveTool::cancelChanges()
 {
+    mEditor->backups()->saveStates();
     auto selectMan = mEditor->select();
     mScribbleArea->cancelTransformedSelection();
     selectMan->resetSelectionProperties();
     mEditor->deselectAll();
+    mEditor->backups()->deselect();
 }
 
 void MoveTool::applySelectionChanges()
@@ -322,6 +332,11 @@ bool MoveTool::leavingThisTool()
         default: break;
         }
     }
+
+    if (mEditor->select()->transformHasBeenModified()) {
+        mEditor->backups()->saveStates();
+        mEditor->backups()->transform();
+    }
     return true;
 }
 
@@ -340,10 +355,9 @@ bool MoveTool::switchingLayer()
     {
         if (mCurrentLayer->type() == Layer::BITMAP)
         {
-            applySelectionChanges();
-        }
-        else if (mCurrentLayer->type() == Layer::VECTOR)
-        {
+            applyTransformation();
+
+        } else if (mCurrentLayer->type() == Layer::VECTOR) {
             applyTransformation();
         }
 

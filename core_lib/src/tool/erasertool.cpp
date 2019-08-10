@@ -25,7 +25,11 @@ GNU General Public License for more details.
 #include "scribblearea.h"
 #include "strokemanager.h"
 #include "layermanager.h"
+#include "backupmanager.h"
 #include "viewmanager.h"
+#include "colormanager.h"
+#include "selectionmanager.h"
+
 #include "layervector.h"
 #include "vectorimage.h"
 #include "pointerevent.h"
@@ -136,9 +140,8 @@ void EraserTool::pointerMoveEvent(PointerEvent* event)
 
 void EraserTool::pointerReleaseEvent(PointerEvent*)
 {
-    mEditor->backup(typeName());
-
-    qreal distance = QLineF(getCurrentPoint(), mMouseDownPoint).length();
+    Layer* layer = mEditor->layers()->currentLayer();
+    qreal distance = QLineF( getCurrentPoint(), mMouseDownPoint ).length();
     if (distance < 1)
     {
         paintAt(mMouseDownPoint);
@@ -146,6 +149,18 @@ void EraserTool::pointerReleaseEvent(PointerEvent*)
     else
     {
         drawStroke();
+    }
+
+    mEditor->backups()->saveStates();
+    if ( layer->type() == Layer::BITMAP )
+    {
+        paintBitmapStroke();
+        mEditor->backups()->bitmap(tr("Bitmap: Eraser"));
+    }
+    else if (layer->type() == Layer::VECTOR )
+    {
+        paintVectorStroke();
+        mEditor->backups()->vector(tr("Vector: Eraser"));
     }
     removeVectorPaint();
     endStroke();
@@ -271,6 +286,13 @@ void EraserTool::drawStroke()
     }
 }
 
+void EraserTool::paintBitmapStroke()
+{
+    mScribbleArea->paintBitmapBuffer();
+    mScribbleArea->setAllDirty();
+    mScribbleArea->clearBitmapBuffer();
+}
+
 void EraserTool::removeVectorPaint()
 {
     Layer* layer = mEditor->layers()->currentLayer();
@@ -293,6 +315,40 @@ void EraserTool::removeVectorPaint()
         mScribbleArea->setAllDirty();
     }
 }
+
+void EraserTool::paintVectorStroke()
+{
+    Layer* layer = mEditor->layers()->currentLayer();
+
+    if ( layer->type() == Layer::VECTOR && mStrokePoints.size() > -1 )
+    {
+
+        // Clear the temporary pixel path
+        mScribbleArea->clearBitmapBuffer();
+        qreal tol = mScribbleArea->getCurveSmoothing() / mEditor->view()->scaling();
+
+        BezierCurve curve( mStrokePoints, mStrokePressures, tol );
+                    curve.setWidth( properties.width );
+                    curve.setFeather( properties.feather );
+                    curve.setFilled( false );
+                    curve.setInvisibility( properties.invisibility );
+                    curve.setVariableWidth( properties.pressure );
+                    curve.setColourNumber( mEditor->color()->frontColorNumber() );
+
+        auto pLayerVector = static_cast< LayerVector* >( layer );
+        VectorImage* vectorImage = pLayerVector->getLastVectorImageAtFrame( mEditor->currentFrame(), 0 );
+        vectorImage->addCurve( curve, mEditor->view()->scaling(), false );
+
+        if (vectorImage->isAnyCurveSelected() || mEditor->select()->somethingSelected()) {
+            mEditor->deselectAll();
+        }
+
+        vectorImage->setSelected(vectorImage->getLastCurveNumber(), true);
+
+        mScribbleArea->setModified( mEditor->layers()->currentLayerIndex(), mEditor->currentFrame() );
+        mScribbleArea->setAllDirty();
+     }
+ }
 
 void EraserTool::updateStrokes()
 {

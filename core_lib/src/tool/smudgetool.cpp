@@ -23,6 +23,9 @@ GNU General Public License for more details.
 #include "scribblearea.h"
 
 #include "layermanager.h"
+#include "colormanager.h"
+#include "backupmanager.h"
+#include "strokemanager.h"
 #include "strokemanager.h"
 #include "viewmanager.h"
 #include "selectionmanager.h"
@@ -132,6 +135,7 @@ bool SmudgeTool::keyReleaseEvent(QKeyEvent*)
 void SmudgeTool::pointerPressEvent(PointerEvent* event)
 {
     //qDebug() << "smudgetool: mousePressEvent";
+    mEditor->backups()->saveStates();
 
     Layer* layer = mEditor->layers()->currentLayer();
     auto selectMan = mEditor->select();
@@ -232,13 +236,12 @@ void SmudgeTool::pointerReleaseEvent(PointerEvent* event)
 
     if (event->button() == Qt::LeftButton)
     {
-        mEditor->backup(typeName());
-
         if (layer->type() == Layer::BITMAP)
         {
             drawStroke();
             mScribbleArea->setAllDirty();
             endStroke();
+            mEditor->backups()->bitmap(tr("Bitmap: Smudge"));
         }
         else if (layer->type() == Layer::VECTOR)
         {
@@ -253,6 +256,7 @@ void SmudgeTool::pointerReleaseEvent(PointerEvent* event)
                 vectorImage->curve(curveNumber).smoothCurve();
             }
             mScribbleArea->setModified(mEditor->layers()->currentLayerIndex(), mEditor->currentFrame());
+            mEditor->backups()->vector(tr("Vector: Smudge"));
         }
     }
 }
