@@ -746,6 +746,7 @@ Status ActionCommands::deleteCurrentLayer()
         }
         backups->layerDeleted(keyFrames);
     }
+    qDebug() << "index: " << layerIndex;
     return Status::OK;
 }
 

@@ -22,6 +22,7 @@ GNU General Public License for more details.
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QMenu>
+#include <QDebug>
 
 #include "object.h"
 #include "editor.h"
@@ -31,6 +32,7 @@ GNU General Public License for more details.
 #include "preferencemanager.h"
 #include "backupmanager.h"
 #include "toolmanager.h"
+#include "keyframe.h"
 
 
 TimeLineCells::TimeLineCells(TimeLine* parent, Editor* editor, TIMELINE_CELL_TYPE type) : QWidget(parent)
@@ -177,26 +179,56 @@ void TimeLineCells::showContextMenu(QPoint pos)
     int index = mEditor->layers()->currentLayerIndex();
 
     QMenu* menu = new QMenu();
-    if (mEditor->layers()->currentLayerIndex() > 0 &&
+    if (index > 0 &&
             mEditor->layers()->currentLayer()->type() == Layer::BITMAP &&
             mEditor->layers()->getLayer(index)->type() == mEditor->layers()->getLayer(index-1)->type())
     {
-        menu->addAction(tr("Merge onto Layer: %1").arg(mEditor->layers()->getLayer(index-1)->name()), this, &TimeLineCells::mergeLayers);
+        menu->addAction(tr("Merge onto Layer: %1").arg(mEditor->layers()->getLayer(index-1)->name()), this, &TimeLineCells::mergeLayers, 0);
         menu->addSeparator();
     }
 
     if (mEditor->layers()->currentLayer()->type() == Layer::BITMAP)
     {
-        menu->addAction(tr("Duplicate Layer: %1").arg(mEditor->layers()->currentLayer()->name()), this, &TimeLineCells::duplicateLayer);
+        menu->addAction(tr("Duplicate Layer: %1").arg(mEditor->layers()->currentLayer()->name()), this, &TimeLineCells::duplicateLayer, 0);
     }
-    menu->addAction(tr("Delete Layer: %1").arg(mEditor->layers()->currentLayer()->name()), this, &TimeLineCells::deleteLayer);
+    menu->addAction(tr("Delete Layer: %1").arg(mEditor->layers()->currentLayer()->name()), this, &TimeLineCells::deleteLayer, 0);
 
-    menu->exec(pos);
+    menu->popup(pos);
 }
 
-void TimeLineCells::deleteLayer()
+Status TimeLineCells::deleteLayer()
 {
-    mEditor->layers()->deleteLayer(mEditor->layers()->currentLayerIndex());
+    LayerManager* layerMgr = mEditor->layers();
+    BackupManager* backups = mEditor->backups();
+    Layer* layer = mEditor->layers()->currentLayer();
+    QString layerName = layer->name();
+    int layerIndex = mEditor->currentLayerIndex();
+
+    backups->saveStates();
+    std::map<int, KeyFrame*, std::greater<int>> keyFrames;
+    for(auto map : layer->getKeysInLayer())
+    {
+        keyFrames.insert(std::make_pair(map.first, map.second->clone()));
+    }
+
+    int ret = QMessageBox::warning(this,
+                                   tr("Delete Layer", "Windows title of Delete current layer pop-up."),
+                                   tr("Are you sure you want to delete layer: ") + layerName + " ?",
+                                   QMessageBox::Ok | QMessageBox::Cancel,
+                                   QMessageBox::Ok);
+    if (ret == QMessageBox::Ok)
+    {
+        Status st = layerMgr->deleteLayer(layerIndex);
+        if (st == Status::ERROR_NEED_AT_LEAST_ONE_CAMERA_LAYER)
+        {
+            QMessageBox::information(this, "",
+                                     tr("Please keep at least one camera layer in project", "text when failed to delete camera layer"));
+            return Status::CANCELED;
+        }
+        backups->layerDeleted(keyFrames);
+    }
+    qDebug() << "index: " << layerIndex;
+    return Status::OK;
 }
 
 void TimeLineCells::duplicateLayer()
@@ -208,7 +240,7 @@ void TimeLineCells::duplicateLayer()
 
 void TimeLineCells::mergeLayers()
 {
-    int index = mEditor->layers()->currentLayerIndex();
+    int index = mEditor->currentLayerIndex();
     if (mEditor->layers()->getLayer(index)->type() == mEditor->layers()->getLayer(index-1)->type())
     {
         mEditor->layers()->mergeLayers(mEditor->layers()->currentLayer(), mEditor->layers()->getLayer(index-1));
@@ -738,6 +770,7 @@ void TimeLineCells::mouseReleaseEvent(QMouseEvent* event)
     }
     if (mType == TIMELINE_CELL_TYPE::Layers && layerNumber != mStartLayerNumber && mStartLayerNumber != -1 && layerNumber != -1)
     {
+        qDebug() << "index, mouse release: " << mEditor->currentLayerIndex();
         mToLayer = getInbetweenLayerNumber(event->pos().y());
         if (mToLayer != mFromLayer && mToLayer > -1 && mToLayer < mEditor->layers()->count())
         {

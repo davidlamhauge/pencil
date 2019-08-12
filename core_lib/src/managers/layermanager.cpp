@@ -28,6 +28,7 @@ GNU General Public License for more details.
 #include "backupmanager.h"
 
 
+
 LayerManager::LayerManager(Editor* editor) : BaseManager(editor)
 {
 }
@@ -394,6 +395,7 @@ Status LayerManager::deleteLayer(int index)
             return Status::ERROR_NEED_AT_LEAST_ONE_CAMERA_LAYER;
     }
 
+
     object()->deleteLayer( index );
 
     // current layer is the last layer && we are deleting it
@@ -437,7 +439,9 @@ void LayerManager::mergeLayers(Layer *fromLayer, Layer *toLayer)
 {
     if (fromLayer == nullptr || toLayer == nullptr) { return; }
 
-    editor()->backups()->saveStates();
+    BackupManager* backups = editor()->backups();
+
+    backups->saveStates();
     for (int i = fromLayer->firstKeyFramePosition(); i <= fromLayer->getMaxKeyFramePosition(); i++)
     {
         editor()->scrubTo(i);
@@ -449,11 +453,11 @@ void LayerManager::mergeLayers(Layer *fromLayer, Layer *toLayer)
             if (!toLayer->keyExists(i))
                 toLayer->addNewKeyFrameAt(i);
             editor()->paste();
-            editor()->backups()->keyAdded();
+            backups->keyAdded();
         }
     }
     deleteLayer(getIndex(fromLayer));
-    Q_EMIT layerDeleted(getIndex(fromLayer));
+    backups->layerDeleted(toLayer->getKeysInLayer());
 }
 
 /**

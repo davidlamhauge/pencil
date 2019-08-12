@@ -20,7 +20,7 @@ GNU General Public License for more details.
 
 #include <QWidget>
 #include <QString>
-
+#include "pencilerror.h"
 
 class TimeLine;
 class QPaintEvent;
@@ -64,7 +64,7 @@ public:
     bool didDetatchLayer();
 
     void showContextMenu(QPoint pos);
-    void deleteLayer();
+    Status deleteLayer();
     void duplicateLayer();
     void mergeLayers();
 
