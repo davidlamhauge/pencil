@@ -93,6 +93,11 @@ Layer* LayerManager::findLayerByName(QString sName, Layer::LAYER_TYPE type)
     return object()->findLayerByName(sName, type);
 }
 
+Layer *LayerManager::findLayerById(int id)
+{
+    return object()->findLayerById(id);
+}
+
 int LayerManager::currentLayerIndex()
 {
     return editor()->currentLayerIndex();

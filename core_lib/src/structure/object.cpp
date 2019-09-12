@@ -241,6 +241,18 @@ Layer* Object::findLayerByName(QString strName, Layer::LAYER_TYPE type) const
     return nullptr;
 }
 
+Layer *Object::findLayerById(int id)
+{
+    for (Layer* layer : mLayers)
+    {
+        if (layer->id() == id)
+        {
+            return layer;
+        }
+    }
+    return nullptr;
+}
+
 bool Object::swapLayers(int i, int j)
 {
     if (i < 0 || i >= mLayers.size())

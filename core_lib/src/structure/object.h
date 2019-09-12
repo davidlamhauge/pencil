@@ -113,6 +113,7 @@ public:
     int  getLayerCount() const;
     Layer* getLayer(int i) const;
     Layer* findLayerByName(QString strName, Layer::LAYER_TYPE type = Layer::UNDEFINED) const;
+    Layer* findLayerById(int id);
 
     bool swapLayers(int i, int j);
     void deleteLayer(int i);
