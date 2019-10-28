@@ -47,6 +47,7 @@ public:
         MOVIE = 3, // not supported yet
         SOUND = 4,
         CAMERA = 5,
+        MULTIPLANCAMERA = 6,
     };
 
     explicit Layer(Object*, LAYER_TYPE);
@@ -122,6 +123,9 @@ public:
 
     bool isPaintable() const;
 
+    float getDistance() { return mDistance; }
+    void setDistance(float distance) { mDistance = distance; }
+
 protected:
     void setId(int LayerId) { mId = LayerId; }
     virtual KeyFrame* createKeyFrame(int position, Object*) = 0;
@@ -132,6 +136,7 @@ private:
     int        mId = 0;
     bool       mVisible = true;
     QString    mName;
+    float      mDistance = 10.0f; // distance CAMERA <-> LAYER in meters
 
     std::map<int, KeyFrame*, std::greater<int>> mKeyFrames;
 

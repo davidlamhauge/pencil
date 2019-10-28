@@ -62,6 +62,7 @@ HEADERS +=  \
     src/structure/layer.h \
     src/structure/layerbitmap.h \
     src/structure/layercamera.h \
+    src/structure/layermultiplanecamera.h \
     src/structure/layersound.h \
     src/structure/layervector.h \
     src/structure/soundclip.h \
@@ -133,6 +134,7 @@ SOURCES +=  src/graphics/bitmap/bitmapimage.cpp \
     src/structure/layer.cpp \
     src/structure/layerbitmap.cpp \
     src/structure/layercamera.cpp \
+    src/structure/layermultiplanecamera.cpp \
     src/structure/layersound.cpp \
     src/structure/layervector.cpp \
     src/structure/object.cpp \
