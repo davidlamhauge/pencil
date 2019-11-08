@@ -25,9 +25,9 @@ FrameCommentWidget::~FrameCommentWidget()
 void FrameCommentWidget::initUI()
 {
     connect(this, &FrameCommentWidget::visibilityChanged, this, &FrameCommentWidget::updateConnections);
-    dialogueTextChanged("");
-    actionTextChanged("");
-    notesTextChanged("");
+    dialogueTextChanged();
+    actionTextChanged();
+    notesTextChanged();
     updateConnections();
 }
 
@@ -44,22 +44,37 @@ void FrameCommentWidget::setCore(Editor *editor)
     currentFrameChanged(mEditor->currentFrame());
 }
 
-void FrameCommentWidget::dialogueTextChanged(QString text)
+void FrameCommentWidget::dialogueTextChanged()
 {
+    QString text = ui->pteDialogue->toPlainText();
     int len = text.length();
     ui->labDialogueCount->setText(tr("%1 chars").arg(QString::number(len)));
+    if (len < 251)
+        ui->btnApplyComments->setEnabled(true);
+    else
+        ui->btnApplyComments->setEnabled(false);
 }
 
-void FrameCommentWidget::actionTextChanged(QString text)
+void FrameCommentWidget::actionTextChanged()
 {
+    QString text = ui->pteAction->toPlainText();
     int len = text.length();
     ui->labActionCount->setText(tr("%1 chars").arg(QString::number(len)));
+    if (len < 251)
+        ui->btnApplyComments->setEnabled(true);
+    else
+        ui->btnApplyComments->setEnabled(false);
 }
 
-void FrameCommentWidget::notesTextChanged(QString text)
+void FrameCommentWidget::notesTextChanged()
 {
+    QString text = ui->pteNotes->toPlainText();
     int len = text.length();
     ui->labNotesCount->setText(tr("%1 chars").arg(QString::number(len)));
+    if (len < 251)
+        ui->btnApplyComments->setEnabled(true);
+    else
+        ui->btnApplyComments->setEnabled(false);
 }
 
 void FrameCommentWidget::currentFrameChanged(int frame)
@@ -88,9 +103,9 @@ void FrameCommentWidget::currentLayerChanged(int index)
 
 void FrameCommentWidget::clearFrameCommentsFields()
 {
-    ui->leDialogue->clear();
-    ui->leAction->clear();
-    ui->leNotes->clear();
+    ui->pteDialogue->clear();
+    ui->pteAction->clear();
+    ui->pteNotes->clear();
     if (!mLayer->keyExists(mEditor->currentFrame()))
         ui->labLayerFrame->setText("");
 }
@@ -101,9 +116,9 @@ void FrameCommentWidget::applyFrameComments()
     if (mKeyframe == nullptr)
         mKeyframe = mLayer->getKeyFrameAt(mLayer->getPreviousFrameNumber(mEditor->currentFrame(), true));
     if (mKeyframe == nullptr) { return; }
-    mKeyframe->setDialogueComment(ui->leDialogue->text());
-    mKeyframe->setActionComment(ui->leAction->text());
-    mKeyframe->setSlugComment(ui->leNotes->text());
+    mKeyframe->setDialogueComment(ui->pteDialogue->toPlainText());
+    mKeyframe->setActionComment(ui->pteAction->toPlainText());
+    mKeyframe->setSlugComment(ui->pteNotes->toPlainText());
     ui->labLayerFrame->setText(tr("%1 #%2 :").arg(mLayer->name()).arg(QString::number(mKeyframe->pos())));
     mLayer->setModified(mKeyframe->pos(), true);
 }
@@ -136,17 +151,17 @@ void FrameCommentWidget::fillFrameComments()
     if (mKeyframe == nullptr)
         mKeyframe = mLayer->getKeyFrameAt(mLayer->getPreviousFrameNumber(mEditor->currentFrame(), true));
     if (mKeyframe == nullptr) { return; }
-    ui->leDialogue->setText(mKeyframe->getDialogueComment());
-    ui->leAction->setText(mKeyframe->getActionComment());
-    ui->leNotes->setText(mKeyframe->getSlugComment());
+    ui->pteDialogue->setPlainText(mKeyframe->getDialogueComment());
+    ui->pteAction->setPlainText(mKeyframe->getActionComment());
+    ui->pteNotes->setPlainText(mKeyframe->getSlugComment());
     ui->labLayerFrame->setText(tr("%1 #%2 :").arg(mEditor->layers()->currentLayer()->name()).arg(QString::number(mKeyframe->pos())));
 }
 
 void FrameCommentWidget::connectAll()
 {
-    connect(ui->leDialogue, &QLineEdit::textChanged, this, &FrameCommentWidget::dialogueTextChanged);
-    connect(ui->leAction, &QLineEdit::textChanged, this, &FrameCommentWidget::actionTextChanged);
-    connect(ui->leNotes, &QLineEdit::textChanged, this, &FrameCommentWidget::notesTextChanged);
+    connect(ui->pteDialogue, &QPlainTextEdit::textChanged, this, &FrameCommentWidget::dialogueTextChanged);
+    connect(ui->pteAction, &QPlainTextEdit::textChanged, this, &FrameCommentWidget::actionTextChanged);
+    connect(ui->pteNotes, &QPlainTextEdit::textChanged, this, &FrameCommentWidget::notesTextChanged);
     connect(mEditor, &Editor::currentFrameChanged, this, &FrameCommentWidget::currentFrameChanged);
     connect(mEditor->layers(), &LayerManager::currentLayerChanged, this, &FrameCommentWidget::currentLayerChanged);
     connect(ui->btnClearFields, &QPushButton::clicked, this, &FrameCommentWidget::clearFrameCommentsFields);
@@ -157,9 +172,9 @@ void FrameCommentWidget::connectAll()
 
 void FrameCommentWidget::disconnectAll()
 {
-    disconnect(ui->leDialogue, &QLineEdit::textChanged, this, &FrameCommentWidget::dialogueTextChanged);
-    disconnect(ui->leAction, &QLineEdit::textChanged, this, &FrameCommentWidget::actionTextChanged);
-    disconnect(ui->leNotes, &QLineEdit::textChanged, this, &FrameCommentWidget::notesTextChanged);
+    disconnect(ui->pteDialogue, &QPlainTextEdit::textChanged, this, &FrameCommentWidget::dialogueTextChanged);
+    disconnect(ui->pteAction, &QPlainTextEdit::textChanged, this, &FrameCommentWidget::actionTextChanged);
+    disconnect(ui->pteNotes, &QPlainTextEdit::textChanged, this, &FrameCommentWidget::notesTextChanged);
     disconnect(mEditor, &Editor::currentFrameChanged, this, &FrameCommentWidget::currentFrameChanged);
     disconnect(mEditor->layers(), &LayerManager::currentLayerChanged, this, &FrameCommentWidget::currentLayerChanged);
     disconnect(ui->btnClearFields, &QPushButton::clicked, this, &FrameCommentWidget::clearFrameCommentsFields);

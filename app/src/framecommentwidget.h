@@ -24,9 +24,9 @@ public:
     void setCore(Editor* editor);
 
 public slots:
-    void dialogueTextChanged(QString text);
-    void actionTextChanged(QString text);
-    void notesTextChanged(QString text);
+    void dialogueTextChanged();
+    void actionTextChanged();
+    void notesTextChanged();
     void currentFrameChanged(int frame);
     void currentLayerChanged(int index);
     void clearFrameCommentsFields();
