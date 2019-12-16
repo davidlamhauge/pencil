@@ -65,6 +65,7 @@ GNU General Public License for more details.
 #include "errordialog.h"
 #include "importimageseqdialog.h"
 #include "importlayersdialog.h"
+#include "importpositiondialog.h"
 #include "recentfilemenu.h"
 #include "shortcutfilter.h"
 #include "app_util.h"
@@ -119,6 +120,8 @@ MainWindow2::MainWindow2(QWidget *parent) :
 
     readSettings();
 
+    updateZoomLabel();
+
     connect(mEditor, &Editor::needSave, this, &MainWindow2::autoSave);
     connect(mToolBox, &ToolBoxWidget::clearButtonClicked, mEditor, &Editor::clearCurrentFrame);
     connect(mEditor->view(), &ViewManager::viewChanged, this, &MainWindow2::updateZoomLabel);
@@ -149,6 +152,7 @@ void MainWindow2::createDockWidgets()
     mColorInspector->setObjectName("Color Inspector");
 
     mColorPalette = new ColorPaletteWidget(this);
+    mColorPalette->setCore(mEditor);
     mColorPalette->setObjectName("ColorPalette");
 
     mDisplayOptionWidget = new DisplayOptionWidget(this);
@@ -271,6 +275,8 @@ void MainWindow2::createMenus()
     connect(ui->actionNew_Sound_Layer, &QAction::triggered, mCommands, &ActionCommands::addNewSoundLayer);
     connect(ui->actionNew_Camera_Layer, &QAction::triggered, mCommands, &ActionCommands::addNewCameraLayer);
     connect(ui->actionDelete_Current_Layer, &QAction::triggered, mCommands, &ActionCommands::deleteCurrentLayer);
+    connect(ui->actionChangeLineColorCurrent_keyframe, &QAction::triggered, mCommands, &ActionCommands::changeKeyframeLineColor);
+    connect(ui->actionChangeLineColorAll_keyframes_on_layer, &QAction::triggered, mCommands, &ActionCommands::changeallKeyframeLineColor);
 
     //--- View Menu ---
     connect(ui->actionZoom_In, &QAction::triggered, mCommands, &ActionCommands::ZoomIn);
@@ -442,6 +448,18 @@ void MainWindow2::closePegAlignDialog()
 {
     disconnect(mPegAlign, &PegBarAlignmentDialog::closedialog, this, &MainWindow2::closePegAlignDialog);
     mPegAlign = nullptr;
+}
+
+void MainWindow2::currentLayerChanged()
+{
+    if (mEditor->layers()->currentLayer()->type() == Layer::BITMAP)
+    {
+        ui->menuChange_line_color->setEnabled(true);
+    }
+    else
+    {
+        ui->menuChange_line_color->setEnabled(false);
+    }
 }
 
 void MainWindow2::closeEvent(QCloseEvent* event)
@@ -654,6 +672,7 @@ bool MainWindow2::openObject(QString strFilePath, bool checkForChanges)
 bool MainWindow2::saveObject(QString strSavedFileName)
 {
     QProgressDialog progress(tr("Saving document..."), tr("Abort"), 0, 100, this);
+    hideQuestionMark(progress);
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
 
@@ -788,6 +807,17 @@ void MainWindow2::importImage()
     if (strFilePath.isEmpty()) { return; }
     if (!QFile::exists(strFilePath)) { return; }
 
+    ImportPositionDialog* positionDialog = new ImportPositionDialog(this);
+    OnScopeExit(delete positionDialog)
+
+    positionDialog->setCore(mEditor);
+    positionDialog->exec();
+
+    if (positionDialog->result() != QDialog::Accepted)
+    {
+        return;
+    }
+
     bool ok = mEditor->importImage(strFilePath);
     if (!ok)
     {
@@ -799,6 +829,7 @@ void MainWindow2::importImage()
         return;
     }
 
+
     ui->scribbleArea->updateCurrentFrame();
     mTimeLine->updateContent();
 }
@@ -808,7 +839,7 @@ void MainWindow2::importImageSequence()
     mIsImportingImageSequence = true;
 
     ImportImageSeqDialog* imageSeqDialog = new ImportImageSeqDialog(this);
-    OnScopeExit(delete imageSeqDialog);
+    OnScopeExit(delete imageSeqDialog)
     imageSeqDialog->setCore(mEditor);
 
     connect(imageSeqDialog, &ImportImageSeqDialog::notifyAnimationLengthChanged, mEditor, &Editor::notifyAnimationLengthChanged);
@@ -818,6 +849,17 @@ void MainWindow2::importImageSequence()
     {
         return;
     }
+
+    ImportPositionDialog* positionDialog = new ImportPositionDialog(this);
+    OnScopeExit(delete positionDialog)
+
+    positionDialog->setCore(mEditor);
+    positionDialog->exec();
+    if (positionDialog->result() != QDialog::Accepted)
+    {
+        return;
+    }
+
     imageSeqDialog->importArbitrarySequence();
 
     mIsImportingImageSequence = false;
@@ -826,7 +868,7 @@ void MainWindow2::importImageSequence()
 void MainWindow2::importPredefinedImageSet()
 {
     ImportImageSeqDialog* imageSeqDialog = new ImportImageSeqDialog(this, ImportExportDialog::Import, FileType::IMAGE, ImportCriteria::PredefinedSet);
-    OnScopeExit(delete imageSeqDialog);
+    OnScopeExit(delete imageSeqDialog)
     imageSeqDialog->setCore(mEditor);
 
     connect(imageSeqDialog, &ImportImageSeqDialog::notifyAnimationLengthChanged, mEditor, &Editor::notifyAnimationLengthChanged);
@@ -834,6 +876,16 @@ void MainWindow2::importPredefinedImageSet()
     mIsImportingImageSequence = true;
     imageSeqDialog->exec();
     if (imageSeqDialog->result() == QDialog::Rejected)
+    {
+        return;
+    }
+
+    ImportPositionDialog* positionDialog = new  ImportPositionDialog(this);
+    OnScopeExit(delete positionDialog)
+
+    positionDialog->setCore(mEditor);
+    positionDialog->exec();
+    if (positionDialog->result() != QDialog::Accepted)
     {
         return;
     }
@@ -860,6 +912,16 @@ void MainWindow2::importGIF()
 
     // Flag this so we don't prompt the user about auto-save in the middle of the import.
     mIsImportingImageSequence = true;
+
+    ImportPositionDialog* positionDialog = new  ImportPositionDialog(this);
+    OnScopeExit(delete positionDialog)
+
+    positionDialog->setCore(mEditor);
+    positionDialog->exec();
+    if (positionDialog->result() != QDialog::Accepted)
+    {
+        return;
+    }
 
     int space = gifDialog->getSpace();
 
@@ -895,8 +957,6 @@ void MainWindow2::importGIF()
                              QMessageBox::Ok,
                              QMessageBox::Ok);
     }
-
-    mEditor->layers()->notifyAnimationLengthChanged();
 
     progress.setValue(100);
     progress.close();
@@ -1176,6 +1236,7 @@ void MainWindow2::makeConnections(Editor* editor)
     connect(editor, &Editor::updateBackup, this, &MainWindow2::updateSaveState);
     connect(editor, &Editor::needDisplayInfo, this, &MainWindow2::displayMessageBox);
     connect(editor, &Editor::needDisplayInfoNoTitle, this, &MainWindow2::displayMessageBoxNoTitle);
+    connect(editor->layers(), &LayerManager::currentLayerChanged, this, &MainWindow2::currentLayerChanged);
 }
 
 void MainWindow2::makeConnections(Editor* editor, ColorBox* colorBox)
