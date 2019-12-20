@@ -289,8 +289,8 @@ QDomElement LayerCamera::createDomElement( QDomDocument& doc )
 
 void LayerCamera::loadDomElement(QDomElement element, QString dataDirPath, ProgressCallback progressStep)
 {
-    Q_UNUSED(dataDirPath);
-    Q_UNUSED(progressStep);
+    Q_UNUSED(dataDirPath)
+    Q_UNUSED(progressStep)
 
     setName( element.attribute("name") );
     setVisible( true );

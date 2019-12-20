@@ -64,6 +64,7 @@ Q_SIGNALS:
     void newVectorLayer();
     void newSoundLayer();
     void newCameraLayer();
+    void newMultiPlaneCamera();
 
     void soundClick( bool );
     void fpsChanged( int );

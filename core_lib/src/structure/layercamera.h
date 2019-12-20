@@ -51,7 +51,7 @@ class LayerCamera : public Layer
 
 public:
     LayerCamera(Object* object);
-    ~LayerCamera();
+    ~LayerCamera() override;
 
     void loadImageAtFrame(int frame, qreal dx, qreal dy, qreal rotate, qreal scale);
     

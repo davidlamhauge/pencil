@@ -27,6 +27,7 @@ GNU General Public License for more details.
 #include "layervector.h"
 #include "layersound.h"
 #include "layercamera.h"
+#include "layermultiplanecamera.h"
 
 #include "util.h"
 #include "editor.h"
@@ -146,6 +147,18 @@ LayerCamera* Object::addNewCameraLayer()
     connect(layerCamera, &LayerCamera::resolutionChanged, this, &Object::layerViewChanged);
 
     return layerCamera;
+}
+
+LayerMultiPlaneCamera *Object::addNewMultiPlaneCamera()
+{
+    LayerMultiPlaneCamera* layerMultiPlaneCamera = new LayerMultiPlaneCamera(this);
+    mLayers.append(layerMultiPlaneCamera);
+
+    layerMultiPlaneCamera->addNewKeyFrameAt(1);
+
+    connect(layerMultiPlaneCamera, &LayerMultiPlaneCamera::resolutionChanged, this, &Object::layerViewChanged);
+
+    return layerMultiPlaneCamera;
 }
 
 void Object::createWorkingDir()

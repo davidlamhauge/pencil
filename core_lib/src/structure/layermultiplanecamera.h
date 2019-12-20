@@ -2,6 +2,7 @@
 #define LAYERMULTIPLANECAMERA_H
 
 #include "layer.h"
+#include "layercamera.h"
 
 struct Campoint {
     int frame;
@@ -9,19 +10,17 @@ struct Campoint {
     QPainterPath path;
 };
 
-class LayerMultiPlaneCamera : public Layer
+class LayerMultiPlaneCamera : public LayerCamera
 {
     Q_OBJECT
 
 public:
     LayerMultiPlaneCamera(Object* object);
-
-    void setViewRect(QRect viewrect) { mViewRect = viewrect; }
-    QRect getViewRect() { return mViewRect; }
+    ~LayerMultiPlaneCamera();
 
 private:
     QList<Campoint> mCampointList;
-    QRect mViewRect;
+
 };
 
 #endif // LAYERMULTIPLANECAMERA_H

@@ -49,7 +49,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>26</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -220,6 +220,7 @@
     <addaction name="actionNew_Vector_Layer"/>
     <addaction name="actionNew_Sound_Layer"/>
     <addaction name="actionNew_Camera_Layer"/>
+    <addaction name="actionNew_Multiplane_Camera"/>
     <addaction name="separator"/>
     <addaction name="actionDelete_Current_Layer"/>
     <addaction name="separator"/>
@@ -1004,6 +1005,15 @@
   <action name="actionImportLayers_from_pclx">
    <property name="text">
     <string>Layers from PCLX...</string>
+   </property>
+  </action>
+  <action name="actionNew_Multiplane_Camera">
+   <property name="icon">
+    <iconset resource="../data/app.qrc">
+     <normaloff>:/icons/layer-multiplanecamera.png</normaloff>:/icons/layer-multiplanecamera.png</iconset>
+   </property>
+   <property name="text">
+    <string>New Multiplane Camera</string>
    </property>
   </action>
  </widget>

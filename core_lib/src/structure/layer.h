@@ -47,7 +47,7 @@ public:
         MOVIE = 3, // not supported yet
         SOUND = 4,
         CAMERA = 5,
-        MULTIPLANCAMERA = 6,
+        MULTIPLANECAMERA = 6,
     };
 
     explicit Layer(Object*, LAYER_TYPE);
@@ -55,6 +55,7 @@ public:
 
     int id() const { return mId; }
 
+    void setType(LAYER_TYPE layerType) { meType = layerType; }
     LAYER_TYPE type() const { return meType; }
     Object* object() const { return mObject; }
 
@@ -110,7 +111,7 @@ public:
     bool moveSelectedFrames(int offset);
 
     Status save(const QString& sDataFolder, QStringList& attachedFiles, ProgressCallback progressStep);
-    virtual Status presave(const QString& sDataFolder) { Q_UNUSED(sDataFolder); return Status::SAFE; }
+    virtual Status presave(const QString& sDataFolder) { Q_UNUSED(sDataFolder) return Status::SAFE; }
 
     // graphic representation -- could be put in another class
     void paintTrack(QPainter& painter, TimeLineCells* cells, int x, int y, int width, int height, bool selected, int frameSize);

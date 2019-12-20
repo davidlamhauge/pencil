@@ -24,6 +24,7 @@ GNU General Public License for more details.
 class LayerBitmap;
 class LayerVector;
 class LayerCamera;
+class LayerMultiPlaneCamera;
 class LayerSound;
 
 
@@ -59,6 +60,7 @@ public:
     LayerBitmap* createBitmapLayer(const QString& strLayerName);
     LayerVector* createVectorLayer(const QString& strLayerName);
     LayerCamera* createCameraLayer(const QString& strLayerName);
+    LayerMultiPlaneCamera* createMultiPlaneCamera(const QString& strLayerName);
     LayerSound*  createSoundLayer(const QString& strLayerName);
 
     // KeyFrame Management

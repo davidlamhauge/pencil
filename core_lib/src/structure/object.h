@@ -32,6 +32,7 @@ class QFile;
 class LayerBitmap;
 class LayerVector;
 class LayerCamera;
+class LayerMultiPlaneCamera;
 class LayerSound;
 class ObjectData;
 class ActiveFramePool;
@@ -111,6 +112,7 @@ public:
     LayerVector* addNewVectorLayer();
     LayerSound* addNewSoundLayer();
     LayerCamera* addNewCameraLayer();
+    LayerMultiPlaneCamera* addNewMultiPlaneCamera();
 
     int  getLayerCount() const;
     Layer* getLayer(int i) const;
