@@ -62,6 +62,8 @@
         <file>icons/red.png</file>
         <file>icons/black.png</file>
         <file>icons/select_ok.png</file>
+        <file>icons/manipulate_range.png</file>
+        <file>icons/copy_many.png</file>
     </qresource>
     <qresource prefix="/app">
         <file>icons/onion-blue.png</file>

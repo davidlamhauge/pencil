@@ -103,6 +103,12 @@ public:
 
     void setModified(int position, bool isModified);
     void copyFrame(Layer *fromLayer, Layer *toLayer, int frame);
+
+    void copyFrames(int startLoop, int stopLoop, int loops, int startAt, Layer *fromLayer, Layer* toLayer );
+    void moveFrames(int startLoop, int stopLoop, int startAt, Layer* fromLayer, Layer* toLayer );
+    void reverseFrames(int startLoop, int stopLoop, int startAt, Layer *toLayer );
+    void deleteFrames(int startLoop, int stopLoop, Layer* toLayer);
+
     // Handle selection
     bool isFrameSelected(int position) const;
     void setFrameSelected(int position, bool isSelected);
