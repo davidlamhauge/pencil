@@ -425,9 +425,9 @@ void Layer::paintSelection(QPainter& painter, int x, int y, int width, int heigh
     QLinearGradient linearGrad(QPointF(0, y), QPointF(0, y + height));
     QSettings settings(PENCIL2D, PENCIL2D);
     QString style = settings.value("style").toString();
-    linearGrad.setColorAt(0, QColor(255, 255, 255, 128));
-    linearGrad.setColorAt(0.50, QColor(255, 255, 255, 64));
-    linearGrad.setColorAt(1, QColor(255, 255, 255, 0));
+    linearGrad.setColorAt(0, QColor(0, 255, 0, 128));
+    linearGrad.setColorAt(0.40, QColor(0, 255, 0, 64));
+    linearGrad.setColorAt(1, QColor(0, 255, 0, 0));
     painter.setBrush(linearGrad);
     painter.setPen(Qt::NoPen);
     painter.drawRect(x, y, width, height - 1);
