@@ -64,6 +64,10 @@
         <file>icons/select_ok.png</file>
         <file>icons/manipulate_range.png</file>
         <file>icons/copy_many.png</file>
+        <file>icons/overlayCenter.png</file>
+        <file>icons/overlayGoldenRatio.png</file>
+        <file>icons/overlaySafe.png</file>
+        <file>icons/overlayThirds.png</file>
     </qresource>
     <qresource prefix="/app">
         <file>icons/onion-blue.png</file>
