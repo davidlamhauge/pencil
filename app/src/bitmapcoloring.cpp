@@ -234,13 +234,13 @@ void BitmapColoring::traceLines()
         mProgress->setMaximum(keysToTrace);
         mProgress->setValue(0);
         int keysTraced = 0;
+        QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 
         for (int i = mLayerBitmap->firstKeyFramePosition(); i <= mLayerBitmap->getMaxKeyFramePosition(); i++)
         {
             if (mLayerBitmap->keyExists(i))
             {
                 mProgress->setValue(keysTraced++);
-                QApplication::processEvents();
                 mEditor->scrubTo(i);
                 trace();
                 if (mProgress->wasCanceled())
@@ -295,13 +295,12 @@ void BitmapColoring::thinLines()
         mProgress->setMaximum(mLayerBitmap->keyFrameCount());
         mProgress->setValue(0);
         int keysThinned = 0;
-
+        QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         for (int i = mLayerBitmap->firstKeyFramePosition(); i <= mLayerBitmap->getMaxKeyFramePosition(); i++)
         {
             if (mLayerBitmap->keyExists(i))
             {
                 mProgress->setValue(keysThinned++);
-                QApplication::processEvents();
                 mEditor->scrubTo(i);
                 thin();
             }
@@ -350,6 +349,7 @@ void BitmapColoring::blendLines()
         int keysToBlend = mLayerBitmap->keyFrameCount();
         progress.setMaximum(keysToBlend);
         int keysBlended = 0;
+        QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 
         for (int i = mLayerBitmap->firstKeyFramePosition(); i <= mLayerBitmap->getMaxKeyFramePosition(); i++)
         {
@@ -358,7 +358,6 @@ void BitmapColoring::blendLines()
                 mEditor->scrubTo(i);
                 blend(artLayer);
                 progress.setValue(keysBlended++);
-                QApplication::processEvents();
                 if (progress.wasCanceled())
                 {
                     break;
