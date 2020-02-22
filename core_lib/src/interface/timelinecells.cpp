@@ -84,6 +84,26 @@ void TimeLineCells::loadSetting(SETTING setting)
     updateContent();
 }
 
+void TimeLineCells::highlightWhite()
+{
+    selectLayerHighlightColor(0);
+}
+
+void TimeLineCells::highlightRed()
+{
+    selectLayerHighlightColor(1);
+}
+
+void TimeLineCells::highlightGreen()
+{
+    selectLayerHighlightColor(2);
+}
+
+void TimeLineCells::highlightBlue()
+{
+    selectLayerHighlightColor(3);
+}
+
 int TimeLineCells::getFrameNumber(int x)
 {
     int frameNumber = mFrameOffset + 1 + (x - mOffsetX) / mFrameSize;
@@ -200,6 +220,14 @@ void TimeLineCells::showContextMenu(QPoint pos)
         menu->addAction(tr("Duplicate Layer: %1").arg(mEditor->layers()->currentLayer()->name()), this, &TimeLineCells::duplicateLayer);
     }
     menu->addAction(tr("Delete Layer: %1").arg(mEditor->layers()->currentLayer()->name()), this, &TimeLineCells::deleteLayer);
+
+    menu->addSeparator();
+
+    QMenu* subMenu = menu->addMenu(tr("Layer highlight color"));
+    subMenu->addAction(QIcon(":icons/white.png"), tr("White (default)"), this, &TimeLineCells::highlightWhite, 0);
+    subMenu->addAction(QIcon(":icons/red.png"), tr("Red"), this, &TimeLineCells::highlightRed, 0);
+    subMenu->addAction(QIcon(":icons/green.png"), tr("Green"), this, &TimeLineCells::highlightGreen, 0);
+    subMenu->addAction(QIcon(":icons/blue.png"), tr("Blue"), this, &TimeLineCells::highlightBlue, 0);
 
     menu->exec(pos);
 }
@@ -875,6 +903,13 @@ void TimeLineCells::setMouseMoveY(int x)
     {
         update();
     }
+}
+
+void TimeLineCells::selectLayerHighlightColor(int color)
+{
+    QSettings settings(PENCIL2D, PENCIL2D);
+    settings.setValue("TimelineHighlight", color);
+    mTimeLine->updateContent();
 }
 
 void TimeLineCells::trackScrubber()
