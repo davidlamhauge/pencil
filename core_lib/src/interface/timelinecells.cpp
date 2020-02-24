@@ -85,22 +85,26 @@ void TimeLineCells::loadSetting(SETTING setting)
 
 void TimeLineCells::highlightWhite()
 {
-    selectLayerHighlightColor(0);
+    selectLayerHighlightColor(Qt::white);
 }
 
 void TimeLineCells::highlightRed()
 {
-    selectLayerHighlightColor(1);
+    selectLayerHighlightColor(Qt::red);
 }
 
 void TimeLineCells::highlightGreen()
 {
-    selectLayerHighlightColor(2);
+    selectLayerHighlightColor(Qt::green);
 }
 
 void TimeLineCells::highlightBlue()
 {
-    selectLayerHighlightColor(3);
+    selectLayerHighlightColor(Qt::blue);
+}
+
+void TimeLineCells::highlightInspector()
+{
 }
 
 int TimeLineCells::getFrameNumber(int x)
@@ -812,7 +816,7 @@ void TimeLineCells::setMouseMoveY(int x)
     }
 }
 
-void TimeLineCells::selectLayerHighlightColor(int color)
+void TimeLineCells::selectLayerHighlightColor(QColor color)
 {
     QSettings settings(PENCIL2D, PENCIL2D);
     settings.setValue("TimelineHighlight", color);

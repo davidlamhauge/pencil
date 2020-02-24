@@ -75,7 +75,7 @@ public slots:
     void hScrollChange(int);
     void vScrollChange(int);
     void setMouseMoveY(int x);
-    void selectLayerHighlightColor(int color);
+    void selectLayerHighlightColor(QColor color);
 
 protected:
     void trackScrubber();
@@ -94,6 +94,7 @@ private slots:
     void highlightRed();
     void highlightGreen();
     void highlightBlue();
+    void highlightInspector();
 
 private:
     TimeLine* mTimeLine;
