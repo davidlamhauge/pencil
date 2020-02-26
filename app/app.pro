@@ -41,6 +41,7 @@ HEADERS += \
     src/importlayersdialog.h \
     src/importpositiondialog.h \
     src/mainwindow2.h \
+    src/onionskinwidget.h \
     src/predefinedsetmodel.h \
     src/pegbaralignmentdialog.h \
     src/shortcutfilter.h \
@@ -78,6 +79,7 @@ SOURCES += \
     src/importpositiondialog.cpp \
     src/main.cpp \
     src/mainwindow2.cpp \
+    src/onionskinwidget.cpp \
     src/predefinedsetmodel.cpp \
     src/pegbaralignmentdialog.cpp \
     src/shortcutfilter.cpp \
@@ -114,6 +116,7 @@ FORMS += \
     ui/importlayersdialog.ui \
     ui/importpositiondialog.ui \
     ui/mainwindow2.ui \
+    ui/onionskin.ui \
     ui/pegbaralignmentdialog.ui \
     ui/timeline2.ui \
     ui/shortcutspage.ui \
