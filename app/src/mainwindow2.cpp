@@ -121,10 +121,12 @@ MainWindow2::MainWindow2(QWidget *parent) :
     readSettings();
 
     updateZoomLabel();
+    updateMoveKeyframesLabel();
 
     connect(mEditor, &Editor::needSave, this, &MainWindow2::autoSave);
     connect(mToolBox, &ToolBoxWidget::clearButtonClicked, mEditor, &Editor::clearCurrentFrame);
     connect(mEditor->view(), &ViewManager::viewChanged, this, &MainWindow2::updateZoomLabel);
+    connect(mEditor->select(), &SelectionManager::selectionChanged, this, &MainWindow2::updateMoveKeyframesLabel);
 
     mEditor->tools()->setDefaultTool();
     ui->background->init(mEditor->preference());
@@ -1339,6 +1341,11 @@ void MainWindow2::updateZoomLabel()
 {
     float zoom = mEditor->view()->scaling() * 100.f;
     statusBar()->showMessage(QString("Zoom: %0%1").arg(static_cast<double>(zoom), 0, 'f', 1).arg("%"));
+}
+
+void MainWindow2::updateMoveKeyframesLabel()
+{
+    ui->menuMove_keyframes->setEnabled(mEditor->select()->somethingSelected());
 }
 
 void MainWindow2::changePlayState(bool isPlaying)

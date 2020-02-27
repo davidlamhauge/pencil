@@ -119,6 +119,7 @@ private:
     void setupKeyboardShortcuts();
     void clearKeyboardShortcuts();
     void updateZoomLabel();
+    void updateMoveKeyframesLabel();
 
     void importPalette();
     void exportPalette();

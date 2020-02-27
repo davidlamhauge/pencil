@@ -49,7 +49,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -102,8 +102,20 @@
      <property name="title">
       <string>Selection</string>
      </property>
+     <widget class="QMenu" name="menuMove_keyframes">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="title">
+       <string>Move keyframes</string>
+      </property>
+      <addaction name="actionSelected_keyframes"/>
+      <addaction name="actionAll_keyframes"/>
+     </widget>
      <addaction name="actionFlip_X"/>
      <addaction name="actionFlip_Y"/>
+     <addaction name="separator"/>
+     <addaction name="menuMove_keyframes"/>
     </widget>
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
@@ -1004,6 +1016,21 @@
   <action name="actionImportLayers_from_pclx">
    <property name="text">
     <string>Layers from PCLX...</string>
+   </property>
+  </action>
+  <action name="actionMove_all_keyframes_on_layer">
+   <property name="text">
+    <string>Move all keyframes on layer</string>
+   </property>
+  </action>
+  <action name="actionSelected_keyframes">
+   <property name="text">
+    <string>Selected keyframes</string>
+   </property>
+  </action>
+  <action name="actionAll_keyframes">
+   <property name="text">
+    <string>All keyframes</string>
    </property>
   </action>
  </widget>
