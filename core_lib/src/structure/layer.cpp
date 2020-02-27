@@ -644,6 +644,19 @@ bool Layer::moveSelectedFrames(int offset)
     return false;
 }
 
+void Layer::transformSelectedFrames(QPoint point)
+{
+    Q_UNUSED(point)
+    qDebug("%d",mSelectedFrames_byLast.size());
+
+    if (mSelectedFrames_byPosition.size() < 1) { return; }
+
+    for (int i = 0; i < mSelectedFrames_byPosition.size(); i++)
+    {
+        KeyFrame* frame = getKeyFrameAt(i);
+    }
+}
+
 bool Layer::isPaintable() const
 {
     return (type() == BITMAP || type() == VECTOR);

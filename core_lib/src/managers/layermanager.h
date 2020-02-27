@@ -65,6 +65,7 @@ public:
     int LastFrameAtFrame(int frameIndex);
     int firstKeyFrameIndex();
     int lastKeyFrameIndex();
+    void moveKeyframes();
 
     int animationLength(bool includeSounds = true);
     void notifyAnimationLengthChanged();

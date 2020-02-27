@@ -295,6 +295,7 @@ void MainWindow2::createMenus()
     connect(ui->actionZoom25, &QAction::triggered, mEditor->view(), &ViewManager::scale25);
     connect(ui->actionHorizontal_Flip, &QAction::triggered, mCommands, &ActionCommands::toggleMirror);
     connect(ui->actionVertical_Flip, &QAction::triggered, mCommands, &ActionCommands::toggleMirrorV);
+    connect(ui->actionSelected_keyframes, &QAction::triggered, mEditor->layers(), &LayerManager::moveKeyframes);
 
     //# connect(previewAct, SIGNAL(triggered()), editor, SLOT(getCameraLayer()));//TODO: Preview view
 

@@ -270,6 +270,12 @@ int LayerManager::lastKeyFrameIndex()
     return maxPosition;
 }
 
+void LayerManager::moveKeyframes()
+{
+    Layer* layer = currentLayer();
+    layer->transformSelectedFrames(QPoint(10,10));
+}
+
 int LayerManager::count()
 {
     return object()->getLayerCount();
