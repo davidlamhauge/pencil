@@ -550,7 +550,14 @@ void CanvasPainter::paintOverlayCenter(QPainter &painter)
     Layer* layer = mObject->getLayer(mCurrentLayerIndex);
     bool isCameraMode = (layer->type() == Layer::CAMERA);
 
-    QPen pen(Qt::black);
+    painter.save();
+    painter.setCompositionMode(QPainter::RasterOp_NotSourceAndNotDestination);
+
+    QPen pen(Qt::DashLine);
+    qreal space = 10;
+    QVector<qreal> dashes;
+    dashes << 10 << space << 10 << space << 10 << space;
+    pen.setDashPattern(dashes);
     pen.setCosmetic(true);
     painter.setPen(pen);
     painter.setWorldMatrixEnabled(!isCameraMode);
@@ -562,16 +569,23 @@ void CanvasPainter::paintOverlayCenter(QPainter &painter)
     painter.drawLine(rect.x() + rect.width()/2, rect.y() + rect.height()/4, rect.x() + rect.width()/2, rect.y() + rect.height()*3/4);
 
     painter.setRenderHints(previous_renderhints);
+    painter.restore();
 }
 
 void CanvasPainter::paintOverlayThirds(QPainter &painter)
 {
     QRect rect = getCameraRect();
+    painter.save();
+    painter.setCompositionMode(QPainter::RasterOp_NotSourceAndNotDestination);
 
     Layer* layer = mObject->getLayer(mCurrentLayerIndex);
     bool isCameraMode = (layer->type() == Layer::CAMERA);
 
-    QPen pen(Qt::black);
+    QPen pen(Qt::DashLine);
+    qreal space = 10;
+    QVector<qreal> dashes;
+    dashes << 10 << space << 10 << space << 10 << space;
+    pen.setDashPattern(dashes);
     pen.setCosmetic(true);
     painter.setPen(pen);
     painter.setWorldMatrixEnabled(!isCameraMode);
@@ -585,16 +599,23 @@ void CanvasPainter::paintOverlayThirds(QPainter &painter)
     painter.drawLine(rect.x() + rect.width() *2/3, rect.y(), rect.x() + rect.width() *2/3, rect.y() + rect.height());
 
     painter.setRenderHints(previous_renderhints);
+    painter.restore();
 }
 
 void CanvasPainter::paintOverlayGolden(QPainter &painter)
 {
     QRect rect = getCameraRect();
+    painter.save();
+    painter.setCompositionMode(QPainter::RasterOp_NotSourceAndNotDestination);
 
     Layer* layer = mObject->getLayer(mCurrentLayerIndex);
     bool isCameraMode = (layer->type() == Layer::CAMERA);
 
-    QPen pen(Qt::black);
+    QPen pen(Qt::DashLine);
+    qreal space = 10;
+    QVector<qreal> dashes;
+    dashes << 10 << space << 10 << space << 10 << space;
+    pen.setDashPattern(dashes);
     pen.setCosmetic(true);
     painter.setPen(pen);
     painter.setWorldMatrixEnabled(!isCameraMode);
@@ -608,6 +629,7 @@ void CanvasPainter::paintOverlayGolden(QPainter &painter)
     painter.drawLine(static_cast<int>(rect.x() + rect.width() * 0.62), rect.y(), static_cast<int>(rect.x() + rect.width() * 0.62), rect.bottom());
 
     painter.setRenderHints(previous_renderhints);
+    painter.restore();
 }
 
 void CanvasPainter::paintOverlaySafeAreas(QPainter &painter)
@@ -617,30 +639,43 @@ void CanvasPainter::paintOverlaySafeAreas(QPainter &painter)
     Layer* layer = mObject->getLayer(mCurrentLayerIndex);
     bool isCameraMode = (layer->type() == Layer::CAMERA);
 
-    QPen pen(Qt::black);
+    painter.save();
+    painter.setCompositionMode(QPainter::RasterOp_NotSourceAndNotDestination);
+    QPen pen(Qt::DashLine);
+    qreal space = 10;
+    QVector<qreal> dashes;
+    dashes << 10 << space << 10 << space << 10 << space;
+    pen.setDashPattern(dashes);
     pen.setCosmetic(true);
     painter.setPen(pen);
     painter.setWorldMatrixEnabled(!isCameraMode);
     painter.setBrush(Qt::NoBrush);
     QPainter::RenderHints previous_renderhints = painter.renderHints();
-    painter.setRenderHint(QPainter::Antialiasing, false);
+    painter.setRenderHint(QPainter::TextAntialiasing, true);
 
     if (mOptions.bActionSafe)
     {
         int action = mOptions.nActionSafe;
         QRect safeAction = QRect(rect.x() + rect.width()*action/200, rect.y() + rect.height()*action/200, rect.width()*(100-action)/100, rect.height()*(100-action)/100);
         painter.drawRect(safeAction);
-        painter.drawText(safeAction.x(), safeAction.y(), tr("Safe Action area %1 %").arg(action));
+
+        if (mOptions.bShowSafeAreaHelperText) {
+            painter.drawText(safeAction.x(), safeAction.y()-1, tr("Safe Action area %1 %").arg(action));
+        }
     }
     if (mOptions.bTitleSafe)
     {
         int title = mOptions.nTitleSafe;
         QRect safeTitle = QRect(rect.x() + rect.width()*title/200, rect.y() + rect.height()*title/200, rect.width()*(100-title)/100, rect.height()*(100-title)/100);
         painter.drawRect(safeTitle);
-        painter.drawText(safeTitle.x(), safeTitle.y(), tr("Safe Title area %1 %").arg(title));
+
+        if (mOptions.bShowSafeAreaHelperText) {
+            painter.drawText(safeTitle.x(), safeTitle.y()-1, tr("Safe Title area %1 %").arg(title));
+        }
     }
 
     painter.setRenderHints(previous_renderhints);
+    painter.restore();
 }
 
 void CanvasPainter::renderGrid(QPainter& painter)
