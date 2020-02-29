@@ -1305,6 +1305,7 @@ void MainWindow2::importPalette()
     {
         mEditor->object()->importPalette(filePath);
         mColorPalette->refreshColorList();
+        mColorPalette->adjustSwatches();
         mEditor->color()->setColorNumber(0);
     }
 }
