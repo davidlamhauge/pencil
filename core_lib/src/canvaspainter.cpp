@@ -131,7 +131,7 @@ void CanvasPainter::renderPreLayers(QPixmap *pixmap)
 
 void CanvasPainter::renderPreLayers(QPainter& painter)
 {
-    if (mOptions.nShowAllLayers > 0)
+    if (mOptions.eLayerVisibility != LayerVisibility::CURRENTONLY || mObject->getLayer(mCurrentLayerIndex)->type() == Layer::CAMERA)
     {
         paintCurrentFrame(painter, 0, mCurrentLayerIndex-1);
     }
@@ -161,7 +161,7 @@ void CanvasPainter::renderPostLayers(QPixmap *pixmap)
 
 void CanvasPainter::renderPostLayers(QPainter& painter)
 {
-    if (mOptions.nShowAllLayers > 0)
+    if (mOptions.eLayerVisibility != LayerVisibility::CURRENTONLY || mObject->getLayer(mCurrentLayerIndex)->type() == Layer::CAMERA)
     {
         paintCurrentFrame(painter, mCurrentLayerIndex+1, mObject->getLayerCount()-1);
     }
@@ -476,8 +476,10 @@ void CanvasPainter::paintTransformedSelection(QPainter& painter)
  */
 void CanvasPainter::paintCurrentFrame(QPainter& painter, int startLayer, int endLayer)
 {
-    //bool isCamera = mObject->getLayer(mCurrentLayerIndex)->type() == Layer::CAMERA;
     painter.setOpacity(1.0);
+
+
+    bool isCameraLayer = mObject->getLayer(mCurrentLayerIndex)->type() == Layer::CAMERA;
 
     for (int i = startLayer; i <= endLayer; ++i)
     {
@@ -486,6 +488,10 @@ void CanvasPainter::paintCurrentFrame(QPainter& painter, int startLayer, int end
         if (layer->visible() == false)
             continue;
 
+        if (mOptions.eLayerVisibility == LayerVisibility::RELATED && !isCameraLayer) {
+            painter.setOpacity(calculateRelativeOpacityForLayer(i));
+        }
+
         switch (layer->type())
         {
         case Layer::BITMAP: { paintBitmapFrame(painter, layer, mFrameNumber, false, true, i == mCurrentLayerIndex); break; }
@@ -493,6 +499,17 @@ void CanvasPainter::paintCurrentFrame(QPainter& painter, int startLayer, int end
         default: break;
         }
     }
+}
+
+qreal CanvasPainter::calculateRelativeOpacityForLayer(int layerIndex) const
+{
+    int layerOffset = mCurrentLayerIndex - layerIndex;
+    int absoluteOffset = qAbs(layerOffset);
+    qreal newOpacity = 1.0;
+    if (absoluteOffset != 0) {
+        newOpacity = qPow(static_cast<qreal>(mOptions.fLayerVisibilityThreshold), absoluteOffset);
+    }
+    return newOpacity;
 }
 
 void CanvasPainter::paintAxis(QPainter& painter)
@@ -562,13 +579,12 @@ void CanvasPainter::paintOverlayCenter(QPainter &painter)
     painter.setPen(pen);
     painter.setWorldMatrixEnabled(!isCameraMode);
     painter.setBrush(Qt::NoBrush);
-    QPainter::RenderHints previous_renderhints = painter.renderHints();
     painter.setRenderHint(QPainter::Antialiasing, false);
 
-    painter.drawLine(rect.x() + rect.width()/4, rect.y() + rect.height()/2, rect.x() + rect.width()*3/4, rect.y() + rect.height()/2);
-    painter.drawLine(rect.x() + rect.width()/2, rect.y() + rect.height()/4, rect.x() + rect.width()/2, rect.y() + rect.height()*3/4);
+    int offset = OVERLAY_SAFE_CENTER_CROSS_SIZE;
+    painter.drawLine(rect.center().x()-offset, rect.center().y(), rect.center().x()+offset, rect.center().y());
+    painter.drawLine(rect.center().x(), rect.center().y()-offset, rect.center().x(), rect.center().y()+offset);
 
-    painter.setRenderHints(previous_renderhints);
     painter.restore();
 }
 

@@ -82,6 +82,8 @@ public:
     void changeKeyframeLineColor();
     void changeallKeyframeLineColor();
 
+    void setLayerVisibilityIndex(int index);
+
     // Help
     void help();
     void quickGuide();

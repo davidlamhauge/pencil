@@ -89,6 +89,7 @@ void PreferenceManager::loadPrefs()
     set(SETTING::FIELD_H,                  settings.value(SETTING_FIELD_H,                600).toInt());
 
     // Files
+    set(SETTING::AUTO_SAVE,                settings.value(SETTING_AUTO_SAVE,              false).toBool());
     set(SETTING::AUTO_SAVE_NUMBER,         settings.value(SETTING_AUTO_SAVE_NUMBER,       256).toInt());
     set(SETTING::ASK_FOR_PRESET,           settings.value(SETTING_ASK_FOR_PRESET,         false).toBool());
     set(SETTING::DEFAULT_PRESET,           settings.value(SETTING_DEFAULT_PRESET,         0).toInt());
@@ -117,6 +118,8 @@ void PreferenceManager::loadPrefs()
     set(SETTING::ONION_NEXT_FRAMES_NUM,    settings.value(SETTING_ONION_NEXT_FRAMES_NUM,  5).toInt());
     set(SETTING::ONION_WHILE_PLAYBACK,     settings.value(SETTING_ONION_WHILE_PLAYBACK,   0).toInt());
     set(SETTING::ONION_TYPE,               settings.value(SETTING_ONION_TYPE,             "relative").toString());
+    set(SETTING::LAYER_VISIBILITY,         settings.value(SETTING_LAYER_VISIBILITY,       2).toInt());
+    set(SETTING::LAYER_VISIBILITY_THRESHOLD, settings.value(SETTING_LAYER_VISIBILITY_THRESHOLD, 0.5f).toFloat());
 
     set(SETTING::FLIP_ROLL_MSEC,           settings.value(SETTING_FLIP_ROLL_MSEC,         100).toInt());
     set(SETTING::FLIP_ROLL_DRAWINGS,       settings.value(SETTING_FLIP_ROLL_DRAWINGS,     5).toInt());
@@ -145,6 +148,12 @@ int PreferenceManager::getInt(SETTING option)
 {
     int optionId = static_cast<int>(option);
     return mIntegerSet.value(optionId, -1);
+}
+
+float PreferenceManager::getFloat(SETTING option)
+{
+    int optionId = static_cast<int>(option);
+    return mFloatingPointSet.value(optionId, -1);
 }
 
 QString PreferenceManager::getString(SETTING option)
@@ -190,6 +199,29 @@ void PreferenceManager::set(SETTING option, QString value)
     if (mStringSet[optionId] != value)
     {
         mStringSet[optionId] = value;
+        emit optionChanged(option);
+    }
+}
+
+void PreferenceManager::set(SETTING option, float value)
+{
+    QSettings settings(PENCIL2D, PENCIL2D);
+    switch(option)
+    {
+    case SETTING::LAYER_VISIBILITY_THRESHOLD:
+        settings.setValue(SETTING_LAYER_VISIBILITY_THRESHOLD, value);
+        break;
+    default:
+        Q_ASSERT(false);
+        break;
+    }
+
+
+    int optionId = static_cast<int>(option);
+
+    if (qFuzzyCompare(mFloatingPointSet[optionId], value) == false)
+    {
+        mFloatingPointSet[optionId] = value;
         emit optionChanged(option);
     }
 }
@@ -278,6 +310,9 @@ void PreferenceManager::set(SETTING option, int value)
         break;
     case SETTING::FIELD_H:
         settings.setValue(SETTING_FIELD_H, value);
+        break;
+    case SETTING::LAYER_VISIBILITY:
+        settings.setValue(SETTING_LAYER_VISIBILITY, value);
         break;
     case SETTING::DEFAULT_PRESET:
         settings.setValue(SETTING_DEFAULT_PRESET, value);
