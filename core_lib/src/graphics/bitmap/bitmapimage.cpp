@@ -1111,6 +1111,59 @@ int BitmapImage::fillWithColor(QPoint point, QRgb orgColor, QRgb newColor, Bitma
     return pixels;
 }
 
+void BitmapImage::fillArea(QPoint point, QRect rect, QRgb newColor, QRgb oldColor, BitmapImage *img)
+{
+    Q_ASSERT(img != nullptr);
+    if (newColor == oldColor || !rect.contains(point)) { return; }
+
+    QList<QPoint> fillList;
+    fillList.clear();
+
+    // fill first pixel
+    img->scanLine(point.x(), point.y(), newColor);
+    fillList.append(point);
+
+    while (!fillList.isEmpty())
+    {
+        QPoint tmp = fillList.takeFirst();
+        if (rect.contains(QPoint(tmp.x() + 1, tmp.y())) && img->constScanLine(tmp.x() + 1, tmp.y()) == oldColor)
+        {
+            img->scanLine(tmp.x() + 1, tmp.y(), newColor);
+            fillList.append(QPoint(tmp.x() + 1, tmp.y()));
+        }
+        if (rect.contains(QPoint(tmp.x(), tmp.y() + 1)) && img->constScanLine(tmp.x(), tmp.y() + 1) == oldColor)
+        {
+            img->scanLine(tmp.x(), tmp.y() + 1, newColor);
+            fillList.append(QPoint(tmp.x(), tmp.y() + 1));
+        }
+        if (rect.contains(QPoint(tmp.x() - 1, tmp.y())) && img->constScanLine(tmp.x() - 1, tmp.y()) == oldColor)
+        {
+            img->scanLine(tmp.x() - 1, tmp.y(), newColor);
+            fillList.append(QPoint(tmp.x() - 1, tmp.y()));
+        }
+        if (rect.contains(QPoint(tmp.x(), tmp.y() - 1)) && img->constScanLine(tmp.x(), tmp.y() - 1) == oldColor)
+        {
+            img->scanLine(tmp.x(), tmp.y() - 1, newColor);
+            fillList.append(QPoint(tmp.x(), tmp.y() - 1));
+        }
+    }
+    img->modification();
+}
+
+void BitmapImage::fillArea2(int x, int y, QRgb newColor, QRgb oldColor)
+{
+    if (newColor == oldColor) { return; }
+
+    if (constScanLine(x, y) == oldColor)
+    {
+        scanLine(x, y, newColor);
+        fillArea2(x + 1, y, newColor, oldColor);
+        fillArea2(x, y + 1, newColor, oldColor);
+        fillArea2(x - 1, y, newColor, oldColor);
+        fillArea2(x, y - 1, newColor, oldColor);
+    }
+}
+
 Status::StatusInt BitmapImage::findLeft(QRectF rect, int grayValue)
 {
     Status::StatusInt retValues;

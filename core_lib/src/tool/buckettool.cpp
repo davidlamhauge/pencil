@@ -19,6 +19,7 @@ GNU General Public License for more details.
 #include <QPixmap>
 #include <QPainter>
 #include "pointerevent.h"
+#include <QElapsedTimer>
 
 #include "layer.h"
 #include "layervector.h"
@@ -154,12 +155,33 @@ void BucketTool::paintBitmap(Layer* layer)
     BitmapImage* targetImage = ((LayerBitmap*)targetLayer)->getLastBitmapImageAtFrame(editor()->currentFrame(), 0);
 
     QPoint point = QPoint(qFloor(getLastPoint().x()), qFloor(getLastPoint().y()));
+    QRgb oldColor = targetImage->constScanLine(point.x(), point.y());
     QRect cameraRect = mScribbleArea->getCameraRect().toRect();
+    QRect fillRect = targetImage->bounds();
+    QElapsedTimer timer;
+    timer.start();
+    qDebug() << "Fill COMPARE: " << point.x() << ", " << point.y();
+    timer.restart();
+    targetImage->fillArea(point,
+                          fillRect,
+                          qPremultiply((mEditor->color()->frontColor().rgba())),
+                          oldColor,
+                          targetImage);
+    qDebug() << "fillArea  time: " << timer.nsecsElapsed() << " nanoseconds";
+/*
+    targetImage->fillArea2(point.x(),
+                           point.y(),
+                          qPremultiply(mEditor->color()->frontColor().rgba()),
+                          oldColor);
+    qDebug() << "fillArea  time: " << timer.nsecsElapsed() << " nanoseconds";
+*/
+    timer.restart();
     BitmapImage::floodFill(targetImage,
                            cameraRect,
                            point,
                            qPremultiply(mEditor->color()->frontColor().rgba()),
                            properties.tolerance);
+    qDebug() << "floodFill time: " << timer.nsecsElapsed() << " nanoseconds";
 
     mScribbleArea->setModified(layerNumber, mEditor->currentFrame());
     mScribbleArea->setAllDirty();

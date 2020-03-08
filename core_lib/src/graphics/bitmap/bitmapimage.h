@@ -120,6 +120,8 @@ public:
     void toThinLine(BitmapImage* colorImage, bool black, bool red, bool green, bool blue);
     void blendLines(BitmapImage* bitmapimage, bool black, bool red, bool green, bool blue);
     int fillWithColor(QPoint point, QRgb orgColor, QRgb newColor, BitmapImage* bitmapimage);
+    void fillArea(QPoint point, QRect rect, QRgb newColor, QRgb oldColor, BitmapImage* img);
+    void fillArea2(int x, int y, QRgb newColor, QRgb oldColor);
 
     /** Determines if the BitmapImage is minimally bounded.
      *
