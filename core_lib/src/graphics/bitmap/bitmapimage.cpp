@@ -21,6 +21,7 @@ GNU General Public License for more details.
 #include <QtMath>
 #include <QFile>
 #include "util.h"
+#include <QDebug>
 
 BitmapImage::BitmapImage()
 {
@@ -1312,6 +1313,7 @@ bool BitmapImage::compareColor(QRgb newColor, QRgb oldColor, int tolerance, QHas
     // the alpha is reduces (ex. QColor(0,0,0,0) is the same as QColor(255,255,255,0))
     int diffAlpha = static_cast<int>(qPow(qAlpha(oldColor) - qAlpha(newColor), 2));
 
+    qDebug() << "diffs: " << diffRed + diffGreen + diffBlue + diffAlpha << " Tolerance:" << tolerance << ". hslhue old: " << QColor(oldColor).hslHue() << " Hslhue new: " << QColor(newColor).hslHue();
     bool isSimilar = (diffRed + diffGreen + diffBlue + diffAlpha) <= tolerance;
 
     if(cache)
@@ -1330,6 +1332,93 @@ void BitmapImage::floodFill(BitmapImage* targetImage,
                             QPoint point,
                             QRgb newColor,
                             int tolerance)
+{
+    // If the point we are supposed to fill is outside the image and camera bounds, do nothing
+    if(!cameraRect.united(targetImage->bounds()).contains(point))
+    {
+        return;
+    }
+
+    // Square tolerance for use with compareColor
+    tolerance = static_cast<int>(qPow(tolerance, 2));
+
+    QRgb oldColor = targetImage->pixel(point);
+    oldColor = qRgba(qRed(oldColor), qGreen(oldColor), qBlue(oldColor), qAlpha(oldColor));
+
+    // Preparations
+    QList<QPoint> queue; // queue all the pixels of the filled area (as they are found)
+
+    BitmapImage* replaceImage = nullptr;
+    QPoint tempPoint;
+    QRgb newPlacedColor = 0;
+    QScopedPointer< QHash<QRgb, bool> > cache(new QHash<QRgb, bool>());
+
+    int xTemp = 0;
+    bool spanLeft = false;
+    bool spanRight = false;
+
+    // Extend to size of Camera
+    targetImage->extend(cameraRect);
+    replaceImage = new BitmapImage(targetImage->mBounds, Qt::transparent);
+
+    queue.append(point);
+    // Preparations END
+
+    while (!queue.empty())
+    {
+        tempPoint = queue.takeFirst();
+
+        point.setX(tempPoint.x());
+        point.setY(tempPoint.y());
+
+        xTemp = point.x();
+
+        newPlacedColor = replaceImage->constScanLine(xTemp, point.y());
+        while (xTemp >= targetImage->mBounds.left() &&
+               compareColor(targetImage->constScanLine(xTemp, point.y()), oldColor, tolerance, cache.data())) xTemp--;
+        xTemp++;
+
+        spanLeft = spanRight = false;
+        while (xTemp <= targetImage->mBounds.right() &&
+               compareColor(targetImage->constScanLine(xTemp, point.y()), oldColor, tolerance, cache.data()) &&
+               newPlacedColor != newColor)
+        {
+
+            // Set pixel color
+            replaceImage->scanLine(xTemp, point.y(), newColor);
+
+            if (!spanLeft && (point.y() > targetImage->mBounds.top()) &&
+                compareColor(targetImage->constScanLine(xTemp, point.y() - 1), oldColor, tolerance, cache.data())) {
+                queue.append(QPoint(xTemp, point.y() - 1));
+                spanLeft = true;
+            }
+            else if (spanLeft && (point.y() > targetImage->mBounds.top()) &&
+                     !compareColor(targetImage->constScanLine(xTemp, point.y() - 1), oldColor, tolerance, cache.data())) {
+                spanLeft = false;
+            }
+
+            if (!spanRight && point.y() < targetImage->mBounds.bottom() &&
+                compareColor(targetImage->constScanLine(xTemp, point.y() + 1), oldColor, tolerance, cache.data())) {
+                queue.append(QPoint(xTemp, point.y() + 1));
+                spanRight = true;
+
+            }
+            else if (spanRight && point.y() < targetImage->mBounds.bottom() &&
+                     !compareColor(targetImage->constScanLine(xTemp, point.y() + 1), oldColor, tolerance, cache.data())) {
+                spanRight = false;
+            }
+
+            Q_ASSERT(queue.count() < (targetImage->mBounds.width() * targetImage->mBounds.height()));
+            xTemp++;
+        }
+    }
+
+    targetImage->paste(replaceImage);
+    targetImage->modification();
+    delete replaceImage;
+}
+
+void BitmapImage::floodFill2(BitmapImage *targetImage, QRect cameraRect, QPoint point, QRgb newColor, int tolerance)
 {
     // If the point we are supposed to fill is outside the image and camera bounds, do nothing
     if(!cameraRect.united(targetImage->bounds()).contains(point))

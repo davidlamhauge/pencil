@@ -162,13 +162,14 @@ void BucketTool::paintBitmap(Layer* layer)
     timer.start();
     qDebug() << "Fill COMPARE: " << point.x() << ", " << point.y();
     timer.restart();
+    /*
     targetImage->fillArea(point,
                           fillRect,
                           qPremultiply((mEditor->color()->frontColor().rgba())),
                           oldColor,
                           targetImage);
     qDebug() << "fillArea  time: " << timer.nsecsElapsed() << " nanoseconds";
-/*
+
     targetImage->fillArea2(point.x(),
                            point.y(),
                           qPremultiply(mEditor->color()->frontColor().rgba()),
