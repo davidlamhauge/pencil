@@ -177,6 +177,11 @@ public: //slots
     void dontAskAutoSave(bool b) { mAutosaveNeverAskAgain = b; }
     bool autoSaveNeverAskAgain() { return mAutosaveNeverAskAgain; }
     void resetAutoSaveCounter();
+    int getAutoSaveCounter() { return mAutosaveCounter; }
+    void setAutoSaveCounter(int count) { mAutosaveCounter = count; }
+    bool getIsDoingRepeatColoring() { return mIsDoingRepeatInColoring; }
+    void setIsDoingRepeatColoring(bool b) { mIsDoingRepeatInColoring = b; }
+
 
     void createNewBitmapLayer(const QString& name);
     void createNewVectorLayer(const QString& name);
@@ -217,6 +222,7 @@ private:
     int mAutosaveNumber = 12;
     int mAutosaveCounter = 0;
     bool mAutosaveNeverAskAgain = false;
+    bool mIsDoingRepeatInColoring = false;
 
     void makeConnections();
     KeyFrame* addKeyFrame(int layerNumber, int frameNumber);
