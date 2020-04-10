@@ -101,6 +101,7 @@ void PlaybackManager::play()
     if (frame >= mEndFrame || frame < mStartFrame)
     {
         editor()->scrubTo(mStartFrame);
+        frame = editor()->currentFrame();
     }
 
     // get keyframe from layer
@@ -117,21 +118,10 @@ void PlaybackManager::play()
         }
     }
 
-    // check list content before playing
-    for (int pos = 0; pos < mListOfActiveSoundFrames.count(); pos++)
-    {
-        if (key != nullptr)
-        {
-            if (key->pos() + key->length() >= frame)
-            {
-                mListOfActiveSoundFrames.takeLast();
-            }
-        }
-        else if (frame < mListOfActiveSoundFrames.at(pos))
-        {
-            mListOfActiveSoundFrames.clear();
-        }
-    }
+    mListOfActiveSoundFrames.clear();
+    // Check for any sounds we should start playing part-way through.
+    mCheckForSoundsHalfway = true;
+    playSounds(frame);
 
     mTimer->setInterval(static_cast<int>(1000.f / mFps));
     mTimer->start();
@@ -139,9 +129,6 @@ void PlaybackManager::play()
     // for error correction, please ref skipFrame()
     mPlayingFrameCounter = 1;
     mElapsedTimer->start();
-
-    // Check for any sounds we should start playing part-way through.
-    mCheckForSoundsHalfway = true;
 
     emit playStateChanged(true);
 }
@@ -217,6 +204,26 @@ void PlaybackManager::playFlipInBetween()
     editor()->scrubTo(mFlipList[0]);
     mFlipTimer->start();
     emit playStateChanged(true);
+}
+
+void PlaybackManager::playScrub(int frame)
+{
+    // get keyframe from layer
+    KeyFrame* key = nullptr;
+    for (int i = 0; i < object()->getLayerCount(); ++i)
+    {
+        Layer* layer = object()->getLayer(i);
+        if (layer->type() == Layer::SOUND)
+        {
+            key = layer->getKeyFrameWhichCovers(frame);
+            if (key == nullptr) return;
+            clip = static_cast<SoundClip*>(key);
+            break;
+        }
+    }
+
+    clip->playFromPosition(frame - key->pos(), mFps);
+    mTimer->singleShot(200, this, SLOT(stopPlayScrub()));
 }
 
 void PlaybackManager::setFps(int fps)
@@ -372,10 +379,14 @@ void PlaybackManager::stopSounds()
     }
 }
 
+void PlaybackManager::stopPlayScrub()
+{
+    clip->stop();
+}
+
 void PlaybackManager::timerTick()
 {
     int currentFrame = editor()->currentFrame();
-    playSounds(currentFrame);
 
     // reach the end
     if (currentFrame >= mEndFrame)
@@ -397,6 +408,9 @@ void PlaybackManager::timerTick()
 
     // keep going 
     editor()->scrubForward();
+
+    int newFrame = editor()->currentFrame();
+    playSounds(newFrame);
 }
 
 void PlaybackManager::flipTimerTick()

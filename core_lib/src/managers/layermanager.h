@@ -75,6 +75,7 @@ public:
     void notifyAnimationLengthChanged();
 
     QString nameSuggestLayer(const QString& name);
+    int getLastLayerIndex() { return count() - 1; }
 
 Q_SIGNALS:
     void currentLayerChanged(int index);

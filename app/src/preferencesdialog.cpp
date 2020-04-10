@@ -120,6 +120,8 @@ GeneralPage::GeneralPage() : ui(new Ui::GeneralPage)
     ui->languageCombo->addItem(tr("Portuguese - Brazil") + "(Portuguese - Brazil)", "pt_BR");
     ui->languageCombo->addItem(tr("Russian") + " (Russian)", "ru");
     ui->languageCombo->addItem(tr("Slovenian") + " (Slovenian)", "sl");
+    ui->languageCombo->addItem(tr("Swedish") + " (Swedish)", "sv");
+    ui->languageCombo->addItem(tr("Turkish") + " (Turkish)", "tr");
     ui->languageCombo->addItem(tr("Vietnamese") + " (Vietnamese)", "vi");
     ui->languageCombo->addItem(tr("Chinese - China") + " (Chinese - China)", "zh_CN");
     ui->languageCombo->addItem(tr("Chinese - Taiwan") + " (Chinese - Taiwan)", "zh_TW");
@@ -425,6 +427,7 @@ void TimelinePage::updateValues()
 
     int visibilityType = mManager->getInt(SETTING::LAYER_VISIBILITY);
     ui->layerVisibilityComboBox->setCurrentIndex(visibilityType);
+    layerVisibilityChanged(visibilityType);
 }
 
 void TimelinePage::timelineLengthChanged(int value)
@@ -445,6 +448,8 @@ void TimelinePage::scrubChanged(int value)
 void TimelinePage::layerVisibilityChanged(int value)
 {
     mManager->set(SETTING::LAYER_VISIBILITY, value);
+    ui->visibilitySlider->setEnabled(value == 1);
+    ui->visibilitySpinbox->setEnabled(value == 1);
 }
 
 void TimelinePage::layerVisibilityThresholdChanged(int value)

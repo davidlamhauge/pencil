@@ -481,11 +481,19 @@ void ActionCommands::PlayStop()
 
 void ActionCommands::GotoNextFrame()
 {
+    if (mEditor->layers()->currentLayer()->type() == Layer::SOUND)
+    {
+        mEditor->playback()->playScrub(mEditor->currentFrame());
+    }
     mEditor->scrubForward();
 }
 
 void ActionCommands::GotoPrevFrame()
 {
+    if (mEditor->currentFrame() > 1 && mEditor->layers()->currentLayer()->type() == Layer::SOUND)
+    {
+        mEditor->playback()->playScrub(mEditor->currentFrame());
+    }
     mEditor->scrubBackward();
 }
 
