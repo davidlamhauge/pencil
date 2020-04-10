@@ -87,6 +87,8 @@ private:
     int getIndex(Layer*) const;
 
     int mLastCameraLayerIdx = 0;
+    QRectF mReposRect;
+    int mReposFrame;
 };
 
 #endif

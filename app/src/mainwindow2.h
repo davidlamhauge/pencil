@@ -20,7 +20,6 @@ GNU General Public License for more details.
 
 #include <QMainWindow>
 #include "preferencemanager.h"
-#include "pegbaralignmentdialog.h"
 
 
 template<typename T> class QList;
@@ -45,6 +44,8 @@ class Timeline2;
 class ActionCommands;
 class ImportImageSeqDialog;
 class BackupElement;
+class PegBarAlignmentDialog;
+class RepositionFramesDialog;
 
 
 
@@ -70,7 +71,10 @@ public slots:
     void clearRecentFilesList();
     void openPegAlignDialog();
     void closePegAlignDialog();
+    void openRepositionDialog();
+    void closeRepositionDialog();
     void currentLayerChanged();
+    void selectionChanged();
 
 public:
     void newDocument(bool force = false);
@@ -164,6 +168,7 @@ private:
     BackupElement* mBackupAtSave = nullptr;
 
     PegBarAlignmentDialog* mPegAlign = nullptr;
+    RepositionFramesDialog* mReposDialog = nullptr;
 
 private:
     ActionCommands* mCommands = nullptr;

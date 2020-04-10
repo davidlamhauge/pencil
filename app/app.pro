@@ -72,7 +72,8 @@ HEADERS += \
     src/copymultiplekeyframesdialog.h \
     src/checkupdatesdialog.h \
     src/bitmapcoloring.h \
-    src/presetdialog.h
+    src/presetdialog.h     \
+    src/repositionframesdialog.h
 
 SOURCES += \
     src/importlayersdialog.cpp \
@@ -109,7 +110,8 @@ SOURCES += \
     src/copymultiplekeyframesdialog.cpp \
     src/checkupdatesdialog.cpp \
     src/bitmapcoloring.cpp \
-    src/presetdialog.cpp
+    src/presetdialog.cpp \
+    src/repositionframesdialog.cpp
 
 FORMS += \
     ui/importimageseqpreview.ui \
@@ -118,6 +120,7 @@ FORMS += \
     ui/mainwindow2.ui \
     ui/onionskin.ui \
     ui/pegbaralignmentdialog.ui \
+    ui/repositionframesdialog.ui \
     ui/timeline2.ui \
     ui/shortcutspage.ui \
     ui/colorinspector.ui \

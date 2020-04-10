@@ -80,6 +80,7 @@ void ToolOptionWidget::updateUI()
     setStabilizerLevel(p.stabilizerLevel);
     setTolerance(static_cast<int>(p.tolerance));
     setFillContour(p.useFillContour);
+    setShowSelectionInfo(p.showInfo);
 }
 
 void ToolOptionWidget::createUI()
@@ -116,6 +117,8 @@ void ToolOptionWidget::makeConnectionToEditor(Editor* editor)
 
     connect(ui->fillContourBox, &QCheckBox::clicked, toolManager, &ToolManager::setUseFillContour);
 
+    connect(ui->showInfoBox, &QCheckBox::clicked, toolManager, &ToolManager::setShowSelectionInfo);
+
     connect(toolManager, &ToolManager::toolChanged, this, &ToolOptionWidget::onToolChanged);
     connect(toolManager, &ToolManager::toolPropertyChanged, this, &ToolOptionWidget::onToolPropertyChanged);
 }
@@ -137,6 +140,7 @@ void ToolOptionWidget::onToolPropertyChanged(ToolType, ToolPropertyType ePropert
     case STABILIZATION: setStabilizerLevel(p.stabilizerLevel); break;
     case TOLERANCE: setTolerance(static_cast<int>(p.tolerance)); break;
     case FILLCONTOUR: setFillContour(p.useFillContour); break;
+    case SHOWSELECTIONINFO: setShowSelectionInfo(p.showInfo); break;
     case BEZIER: setBezier(p.bezier_state); break;
     default:
         Q_ASSERT(false);
@@ -161,6 +165,7 @@ void ToolOptionWidget::setVisibility(BaseTool* tool)
     ui->toleranceSlider->setVisible(tool->isPropertyEnabled(TOLERANCE));
     ui->toleranceSpinBox->setVisible(tool->isPropertyEnabled(TOLERANCE));
     ui->fillContourBox->setVisible(tool->isPropertyEnabled(FILLCONTOUR));
+    ui->showInfoBox->setVisible(tool->isPropertyEnabled(SHOWSELECTIONINFO));
 
     auto currentLayerType = editor()->layers()->currentLayer()->type();
     auto propertyType = editor()->tools()->currentTool()->type();
@@ -205,6 +210,15 @@ void ToolOptionWidget::setVisibility(BaseTool* tool)
         case BUCKET:
             ui->brushSpinBox->setVisible(false);
             ui->sizeSlider->setVisible(false);
+            break;
+        case SELECT:
+        case MOVE:
+            ui->sizeSlider->setVisible(false);
+            ui->brushSpinBox->setVisible(false);
+            ui->usePressureBox->setVisible(false);
+            ui->featherSlider->setVisible(false);
+            ui->featherSpinBox->setVisible(false);
+            ui->useFeatherBox->setVisible(false);
             break;
         default:
             ui->makeInvisibleBox->setVisible(false);
@@ -327,6 +341,12 @@ void ToolOptionWidget::setBezier(bool useBezier)
     ui->useBezierBox->setChecked(useBezier);
 }
 
+void ToolOptionWidget::setShowSelectionInfo(bool showInfo)
+{
+    SignalBlocker b(ui->showInfoBox);
+    ui->showInfoBox->setChecked(showInfo);
+}
+
 void ToolOptionWidget::disableAllOptions()
 {
     ui->sizeSlider->hide();
@@ -344,4 +364,5 @@ void ToolOptionWidget::disableAllOptions()
     ui->toleranceSlider->hide();
     ui->toleranceSpinBox->hide();
     ui->fillContourBox->hide();
+    ui->showInfoBox->hide();
 }
