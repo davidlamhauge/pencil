@@ -46,9 +46,14 @@ bool PlaybackManager::init()
     mFlipTimer = new QTimer(this);
     mFlipTimer->setTimerType(Qt::PreciseTimer);
 
+    mScrubTimer = new QTimer(this);
+    mScrubTimer->setTimerType(Qt::PreciseTimer);
+    mSoundclipsToPLay.clear();
+
     QSettings settings (PENCIL2D, PENCIL2D);
     mFps = settings.value(SETTING_FPS).toInt();
     mMsecSoundScrub = settings.value(SETTING_SOUND_SCRUB_MSEC).toInt();
+    mSoundScrub = settings.value(SETTING_SOUND_SCRUB_ACTIVE).toBool();
 
     mElapsedTimer = new QElapsedTimer;
     connect(mTimer, &QTimer::timeout, this, &PlaybackManager::timerTick);
@@ -207,18 +212,31 @@ void PlaybackManager::playFlipInBetween()
     emit playStateChanged(true);
 }
 
-// only call this function if on a sound layer!
 void PlaybackManager::playScrub(int frame)
 {
-    QSettings settings (PENCIL2D, PENCIL2D);
-    mMsecSoundScrub = settings.value(SETTING_SOUND_SCRUB_MSEC).toInt();
+    if (!mSoundScrub || !mSoundclipsToPLay.isEmpty()) {return; }
 
-    Layer* layer = editor()->layers()->currentLayer();
-    KeyFrame* key = layer->getKeyFrameWhichCovers(frame);
-    if (key == nullptr) return;
-    clip = static_cast<SoundClip*>(key);
-    clip->playFromPosition(frame - key->pos(), mFps);
-    mTimer->singleShot(mMsecSoundScrub, this, SLOT(stopPlayScrub()));
+    for (int i = 0; i < editor()->layers()->count(); i++)
+    {
+        Layer* layer = editor()->layers()->getLayer(i);
+        if (layer->type() == Layer::SOUND && layer->visible())
+        {
+            KeyFrame* key = layer->getKeyFrameWhichCovers(frame);
+            if (key != nullptr)
+            {
+                SoundClip* clip = static_cast<SoundClip*>(key);
+                mSoundclipsToPLay.append(clip);
+            }
+        }
+    }
+
+    if (mSoundclipsToPLay.isEmpty()) { return; }
+
+    mScrubTimer->singleShot(mMsecSoundScrub, this, SLOT(stopPlayScrub()));
+    for (int i = 0; i < mSoundclipsToPLay.count(); i++)
+    {
+        mSoundclipsToPLay.at(i)->playFromPosition(frame, mFps);
+    }
 }
 
 void PlaybackManager::setFps(int fps)
@@ -376,7 +394,11 @@ void PlaybackManager::stopSounds()
 
 void PlaybackManager::stopPlayScrub()
 {
-    clip->stop();
+    for (int i = 0; i < mSoundclipsToPLay.count(); i++)
+    {
+        mSoundclipsToPLay.at(i)->stop();
+    }
+    mSoundclipsToPLay.clear();
 }
 
 void PlaybackManager::timerTick()
