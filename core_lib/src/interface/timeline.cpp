@@ -356,7 +356,7 @@ void TimeLine::setLoop(bool loop)
 
 void TimeLine::setPlaying(bool isPlaying)
 {
-    Q_UNUSED(isPlaying);
+    Q_UNUSED(isPlaying)
     mTimeControls->updatePlayState();
 }
 
