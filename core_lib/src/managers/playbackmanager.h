@@ -71,7 +71,7 @@ public:
     void stopSounds();
 
 private slots:
-    void stopPlayScrub();
+    void stopScrubPlayback();
 
 Q_SIGNALS:
     void fpsChanged(int fps);
