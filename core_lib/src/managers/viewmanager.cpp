@@ -125,7 +125,7 @@ QTransform ViewManager::getViewInverse()
 
 void ViewManager::updateViewTransforms()
 {
-    if (mCameraLayer)
+/*    if (mCameraLayer)
     {
         int frame = editor()->currentFrame();
         mCurrentCamera = mCameraLayer->getCameraAtFrame(frame);
@@ -136,12 +136,12 @@ void ViewManager::updateViewTransforms()
         mView = mCameraLayer->getViewAtFrame(frame);
     }
     else
-    {
+    { */
         mCurrentCamera = mDefaultEditorCamera;
         mCurrentCamera->updateViewTransform();
 
         mView = mCurrentCamera->getView();
-    }
+//    }
 
     mViewInverse = mView.inverted();
 

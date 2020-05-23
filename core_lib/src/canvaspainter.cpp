@@ -576,34 +576,43 @@ void CanvasPainter::paintCameraBorder(QPainter &painter)
     mCameraRect = cameraLayer->getViewRect();
 
     QRegion rg2(mCameraRect);
-    if (isCameraMode)
-    {
-        painter.setWorldMatrixEnabled(false);
-        QTransform center = QTransform::fromTranslate(viewRect.width() / 2.0, viewRect.height() / 2.0);
-        boundingRect = viewRect.toAlignedRect();
-        mCameraRect = center.mapRect(mCameraRect);
-        rg2 = center.map(rg2);
-    }
-    else
-    {
-        painter.setWorldMatrixEnabled(true);
-        QTransform viewInverse = mViewTransform.inverted();
-        boundingRect = viewInverse.mapRect(viewRect).toAlignedRect();
+    painter.setWorldMatrixEnabled(true);
+    QTransform viewInverse = mViewTransform.inverted();
+    boundingRect = viewInverse.mapRect(viewRect).toAlignedRect();
 
-        QTransform camTransform = cameraLayer->getViewAtFrame(mFrameNumber);
-        mCameraRect = camTransform.inverted().mapRect(mCameraRect);
-        rg2 = camTransform.inverted().map(rg2);
-    }
+    QTransform camTransform = cameraLayer->getViewAtFrame(mFrameNumber);
+    mCameraRect = camTransform.inverted().mapRect(mCameraRect);
+    rg2 = camTransform.inverted().map(rg2);
 
     painter.setOpacity(1.0);
+
+    if (isCameraMode)
+    {
+        if (mCameraRect.width() >= cameraLayer->getViewSize().width())
+        {
+            painter.setPen(QColor(0, 0, 0, 80));
+            painter.setBrush(Qt::NoBrush);
+            painter.setCompositionMode(QPainter::RasterOp_NotSourceAndNotDestination);
+        }
+        else
+        {
+            painter.setPen(QColor(200, 0, 0, 80));
+            painter.setBrush(QColor(200, 0, 0, 80));
+            painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+        }
+        painter.drawRect(mCameraRect);
+    }
+
     painter.setPen(Qt::NoPen);
     painter.setBrush(QColor(0, 0, 0, 80));
+    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
     QRegion rg1(boundingRect);
     QRegion rg3 = rg1.subtracted(rg2);
 
     painter.setClipRegion(rg3);
     painter.drawRect(boundingRect);
+
 
     /*
     painter.setClipping(false);
