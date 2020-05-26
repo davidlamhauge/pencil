@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>831</width>
     <height>600</height>
    </rect>
   </property>
@@ -48,8 +48,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>20</height>
+     <width>831</width>
+     <height>41</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -63,13 +63,16 @@
      <addaction name="separator"/>
      <addaction name="actionImport_Image"/>
      <addaction name="actionImport_ImageSeq"/>
-     <addaction name="actionImport_Movie"/>
      <addaction name="actionImport_ImageSeqNum"/>
+     <addaction name="actionImport_MovieVideo"/>
      <addaction name="actionImport_Gif"/>
      <addaction name="actionImportLayers_from_pclx"/>
-     <addaction name="actionImport_Sound"/>
      <addaction name="separator"/>
-     <addaction name="actionImport_Palette"/>
+     <addaction name="actionImport_Sound"/>
+     <addaction name="actionImport_MovieAudio"/>
+     <addaction name="separator"/>
+     <addaction name="actionImport_Replace_Palette"/>
+     <addaction name="actionImport_Append_Palette"/>
     </widget>
     <widget class="QMenu" name="menuExport">
      <property name="title">
@@ -146,6 +149,14 @@
      <addaction name="actionZoom33"/>
      <addaction name="actionZoom25"/>
     </widget>
+    <widget class="QMenu" name="menuLayer_Visibility">
+     <property name="title">
+      <string>Layer Visibility</string>
+     </property>
+     <addaction name="actionVisibilityCurrentLayerOnly"/>
+     <addaction name="actionVisibilityRelative"/>
+     <addaction name="actionVisibilityAll"/>
+    </widget>
     <addaction name="actionReset_View"/>
     <addaction name="separator"/>
     <addaction name="actionZoom_In"/>
@@ -158,11 +169,15 @@
     <addaction name="actionHorizontal_Flip"/>
     <addaction name="actionVertical_Flip"/>
     <addaction name="separator"/>
-    <addaction name="actionPreview"/>
+    <addaction name="menuOnion_Skin"/>
+    <addaction name="menuLayer_Visibility"/>
+    <addaction name="separator"/>
     <addaction name="separator"/>
     <addaction name="actionGrid"/>
     <addaction name="separator"/>
-    <addaction name="menuOnion_Skin"/>
+    <addaction name="separator"/>
+    <addaction name="separator"/>
+    <addaction name="actionPreview"/>
    </widget>
    <widget class="QMenu" name="menuAnimation">
     <property name="title">
@@ -225,6 +240,7 @@
     <addaction name="actionDelete_Current_Layer"/>
     <addaction name="separator"/>
     <addaction name="menuChange_line_color"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -239,6 +255,7 @@
     <addaction name="separator"/>
     <addaction name="actionCheck_for_Updates"/>
     <addaction name="actionReport_Bug"/>
+    <addaction name="actionOpen_Temporary_Directory"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
    </widget>
@@ -322,7 +339,7 @@
   </action>
   <action name="actionExport_Palette">
    <property name="text">
-    <string>Palette...</string>
+    <string>Palette</string>
    </property>
   </action>
   <action name="actionImport_Image">
@@ -335,22 +352,14 @@
     <string>Image Sequence...</string>
    </property>
   </action>
-  <action name="actionImport_Movie">
+  <action name="actionImport_MovieVideo">
    <property name="text">
-    <string>Movie...</string>
-   </property>
-   <property name="visible">
-    <bool>false</bool>
+    <string>Movie Video...</string>
    </property>
   </action>
   <action name="actionImport_Sound">
    <property name="text">
     <string>Sound...</string>
-   </property>
-  </action>
-  <action name="actionImport_Palette">
-   <property name="text">
-    <string>Palette...</string>
    </property>
   </action>
   <action name="actionImport_ImageSeqNum">
@@ -987,9 +996,49 @@
     <string>Flip Rolling</string>
    </property>
   </action>
+  <action name="actionLayerHidden">
+   <property name="text">
+    <string>Current layer only</string>
+   </property>
+  </action>
+  <action name="actionLayerRelative">
+   <property name="text">
+    <string>Relative</string>
+   </property>
+  </action>
+  <action name="actionLayerFull">
+   <property name="text">
+    <string>All Layers</string>
+   </property>
+  </action>
   <action name="actionPegbarAlignment">
    <property name="text">
     <string>Peg bar Alignment</string>
+   </property>
+  </action>
+  <action name="actionImport_MovieVideo">
+   <property name="text">
+    <string>Movie Video...</string>
+   </property>
+  </action>
+  <action name="actionImport_MovieAudio">
+   <property name="text">
+    <string>Movie Audio...</string>
+   </property>
+  </action>
+  <action name="actionImport_Append_Palette">
+   <property name="text">
+    <string>Append to Palette...</string>
+   </property>
+  </action>
+  <action name="actionImport_Replace_Palette">
+   <property name="text">
+    <string>Replace Palette...</string>
+   </property>
+  </action>
+  <action name="actionExport_Other_Palette_formats">
+   <property name="text">
+    <string>Other Palette format...</string>
    </property>
   </action>
   <action name="actionChangeLineColorCurrent_keyframe">
@@ -1014,6 +1063,37 @@
    </property>
    <property name="text">
     <string>New Multiplane Camera</string>
+   </property>
+  </action>
+  <action name="actionVisibilityCurrentLayerOnly">
+   <property name="text">
+    <string>Current layer only</string>
+   </property>
+  </action>
+  <action name="actionVisibilityRelative">
+   <property name="text">
+    <string>Relative</string>
+   </property>
+  </action>
+  <action name="actionVisibilityAll">
+   <property name="text">
+    <string>All layers</string>
+   </property>
+  </action>
+  <action name="actionOnionSkins">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Onion Skins</string>
+   </property>
+   <property name="toolTip">
+    <string>Onion Skins</string>
+   </property>
+  </action>
+  <action name="actionOpen_Temporary_Directory">
+   <property name="text">
+    <string>Open Temporary Directory</string>
    </property>
   </action>
  </widget>

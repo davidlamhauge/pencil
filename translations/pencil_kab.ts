@@ -232,59 +232,59 @@
         <location filename="../app/src/checkupdatesdialog.cpp" line="27"/>
         <source>Checking for Updates...</source>
         <comment>status description in the check-for-update dialog</comment>
-        <translation type="unfinished"/>
+        <translation>Anadi n ileqman...</translation>
     </message>
     <message>
         <location filename="../app/src/checkupdatesdialog.cpp" line="39"/>
         <source>Download</source>
-        <translation type="unfinished"/>
+        <translation>Sider</translation>
     </message>
     <message>
         <location filename="../app/src/checkupdatesdialog.cpp" line="40"/>
         <source>Close</source>
-        <translation type="unfinished"/>
+        <translation>Mel</translation>
     </message>
     <message>
         <location filename="../app/src/checkupdatesdialog.cpp" line="93"/>
         <source>&lt;b&gt;You are using a Pencil2D nightly build&lt;/b&gt;</source>
-        <translation type="unfinished"/>
+        <translation>&lt;b&gt;Ala tseqdaceḍ lqem n yiḍ n Pencil2D&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../app/src/checkupdatesdialog.cpp" line="94"/>
         <source>Please go %1 here %2 to check new nightly builds.</source>
-        <translation type="unfinished"/>
+        <translation>Ttxil-k ddu ɣer %1 dagi %2 iwakken ad tnadiḍ ileqman imaynuten  n yiḍ.</translation>
     </message>
     <message>
         <location filename="../app/src/checkupdatesdialog.cpp" line="104"/>
         <source>&lt;b&gt;An error occurred while checking for updates&lt;/b&gt;</source>
         <comment>error msg of check-for-update</comment>
-        <translation type="unfinished"/>
+        <translation>Teḍra-d tuccḍa deg unadi n ileqman</translation>
     </message>
     <message>
         <location filename="../app/src/checkupdatesdialog.cpp" line="105"/>
         <source>Please check your internet connection and try again later.</source>
         <comment>error msg of check-for-update</comment>
-        <translation type="unfinished"/>
+        <translation>Ttxil-k selken tuqqna n internet inek sakin eɛreḍ tikkelt-nniḍen.</translation>
     </message>
     <message>
         <location filename="../app/src/checkupdatesdialog.cpp" line="132"/>
         <source>&lt;b&gt;A new version of Pencil2D is available!&lt;/b&gt;</source>
-        <translation type="unfinished"/>
+        <translation>Yewjed lqem amaynut n Pencil2D!</translation>
     </message>
     <message>
         <location filename="../app/src/checkupdatesdialog.cpp" line="133"/>
         <source>Pencil2D %1 is now available -- you have %2. Would you like to download it?</source>
-        <translation type="unfinished"/>
+        <translation>Pencil2D %1 yewjed tura -- tesɛiḍ %2. Tebɣiḍ ad t-tsidreḍ?</translation>
     </message>
     <message>
         <location filename="../app/src/checkupdatesdialog.cpp" line="141"/>
         <source>&lt;b&gt;Pencil2D is up to date&lt;/b&gt;</source>
-        <translation type="unfinished"/>
+        <translation>&lt;b&gt;Pencil2D yettwaleqqem&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../app/src/checkupdatesdialog.cpp" line="142"/>
         <source>Version</source>
-        <translation type="unfinished"/>
+        <translation>Lqem</translation>
     </message>
 </context>
 <context>
@@ -665,7 +665,7 @@
     <message>
         <location filename="../app/ui/exportimageoptions.ui" line="238"/>
         <source>Export keyframes only</source>
-        <translation type="unfinished"/>
+        <translation>Sifeḍ anagar ikataren yufraren</translation>
     </message>
     <message>
         <location filename="../app/ui/exportimageoptions.ui" line="177"/>
@@ -761,17 +761,17 @@
     <message>
         <location filename="../app/ui/exportmovieoptions.ui" line="249"/>
         <source>Exporter Settings</source>
-        <translation type="unfinished"/>
+        <translation>Sifeḍ iɣewwaren</translation>
     </message>
     <message>
         <location filename="../app/ui/exportmovieoptions.ui" line="267"/>
         <source>WebM and APNG only</source>
-        <translation type="unfinished"/>
+        <translation>WebM akked APNG kan</translation>
     </message>
     <message>
         <location filename="../app/ui/exportmovieoptions.ui" line="270"/>
         <source>Transparency</source>
-        <translation type="unfinished"/>
+        <translation>Tafrawant</translation>
     </message>
 </context>
 <context>
@@ -861,7 +861,7 @@
         <location filename="../app/src/filedialogex.cpp" line="170"/>
         <location filename="../app/src/filedialogex.cpp" line="186"/>
         <source>Palette (*.xml *.gpl);;Pencil2D Palette (*.xml);;GIMP Palette (*.gpl)</source>
-        <translation type="unfinished"/>
+        <translation>Palette (*.xml *.gpl);;Pencil2D Palette (*.xml);;GIMP Palette (*.gpl)</translation>
     </message>
     <message>
         <location filename="../app/src/filedialogex.cpp" line="184"/>
@@ -1023,12 +1023,12 @@
         <location filename="../app/ui/generalpage.ui" line="307"/>
         <source>Advanced</source>
         <comment>groupBox title in Preference</comment>
-        <translation type="unfinished"/>
+        <translation>Anaẓi</translation>
     </message>
     <message>
         <location filename="../app/ui/generalpage.ui" line="322"/>
         <source>Cached Frame Number:</source>
-        <translation type="unfinished"/>
+        <translation>Uḍḍun n ukatar di tuffirt:</translation>
     </message>
     <message>
         <location filename="../app/src/preferencesdialog.cpp" line="97"/>
@@ -1063,12 +1063,12 @@
     <message>
         <location filename="../app/src/preferencesdialog.cpp" line="96"/>
         <source>Catalan </source>
-        <translation type="unfinished"/>
+        <translation>takaṭalunit </translation>
     </message>
     <message>
         <location filename="../app/src/preferencesdialog.cpp" line="100"/>
         <source>Greek</source>
-        <translation type="unfinished"/>
+        <translation>Tagrigit</translation>
     </message>
     <message>
         <location filename="../app/src/preferencesdialog.cpp" line="104"/>
@@ -1103,7 +1103,7 @@
     <message>
         <location filename="../app/src/preferencesdialog.cpp" line="110"/>
         <source>Kabyle</source>
-        <translation type="unfinished"/>
+        <translation>Taqbaylit</translation>
     </message>
     <message>
         <location filename="../app/src/preferencesdialog.cpp" line="111"/>
@@ -1173,7 +1173,7 @@
     <message>
         <location filename="../app/ui/generalpage.ui" line="245"/>
         <source>Grid Height</source>
-        <translation type="unfinished"/>
+        <translation>Tattayt n uferrug</translation>
     </message>
     <message>
         <location filename="../app/ui/generalpage.ui" line="252"/>
@@ -1330,7 +1330,7 @@
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="136"/>
         <source>Zoom</source>
-        <translation type="unfinished"/>
+        <translation>Zoom</translation>
     </message>
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="166"/>
@@ -1411,7 +1411,7 @@
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="345"/>
         <source>Image Sequence Numbered...</source>
-        <translation type="unfinished"/>
+        <translation>Talubbayt n tugna s wuḍḍunen...</translation>
     </message>
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="354"/>
@@ -1670,7 +1670,7 @@
         <location filename="../app/ui/mainwindow2.ui" line="780"/>
         <location filename="../app/ui/mainwindow2.ui" line="783"/>
         <source>Next Keyframe</source>
-        <translation type="unfinished"/>
+        <translation>Akatar yufraren uḍfir</translation>
     </message>
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="807"/>
@@ -1711,62 +1711,62 @@
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="919"/>
         <source>Check for Updates</source>
-        <translation type="unfinished"/>
+        <translation>Nadi ileqman</translation>
     </message>
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="924"/>
         <source>Pencil2D Forum</source>
-        <translation type="unfinished"/>
+        <translation>Afurum n Pencil2D</translation>
     </message>
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="929"/>
         <source>Pencil2D Discord</source>
-        <translation type="unfinished"/>
+        <translation>Pencil2D Discord</translation>
     </message>
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="934"/>
         <source>200%</source>
-        <translation type="unfinished"/>
+        <translation>200%</translation>
     </message>
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="939"/>
         <source>300%</source>
-        <translation type="unfinished"/>
+        <translation>300%</translation>
     </message>
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="944"/>
         <source>400%</source>
-        <translation type="unfinished"/>
+        <translation>400%</translation>
     </message>
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="949"/>
         <source>50%</source>
-        <translation type="unfinished"/>
+        <translation>50%</translation>
     </message>
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="954"/>
         <source>33%</source>
-        <translation type="unfinished"/>
+        <translation>33%</translation>
     </message>
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="959"/>
         <source>25%</source>
-        <translation type="unfinished"/>
+        <translation>25%</translation>
     </message>
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="964"/>
         <source>100%</source>
-        <translation type="unfinished"/>
+        <translation>100%</translation>
     </message>
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="969"/>
         <source>Flip In-Between</source>
-        <translation type="unfinished"/>
+        <translation>Qluqel gar</translation>
     </message>
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="974"/>
         <source>Flip Rolling</source>
-        <translation type="unfinished"/>
+        <translation>Flip Rolling</translation>
     </message>
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="280"/>
@@ -1776,7 +1776,7 @@
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="463"/>
         <source>Rotate Anticlockwise</source>
-        <translation type="unfinished"/>
+        <translation>Tuzzya mgal tamrilt</translation>
     </message>
     <message>
         <location filename="../app/ui/mainwindow2.ui" line="793"/>
@@ -1872,7 +1872,7 @@
     <message>
         <location filename="../app/src/mainwindow2.cpp" line="525"/>
         <source>The file you have selected does not exist, so we are unable to open it. Please make sure that you&apos;ve entered the correct path and that the file is accessible and try again.</source>
-        <translation type="unfinished"/>
+        <translation>Afaylu tferneḍ ulac-it, ihi ulamek ara t-neldi. Ttxil-k/m ttḥeqqeq beli tsekecmeḍ abrid ameɣtu yerna afaylu yettwaddaf sakin eɛreḍ tikkelt-nniḍen.</translation>
     </message>
     <message>
         <location filename="../app/src/mainwindow2.cpp" line="534"/>
@@ -1960,7 +1960,7 @@ Tebɣiḍ ad t-teskelseḍ tura?</translation>
     <message>
         <location filename="../app/src/mainwindow2.cpp" line="922"/>
         <source>Illegal numbering</source>
-        <translation type="unfinished"/>
+        <translation>Asuḍḍen aruṣḍif</translation>
     </message>
     <message>
         <location filename="../app/src/mainwindow2.cpp" line="964"/>
@@ -1998,7 +1998,7 @@ Tebɣiḍ ad t-teskelseḍ tura?</translation>
     <message>
         <location filename="../core_lib/src/tool/movetool.cpp" line="365"/>
         <source>You are about to switch away, do you want to apply the transformation?</source>
-        <translation type="unfinished"/>
+        <translation>Ala tettedduḍ ad tbedeleḍ, tebɣiḍ ad teskelseḍ abeddel ?</translation>
     </message>
 </context>
 <context>
@@ -3558,164 +3558,164 @@ Tebɣiḍ ad t-teskelseḍ tura?</translation>
     <message>
         <location filename="../core_lib/src/movieexporter.cpp" line="98"/>
         <source>Checking environment...</source>
-        <translation type="unfinished"/>
+        <translation>Aselken n twennaḍt...</translation>
     </message>
     <message>
         <location filename="../core_lib/src/movieexporter.cpp" line="149"/>
         <source>Done</source>
-        <translation type="unfinished"/>
+        <translation>Ifuk</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="75"/>
         <source>Pencil2D is an animation/drawing software for Mac OS X, Windows, and Linux. It lets you create traditional hand-drawn animation (cartoon) using both bitmap and vector graphics.</source>
-        <translation type="unfinished"/>
+        <translation>Pencil2D d aseɣẓan n usmussu akked usuneɣ i Mac OS X, Windows, akked Linux. Ad k-yeǧǧ ad d-tesnulfuḍ unuɣen yettemwwiwilen ara tsunɣeḍ s ufus s useqdec n wudlifen n bitmap akked wudlifen imawayen.</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="78"/>
         <source>Path to the input pencil file.</source>
-        <translation type="unfinished"/>
+        <translation>Abrid n wadduf ɣef ufaylu n yimru.</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="81"/>
         <location filename="../app/src/main.cpp" line="87"/>
         <source>Render the file to &lt;output_path&gt;</source>
-        <translation type="unfinished"/>
+        <translation>Err afaylu ɣer &lt;output_path&gt;</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="82"/>
         <location filename="../app/src/main.cpp" line="88"/>
         <source>output_path</source>
-        <translation type="unfinished"/>
+        <translation>output_path</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="95"/>
         <source>Name of the camera layer to use</source>
-        <translation type="unfinished"/>
+        <translation>Isem n tissi akked tkamirat ara yettwasqedcen</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="96"/>
         <source>layer_name</source>
-        <translation type="unfinished"/>
+        <translation>layer_name</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="100"/>
         <source>Width of the output frames</source>
-        <translation type="unfinished"/>
+        <translation>Tehri n yikataren n tuffɣa</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="101"/>
         <location filename="../app/src/main.cpp" line="106"/>
         <source>integer</source>
-        <translation type="unfinished"/>
+        <translation>ummid</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="105"/>
         <source>Height of the output frames</source>
-        <translation type="unfinished"/>
+        <translation>Tattayt n yikataren n tuffɣa</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="110"/>
         <source>The first frame you want to include in the exported movie</source>
-        <translation type="unfinished"/>
+        <translation>Akatar amezwaru i tebɣiḍ ad tsedduḍ di tvidyut ara tsifḍeḍ</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="111"/>
         <location filename="../app/src/main.cpp" line="118"/>
         <source>frame</source>
-        <translation type="unfinished"/>
+        <translation>akatar</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="115"/>
         <source>The last frame you want to include in the exported movie. Can also be last or last-sound to automatically use the last frame containing animation or sound, respectively</source>
-        <translation type="unfinished"/>
+        <translation>Akatar aneggaru i tebɣiḍ ad tsedduḍ di tvidyut ara tsifḍeḍ. Yezmer daɣen ad yili d aneggaru neɣ d imesli aneggaru ara yettwasqedcen s wudem awurman.</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="122"/>
         <source>Render transparency when possible</source>
-        <translation type="unfinished"/>
+        <translation>Err tafrawant ticki yella wamek</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="141"/>
         <source>Warning: width value %1 is not an integer, ignoring.</source>
-        <translation type="unfinished"/>
+        <translation>Alɣu: azal n tehri %1 mačči d ummid, ttu-t.</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="151"/>
         <source>Warning: height value %1 is not an integer, ignoring.</source>
-        <translation type="unfinished"/>
+        <translation>Alɣu: azal n tattayt %1 mačči d ummid, ttu-t.</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="161"/>
         <source>Warning: start value %1 is not an integer, ignoring.</source>
-        <translation type="unfinished"/>
+        <translation>Alɣu: azal n tazwara %1 mačči d ummid, ttu-t.</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="166"/>
         <source>Warning: start value must be at least 1, ignoring.</source>
-        <translation type="unfinished"/>
+        <translation>Alɣu: azal n tazwara isefk ad yili ma drus 1, ttu-t.</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="186"/>
         <source>Warning: end value %1 is not an integer, last or last-sound, ignoring.</source>
-        <translation type="unfinished"/>
+        <translation>Alɣu: azal n taggara %1 mačči d ummid, aneggaru neɣ imesli aneggaru, ttu-t.</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="192"/>
         <source>Warning: end value %1 is smaller than start value %2, ignoring.</source>
-        <translation type="unfinished"/>
+        <translation>Alɣu: azal n taggara %1 d amecṭuḥ ɣef wazal n taggara %2, ttu-t.</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="203"/>
         <source>Error: No input file specified.</source>
-        <translation type="unfinished"/>
+        <translation>Tuccḍa: ulac afaylu n unekcum i d-ittunefken.</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="210"/>
         <source>Error: the input file at &apos;%1&apos; does not exist</source>
         <comment>Command line error</comment>
-        <translation type="unfinished"/>
+        <translation>Tuccḍa: afaylu n unekcum &apos;%1&apos; ulac-it</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="215"/>
         <source>Error: the input path &apos;%1&apos; is not a file</source>
         <comment>Command line error</comment>
-        <translation type="unfinished"/>
+        <translation>Tuccḍa: abrid n unekcum &apos;%1&apos; mačči d afaylu</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="244"/>
         <source>Warning: the specified camera layer %1 was not found, ignoring.</source>
-        <translation type="unfinished"/>
+        <translation>Alɣu: tissi n tkamirat i d-ittunefken %1 ur yettwaf ara, ttu-t.</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="277"/>
         <source>Warning: Output format is not specified or unsupported. Using PNG.</source>
         <comment>Command line warning</comment>
-        <translation type="unfinished"/>
+        <translation>Alɣu: amasal n tuffɣa ur d-ittunefk ara neɣ ur itteddu ara. Aseqdec n PNG.</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="299"/>
         <source>Warning: Transparency is not currently supported in movie files</source>
         <comment>Command line warning</comment>
-        <translation type="unfinished"/>
+        <translation>Alɣu: akka tura tafrawant ur tetteddu ara deg yifuyla n tbidyut.</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="301"/>
         <source>Exporting movie...</source>
         <comment>Command line task progress</comment>
-        <translation type="unfinished"/>
+        <translation>Asifeḍ n tvidyut</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="303"/>
         <location filename="../app/src/main.cpp" line="308"/>
         <source>Done.</source>
         <comment>Command line task done</comment>
-        <translation type="unfinished"/>
+        <translation>Ifuk</translation>
     </message>
     <message>
         <location filename="../app/src/main.cpp" line="306"/>
         <source>Exporting image sequence...</source>
         <comment>Command line task progress</comment>
-        <translation type="unfinished"/>
+        <translation>Asifeḍ n tlubbayt n tugna...</translation>
     </message>
 </context>
 <context>
@@ -3741,7 +3741,7 @@ Tebɣiḍ ad t-teskelseḍ tura?</translation>
     <message>
         <location filename="../core_lib/src/interface/scribblearea.cpp" line="705"/>
         <source>You are trying to modify a hidden layer! Please select another layer (or make the current layer visible).</source>
-        <translation type="unfinished"/>
+        <translation>Ala tettaɛraḍeḍ ad tbeddeleḍ tissi yefren ! Ttxil-k fren tissi-nniḍen (neɣ err tissi tamirant tettban).</translation>
     </message>
     <message>
         <location filename="../core_lib/src/interface/scribblearea.cpp" line="1953"/>
@@ -3817,7 +3817,7 @@ Tebɣiḍ ad t-teskelseḍ tura?</translation>
     <message>
         <location filename="../app/ui/shortcutspage.ui" line="73"/>
         <source>Clear</source>
-        <translation type="unfinished"/>
+        <translation>Sfeḍ</translation>
     </message>
     <message>
         <location filename="../app/ui/shortcutspage.ui" line="100"/>
@@ -3965,12 +3965,12 @@ Tebɣiḍ ad t-teskelseḍ tura?</translation>
     <message>
         <location filename="../core_lib/src/interface/timeline.cpp" line="135"/>
         <source>Zoom:</source>
-        <translation type="unfinished"/>
+        <translation>Zoom:</translation>
     </message>
     <message>
         <location filename="../core_lib/src/interface/timeline.cpp" line="142"/>
         <source>Adjust frame width</source>
-        <translation type="unfinished"/>
+        <translation>Sgaddi tehri n ukatar</translation>
     </message>
     <message>
         <location filename="../core_lib/src/interface/timeline.cpp" line="145"/>
@@ -4082,7 +4082,7 @@ Tebɣiḍ ad t-teskelseḍ tura?</translation>
     <message>
         <location filename="../app/ui/timelinepage.ui" line="135"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;(Applies to Pencil, Eraser, Pen, Polyline, Bucket and Brush tools)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"/>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;(Ad yettusnes ɣef Akeryun, Tasemsut, Imru, Izirig yerrẓen, Taqbuct akked yifeck n umfezzu)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../app/ui/timelinepage.ui" line="160"/>
@@ -4097,22 +4097,22 @@ Tebɣiḍ ad t-teskelseḍ tura?</translation>
     <message>
         <location filename="../app/ui/timelinepage.ui" line="180"/>
         <source>Flip and Roll</source>
-        <translation type="unfinished"/>
+        <translation>Tti yerna sker</translation>
     </message>
     <message>
         <location filename="../app/ui/timelinepage.ui" line="188"/>
         <source>Maximum numbers of drawings in roll</source>
-        <translation type="unfinished"/>
+        <translation>Amḍan afellay n wunuɣen deg wunuḍ</translation>
     </message>
     <message>
         <location filename="../app/ui/timelinepage.ui" line="240"/>
         <source>Msecs per drawing in flip inbetween</source>
-        <translation type="unfinished"/>
+        <translation>Mili tasint i wunuɣ di flip inbetween</translation>
     </message>
     <message>
         <location filename="../app/ui/timelinepage.ui" line="289"/>
         <source>Msecs per drawing in flip roll</source>
-        <translation type="unfinished"/>
+        <translation>Mili tasint i wunuɣ di flip roll</translation>
     </message>
     <message>
         <location filename="../app/ui/timelinepage.ui" line="77"/>
@@ -4303,7 +4303,7 @@ Tebɣiḍ ad t-teskelseḍ tura?</translation>
     <message>
         <location filename="../app/ui/tooloptions.ui" line="92"/>
         <source>Enable or disable feathering</source>
-        <translation type="unfinished"/>
+        <translation>Sermed neɣ sexsi areyyec</translation>
     </message>
     <message>
         <location filename="../app/ui/tooloptions.ui" line="95"/>
@@ -4369,7 +4369,7 @@ Tebɣiḍ ad t-teskelseḍ tura?</translation>
     <message>
         <location filename="../app/ui/tooloptions.ui" line="114"/>
         <source>The extent to which the color variation will be treated as being equal</source>
-        <translation type="unfinished"/>
+        <translation>Temɣer s wayes asenfel n yini ad yettwaḥseb yugda</translation>
     </message>
     <message>
         <location filename="../app/ui/tooloptions.ui" line="157"/>

@@ -36,6 +36,8 @@ public:
     void setCore(Editor* e) { mEditor = e; }
 
     // file 
+    Status importMovieVideo();
+    Status importMovieAudio();
     Status importSound();
     Status exportMovie(bool isGif = false);
     Status exportImageSequence();
@@ -79,6 +81,8 @@ public:
     void changeKeyframeLineColor();
     void changeallKeyframeLineColor();
 
+    void setLayerVisibilityIndex(int index);
+
     // Help
     void help();
     void quickGuide();
@@ -87,9 +91,13 @@ public:
     void discord();
     void reportbug();
     void checkForUpdates();
+    void openTemporaryDirectory();
     void about();
 
 private:
+
+    Status convertSoundToWav(const QString& filePath);
+
     Editor* mEditor = nullptr;
     QWidget* mParent = nullptr;
 };

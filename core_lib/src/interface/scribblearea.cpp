@@ -1,4 +1,4 @@
-/*
+﻿/*
 
 Pencil - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
@@ -38,7 +38,6 @@ GNU General Public License for more details.
 #include "playbackmanager.h"
 #include "viewmanager.h"
 #include "selectionmanager.h"
-
 
 ScribbleArea::ScribbleArea(QWidget* parent) : QWidget(parent),
 mLog("ScribbleArea")
@@ -80,6 +79,8 @@ bool ScribbleArea::init()
     mIsSimplified = mPrefs->isOn(SETTING::OUTLINES);
     mMultiLayerOnionSkin = mPrefs->isOn(SETTING::MULTILAYER_ONION);
 
+    mLayerVisibility = static_cast<LayerVisibility>(mPrefs->getInt(SETTING::LAYER_VISIBILITY));
+
     mBufferImg = new BitmapImage;
 
     updateCanvasCursor();
@@ -102,8 +103,6 @@ bool ScribbleArea::init()
     int nLength = mEditor->layers()->animationLength();
     mPixmapCacheKeys.resize(static_cast<unsigned>(std::max(nLength, 240)));
 
-    mNeedUpdateAll = false;
-
     return true;
 }
 
@@ -125,6 +124,15 @@ void ScribbleArea::settingUpdated(SETTING setting)
     case SETTING::GRID:
     case SETTING::GRID_SIZE_W:
     case SETTING::GRID_SIZE_H:
+    case SETTING::OVERLAY_CENTER:
+    case SETTING::OVERLAY_THIRDS:
+    case SETTING::OVERLAY_GOLDEN:
+    case SETTING::OVERLAY_SAFE:
+    case SETTING::ACTION_SAFE_ON:
+    case SETTING::ACTION_SAFE:
+    case SETTING::TITLE_SAFE_ON:
+    case SETTING::TITLE_SAFE:
+    case SETTING::OVERLAY_SAFE_HELPER_TEXT_ON:
     case SETTING::PREV_ONION:
     case SETTING::NEXT_ONION:
     case SETTING::ONION_BLUE:
@@ -139,6 +147,10 @@ void ScribbleArea::settingUpdated(SETTING setting)
     case SETTING::MULTILAYER_ONION:
         mMultiLayerOnionSkin = mPrefs->isOn(SETTING::MULTILAYER_ONION);
         updateAllFrames();
+        break;
+    case SETTING::LAYER_VISIBILITY_THRESHOLD:
+    case SETTING::LAYER_VISIBILITY:
+        setLayerVisibility(static_cast<LayerVisibility>(mPrefs->getInt(SETTING::LAYER_VISIBILITY)));
         break;
     default:
         break;
@@ -195,7 +207,6 @@ void ScribbleArea::updateAllFrames()
     std::fill(mPixmapCacheKeys.begin(), mPixmapCacheKeys.end(), QPixmapCache::Key());
 
     update();
-    mNeedUpdateAll = false;
 }
 
 void ScribbleArea::updateAllVectorLayersAtCurrentFrame()
@@ -229,7 +240,6 @@ void ScribbleArea::setModified(int layerNumber, int frameNumber)
 
 void ScribbleArea::setAllDirty()
 {
-    mNeedUpdateAll = true;
     mCanvasPainter.resetLayerCache();
 }
 
@@ -471,14 +481,6 @@ void ScribbleArea::tabletEvent(QTabletEvent *e)
 
 void ScribbleArea::pointerPressEvent(PointerEvent* event)
 {
-
-    if (event->button() == Qt::RightButton)
-    {
-        mMouseRightButtonInUse = true;
-        getTool(HAND)->pointerPressEvent(event);
-        return;
-    }
-
     bool isCameraLayer = mEditor->layers()->currentLayer()->type() == Layer::CAMERA;
     if ((currentTool()->type() != HAND || isCameraLayer) && (event->button() != Qt::RightButton) && (event->button() != Qt::MidButton || isCameraLayer))
     {
@@ -493,7 +495,7 @@ void ScribbleArea::pointerPressEvent(PointerEvent* event)
         }
     }
 
-    if (event->buttons() & Qt::MidButton)
+    if (event->buttons() & (Qt::MidButton | Qt::RightButton))
     {
         setTemporaryTool(HAND);
     }
@@ -940,7 +942,7 @@ void ScribbleArea::handleDrawingOnEmptyFrame()
 
 void ScribbleArea::paintEvent(QPaintEvent* event)
 {
-    if (!isPointerInUse() || currentTool()->type() == MOVE || currentTool()->type() == HAND || mMouseRightButtonInUse)
+    if (!currentTool()->isActive())
     {
         // --- we retrieve the canvas from the cache; we create it if it doesn't exist
         int curIndex = mEditor->currentFrame();
@@ -1054,6 +1056,7 @@ void ScribbleArea::paintEvent(QPaintEvent* event)
         paintCanvasCursor(painter);
 
         mCanvasPainter.renderGrid(painter);
+        mCanvasPainter.renderOverlays(painter);
 
         // paints the selection outline
         if (mEditor->select()->somethingSelected())
@@ -1123,10 +1126,20 @@ void ScribbleArea::prepCanvas(int frame, QRect rect)
     o.bGrid = mPrefs->isOn(SETTING::GRID);
     o.nGridSizeW = mPrefs->getInt(SETTING::GRID_SIZE_W);
     o.nGridSizeH = mPrefs->getInt(SETTING::GRID_SIZE_H);
+    o.bCenter = mPrefs->isOn(SETTING::OVERLAY_CENTER);
+    o.bThirds = mPrefs->isOn(SETTING::OVERLAY_THIRDS);
+    o.bGoldenRatio = mPrefs->isOn(SETTING::OVERLAY_GOLDEN);
+    o.bSafeArea = mPrefs->isOn(SETTING::OVERLAY_SAFE);
+    o.bActionSafe = mPrefs->isOn(SETTING::ACTION_SAFE_ON);
+    o.nActionSafe = mPrefs->getInt(SETTING::ACTION_SAFE);
+    o.bShowSafeAreaHelperText = mPrefs->isOn(SETTING::OVERLAY_SAFE_HELPER_TEXT_ON);
+    o.bTitleSafe = mPrefs->isOn(SETTING::TITLE_SAFE_ON);
+    o.nTitleSafe = mPrefs->getInt(SETTING::TITLE_SAFE);
     o.bAxis = false;
     o.bThinLines = mPrefs->isOn(SETTING::INVISIBLE_LINES);
     o.bOutlines = mPrefs->isOn(SETTING::OUTLINES);
-    o.nShowAllLayers = mShowAllLayers;
+    o.eLayerVisibility = mLayerVisibility;
+    o.fLayerVisibilityThreshold = mPrefs->getFloat(SETTING::LAYER_VISIBILITY_THRESHOLD);
     o.bIsOnionAbsolute = (mPrefs->getString(SETTING::ONION_TYPE) == "absolute");
     o.scaling = mEditor->view()->scaling();
     o.onionWhilePlayback = mPrefs->getInt(SETTING::ONION_WHILE_PLAYBACK);
@@ -1454,20 +1467,30 @@ void ScribbleArea::toggleOutlines()
     setEffect(SETTING::OUTLINES, mIsSimplified);
 }
 
-void ScribbleArea::toggleShowAllLayers()
+void ScribbleArea::setLayerVisibility(LayerVisibility visibility)
 {
-    mShowAllLayers++;
-    if (mShowAllLayers == 3)
-    {
-        mShowAllLayers = 0;
-    }
+    mLayerVisibility = visibility;
+    updateAllFrames();
+}
+
+void ScribbleArea::increaseLayerVisibilityIndex()
+{
+    ++mLayerVisibility;
+    mPrefs->set(SETTING::LAYER_VISIBILITY, static_cast<int>(mLayerVisibility));
+    updateAllFrames();
+}
+
+void ScribbleArea::decreaseLayerVisibilityIndex()
+{
+    --mLayerVisibility;
+    mPrefs->set(SETTING::LAYER_VISIBILITY, static_cast<int>(mLayerVisibility));
     updateAllFrames();
 }
 
 /************************************************************************************/
 // tool handling
 
-BaseTool* ScribbleArea::currentTool()
+BaseTool* ScribbleArea::currentTool() const
 {
     return editor()->tools()->currentTool();
 }

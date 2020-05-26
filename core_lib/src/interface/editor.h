@@ -22,10 +22,12 @@ GNU General Public License for more details.
 #include <QObject>
 #include <QList>
 #include "pencilerror.h"
+#include "pencildef.h"
 
 
 class QDragEnterEvent;
 class QDropEvent;
+class QTemporaryDir;
 class Object;
 class KeyFrame;
 class LayerCamera;
@@ -88,13 +90,19 @@ public:
 
     int currentFrame();
     int fps();
+    void setFps(int fps);
 
     int  currentLayerIndex() { return mCurrentLayerIndex; }
     void setCurrentLayerIndex(int i);
 
     void scrubTo(int frameNumber);
 
-    int  allLayers();
+
+    /**
+     * @brief The visiblity value should match any of the VISIBILITY enum values
+     */
+    void setLayerVisibility(LayerVisibility visibility);
+    LayerVisibility layerVisibility();
     bool exportSeqCLI(QString filePath, LayerCamera* cameraLayer, QString format = "PNG", int width = -1, int height = -1, int startFrame = 1, int endFrame = -1, bool transparency = false, bool antialias = true);
     bool exportMovieCLI(QString filePath, LayerCamera* cameraLayer, int width = -1, int height = -1, int startFrame = 1, int endFrame = -1);
 
@@ -103,8 +111,6 @@ public:
     void selectAll();
 
     QString workingDir() const;
-
-    void importMovie(QString filePath, int fps);
 
     // backup
     int mBackupIndex;
@@ -160,10 +166,14 @@ public: //slots
 
     void paste();
     void clipboardChanged();
-    void toggleShowAllLayers();
+    void increaseLayerVisibilityIndex();
+    void decreaseLayerVisibilityIndex();
     void flipSelection(bool flipVertical);
 
     void toogleOnionSkinType();
+
+    void clearTemporary();
+    void addTemporaryDir(QTemporaryDir* const dir);
 
     void settingUpdated(SETTING);
 
@@ -213,6 +223,8 @@ private:
 
     void makeConnections();
     KeyFrame* addKeyFrame(int layerNumber, int frameNumber);
+
+    QList<QTemporaryDir*> mTemporaryDirs;
 
     // backup
     void clearUndoStack();

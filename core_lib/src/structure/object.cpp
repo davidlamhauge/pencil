@@ -21,6 +21,10 @@ GNU General Public License for more details.
 #include <QProgressDialog>
 #include <QApplication>
 #include <QFile>
+#include <QFileInfo>
+#include <QDir>
+#include <QDebug>
+#include <QDateTime>
 
 #include "layer.h"
 #include "layerbitmap.h"
@@ -304,7 +308,7 @@ void Object::addLayer(Layer *layer)
 
 ColourRef Object::getColour(int index) const
 {
-    ColourRef result(Qt::white, "error");
+    ColourRef result(Qt::white, tr("error"));
     if (index > -1 && index < mPalette.size())
     {
         result = mPalette.at(index);
@@ -326,7 +330,7 @@ void Object::setColourRef(int index, ColourRef newColourRef)
 
 void Object::addColour(QColor colour)
 {
-    addColour(ColourRef(colour, "Colour " + QString::number(mPalette.size())));
+    addColour(ColourRef(colour, tr("Colour %1").arg(QString::number(mPalette.size()))));
 }
 
 void Object::movePaletteColor(int start, int end)
@@ -554,7 +558,6 @@ void Object::importPalettePencil(QFile& file)
     QDomDocument doc;
     doc.setContent(&file);
 
-    mPalette.clear();
     QDomElement docElem = doc.documentElement();
     QDomNode tag = docElem.firstChild();
     while (!tag.isNull())
@@ -573,6 +576,20 @@ void Object::importPalettePencil(QFile& file)
     }
 }
 
+void Object::openPalette(QString filePath)
+{
+    if (!QFile::exists(filePath))
+    {
+        return;
+    }
+
+    mPalette.clear();
+    importPalette(filePath);
+}
+
+/*
+ * Imports palette, e.g. appends to palette
+*/
 bool Object::importPalette(QString filePath)
 {
     QFile file(filePath);
@@ -615,11 +632,11 @@ void Object::loadDefaultPalette()
     addColour(ColourRef(QColor(Qt::gray), QString(tr("Grey"))));
     addColour(ColourRef(QColor(Qt::darkGray), QString(tr("Dark Grey"))));
     addColour(ColourRef(QColor(255, 227, 187), QString(tr("Light Skin"))));
-    addColour(ColourRef(QColor(221, 196, 161), QString(tr("Light Skin - shade"))));
+    addColour(ColourRef(QColor(221, 196, 161), QString(tr("Light Skin \u2013 shade"))));
     addColour(ColourRef(QColor(255, 214, 156), QString(tr("Skin"))));
-    addColour(ColourRef(QColor(207, 174, 127), QString(tr("Skin - shade"))));
+    addColour(ColourRef(QColor(207, 174, 127), QString(tr("Skin \u2013 shade"))));
     addColour(ColourRef(QColor(255, 198, 116), QString(tr("Dark Skin"))));
-    addColour(ColourRef(QColor(227, 177, 105), QString(tr("Dark Skin - shade")) ));
+    addColour(ColourRef(QColor(227, 177, 105), QString(tr("Dark Skin \u2013 shade")) ));
 }
 
 void Object::paintImage(QPainter& painter,int frameNumber,
@@ -812,7 +829,7 @@ bool Object::exportX(int frameStart, int frameEnd, QTransform view, QSize export
             xPainter.setWorldTransform(thumbView);
             xPainter.setClipRegion(thumbView.inverted().map(QRegion(target)));
             paintImage(xPainter, i, false, antialiasing);
-            xPainter.resetMatrix();
+            xPainter.resetTransform();
             xPainter.setClipping(false);
             xPainter.setPen(Qt::black);
             xPainter.drawRect(target);

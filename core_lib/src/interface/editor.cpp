@@ -25,6 +25,7 @@ GNU General Public License for more details.
 #include <QImageReader>
 #include <QDragEnterEvent>
 #include <QDropEvent>
+#include <QMimeData>
 
 #include "object.h"
 #include "objectdata.h"
@@ -69,6 +70,7 @@ Editor::~Editor()
 {
     // a lot more probably needs to be cleaned here...
     clearUndoStack();
+    clearTemporary();
 }
 
 bool Editor::init()
@@ -119,6 +121,11 @@ int Editor::fps()
     return mPlaybackManager->fps();
 }
 
+void Editor::setFps(int fps)
+{
+    mPreferenceManager->set(SETTING::FPS, fps);
+}
+
 void Editor::makeConnections()
 {
     connect(mPreferenceManager, &PreferenceManager::optionChanged, this, &Editor::settingUpdated);
@@ -165,6 +172,10 @@ void Editor::settingUpdated(SETTING setting)
         break;
     case SETTING::FRAME_POOL_SIZE:
         mObject->setActiveFramePoolSize(mPreferenceManager->getInt(SETTING::FRAME_POOL_SIZE));
+        break;
+    case SETTING::LAYER_VISIBILITY:
+        mScribbleArea->setLayerVisibility(static_cast<LayerVisibility>(mPreferenceManager->getInt(SETTING::LAYER_VISIBILITY)));
+        emit updateTimeLine();
         break;
     default:
         break;
@@ -607,19 +618,30 @@ void Editor::clipboardChanged()
     }
 }
 
+void Editor::setLayerVisibility(LayerVisibility visibility) {
+    mScribbleArea->setLayerVisibility(visibility);
+    emit updateTimeLine();
+}
+
 void Editor::notifyAnimationLengthChanged()
 {
     layers()->notifyAnimationLengthChanged();
 }
 
-int Editor::allLayers()
+LayerVisibility Editor::layerVisibility()
 {
-    return mScribbleArea->showAllLayers();
+    return mScribbleArea->getLayerVisibility();
 }
 
-void Editor::toggleShowAllLayers()
+void Editor::increaseLayerVisibilityIndex()
 {
-    mScribbleArea->toggleShowAllLayers();
+    mScribbleArea->increaseLayerVisibilityIndex();
+    emit updateTimeLine();
+}
+
+void Editor::decreaseLayerVisibilityIndex()
+{
+    mScribbleArea->decreaseLayerVisibilityIndex();
     emit updateTimeLine();
 }
 
@@ -637,6 +659,18 @@ void Editor::toogleOnionSkinType()
     }
 
     mPreferenceManager->set(SETTING::ONION_TYPE, newState);
+}
+
+void Editor::addTemporaryDir(QTemporaryDir* const dir)
+{
+    mTemporaryDirs.append(dir);
+}
+
+void Editor::clearTemporary()
+{
+    while(!mTemporaryDirs.isEmpty()) {
+        mTemporaryDirs.takeFirst()->remove();
+    }
 }
 
 Status Editor::setObject(Object* newObject)
@@ -676,8 +710,8 @@ Status Editor::setObject(Object* newObject)
 
 void Editor::updateObject()
 {
-    scrubTo(mObject->data()->getCurrentFrame());
     setCurrentLayerIndex(mObject->data()->getCurrentLayer());
+    scrubTo(mObject->data()->getCurrentFrame());
 
     mAutosaveCounter = 0;
     mAutosaveNeverAskAgain = false;
@@ -996,14 +1030,22 @@ void Editor::scrubTo(int frame)
 
 void Editor::scrubForward()
 {
-    scrubTo(currentFrame() + 1);
+    int nextFrame = mFrame + 1;
+    if (!playback()->isPlaying()) {
+        playback()->playScrub(nextFrame);
+    }
+    scrubTo(nextFrame);
 }
 
 void Editor::scrubBackward()
 {
     if (currentFrame() > 1)
     {
-        scrubTo(currentFrame() - 1);
+        int previousFrame = mFrame - 1;
+        if (!playback()->isPlaying()) {
+            playback()->playScrub(previousFrame);
+        }
+        scrubTo(previousFrame);
     }
 }
 

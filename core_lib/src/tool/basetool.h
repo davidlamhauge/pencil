@@ -22,11 +22,11 @@ GNU General Public License for more details.
 #include <QString>
 #include <QCursor>
 #include <QPointF>
-#include <QPixmap>
 #include <QHash>
 #include "movemode.h"
 #include "pencildef.h"
 
+class QPixmap;
 class Editor;
 class ScribbleArea;
 class QKeyEvent;
@@ -94,6 +94,15 @@ public:
     static QPixmap quickSizeCursor(float brushWidth, float brushFeather, float scalingFac);
     static QCursor selectMoveCursor(MoveMode mode, ToolType type);
     static bool isAdjusting() { return msIsAdjusting; }
+
+    /** Check if the tool is active.
+     *
+     *  An active tool is definied as one which is actively modifying the buffer.
+     *  This is used to check if an full frame cache can be used instead of redrawing with CanvasPainter.
+     *
+     * @return Returns true if the tool is currently active, else returns false.
+     */
+    virtual bool isActive();
 
     virtual void setWidth(const qreal width);
     virtual void setFeather(const qreal feather);

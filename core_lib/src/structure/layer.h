@@ -21,11 +21,13 @@ GNU General Public License for more details.
 #include <functional>
 #include <QObject>
 #include <QString>
-#include <QPainter>
 #include <QDomElement>
 #include "pencilerror.h"
+#include "pencildef.h"
 
 class QMouseEvent;
+class QPainter;
+
 class KeyFrame;
 class Object;
 class TimeLineCells;
@@ -68,8 +70,10 @@ public:
     void setVisible(bool b) { mVisible = b; }
 
     virtual Status saveKeyFrameFile(KeyFrame*, QString dataPath) = 0;
-    virtual void loadDomElement(QDomElement element, QString dataDirPath, ProgressCallback progressForward) = 0;
+    virtual void loadDomElement(const QDomElement& element, QString dataDirPath, ProgressCallback progressForward) = 0;
     virtual QDomElement createDomElement(QDomDocument& doc) = 0;
+    QDomElement createBaseDomElement(QDomDocument& doc);
+    void loadBaseDomElement(const QDomElement& elem);
 
     // KeyFrame interface
     int getMaxKeyFramePosition() const;
@@ -115,8 +119,8 @@ public:
 
     // graphic representation -- could be put in another class
     void paintTrack(QPainter& painter, TimeLineCells* cells, int x, int y, int width, int height, bool selected, int frameSize);
-    void paintFrames(QPainter& painter, TimeLineCells* cells, int y, int height, bool selected, int frameSize);
-    void paintLabel(QPainter& painter, TimeLineCells* cells, int x, int y, int height, int width, bool selected, int allLayers);
+    void paintFrames(QPainter& painter, QColor trackCol, TimeLineCells* cells, int y, int height, bool selected, int frameSize);
+    void paintLabel(QPainter& painter, TimeLineCells* cells, int x, int y, int height, int width, bool selected, LayerVisibility layerVisibility);
     virtual void paintSelection(QPainter& painter, int x, int y, int height, int width);
     void mouseDoubleClick(QMouseEvent*, int frameNumber);
 

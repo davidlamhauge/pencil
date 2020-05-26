@@ -39,6 +39,10 @@ ViewManager::ViewManager(Editor* editor) : BaseManager(editor)
     mCurrentCamera = mDefaultEditorCamera;
 }
 
+ViewManager::~ViewManager() {
+    delete mDefaultEditorCamera;
+}
+
 bool ViewManager::init()
 {
     connect(editor(), &Editor::currentFrameChanged, this, &ViewManager::onCurrentFrameChanged);
@@ -311,6 +315,46 @@ void ViewManager::flipVertical(bool b)
 
         Q_EMIT viewChanged();
         Q_EMIT viewFlipped();
+    }
+}
+
+void ViewManager::setOverlayCenter(bool b)
+{
+    if (b != mOverlayCenter)
+    {
+        mOverlayCenter = b;
+        updateViewTransforms();
+        Q_EMIT viewChanged();
+    }
+}
+
+void ViewManager::setOverlayThirds(bool b)
+{
+    if (b != mOverlayThirds)
+    {
+        mOverlayThirds = b;
+        updateViewTransforms();
+        Q_EMIT viewChanged();
+    }
+}
+
+void ViewManager::setOverlayGoldenRatio(bool b)
+{
+    if (b != mOverlayGoldenRatio)
+    {
+        mOverlayGoldenRatio = b;
+        updateViewTransforms();
+        Q_EMIT viewChanged();
+    }
+}
+
+void ViewManager::setOverlaySafeAreas(bool b)
+{
+    if (b != mOverlaySafeAreas)
+    {
+        mOverlaySafeAreas = b;
+        updateViewTransforms();
+        Q_EMIT viewChanged();
     }
 }
 
