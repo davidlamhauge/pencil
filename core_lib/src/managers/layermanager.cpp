@@ -24,7 +24,6 @@ GNU General Public License for more details.
 #include "layerbitmap.h"
 #include "layervector.h"
 #include "layercamera.h"
-#include "layermultiplanecamera.h"
 
 
 LayerManager::LayerManager(Editor* editor) : BaseManager(editor)
@@ -209,17 +208,6 @@ LayerCamera* LayerManager::createCameraLayer(const QString& strLayerName)
 
     Q_EMIT layerCountChanged(count());
     setCurrentLayer(getLastLayerIndex());
-
-    return layer;
-}
-
-LayerMultiPlaneCamera *LayerManager::createMultiPlaneCamera(const QString &strLayerName)
-{
-    LayerMultiPlaneCamera* layer = object()->addNewMultiPlaneCamera();
-    const QString& name = nameSuggestLayer(strLayerName);
-    layer->setName(name);
-
-    Q_EMIT layerCountChanged(count());
 
     return layer;
 }

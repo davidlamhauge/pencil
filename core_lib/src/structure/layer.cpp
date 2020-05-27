@@ -329,7 +329,6 @@ void Layer::paintTrack(QPainter& painter, TimeLineCells* cells,
         if (type() == VECTOR) col = QColor(70, 205, 123);
         if (type() == SOUND) col = QColor(255, 141, 112);
         if (type() == CAMERA) col = QColor(253, 202, 92);
-        if (type() == MULTIPLANECAMERA) col = QColor(240, 165, 79);
 
         painter.save();
         painter.setBrush(col);
@@ -448,7 +447,6 @@ void Layer::paintLabel(QPainter& painter, TimeLineCells* cells,
     if (type() == VECTOR) painter.drawPixmap(QPoint(20, y + 2), QPixmap(":/icons/layer-vector.png"));
     if (type() == SOUND) painter.drawPixmap(QPoint(21, y + 2), QPixmap(":/icons/layer-sound.png"));
     if (type() == CAMERA) painter.drawPixmap(QPoint(21, y + 2), QPixmap(":/icons/layer-camera.png"));
-    if (type() == MULTIPLANECAMERA) painter.drawPixmap(QPoint(21, y + 2), QPixmap(":/icons/layer-multiplanecamera.png"));
 
     painter.setPen(Qt::black);
     painter.drawText(QPoint(45, y + (2 * height) / 3), mName);

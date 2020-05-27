@@ -49,7 +49,6 @@ public:
         MOVIE = 3, // not supported yet
         SOUND = 4,
         CAMERA = 5,
-        MULTIPLANECAMERA = 6,
     };
 
     explicit Layer(Object*, LAYER_TYPE);

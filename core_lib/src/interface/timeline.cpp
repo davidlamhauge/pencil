@@ -95,14 +95,12 @@ void TimeLine::initUI()
     QAction* newVectorLayerAct = new QAction(QIcon(":icons/layer-vector.png"), tr("New Vector Layer"), this);
     QAction* newSoundLayerAct = new QAction(QIcon(":icons/layer-sound.png"), tr("New Sound Layer"), this);
     QAction* newCameraLayerAct = new QAction(QIcon(":icons/layer-camera.png"), tr("New Camera Layer"), this);
-    QAction* newMultiPlaneCameraLayerAct = new QAction(QIcon(":icons/layer-multiplanecamera.png"), tr("New MultiPlane Camera Layer"), this);
 
     QMenu* layerMenu = new QMenu(tr("&Layer", "Timeline add-layer menu"), this);
     layerMenu->addAction(newBitmapLayerAct);
     layerMenu->addAction(newVectorLayerAct);
     layerMenu->addAction(newSoundLayerAct);
     layerMenu->addAction(newCameraLayerAct);
-    layerMenu->addAction(newMultiPlaneCameraLayerAct);
     addLayerButton->setMenu(layerMenu);
     addLayerButton->setPopupMode(QToolButton::InstantPopup);
 
@@ -216,7 +214,6 @@ void TimeLine::initUI()
     connect(newVectorLayerAct, &QAction::triggered, this, &TimeLine::newVectorLayer);
     connect(newSoundLayerAct, &QAction::triggered, this, &TimeLine::newSoundLayer);
     connect(newCameraLayerAct, &QAction::triggered, this, &TimeLine::newCameraLayer);
-    connect(newMultiPlaneCameraLayerAct, &QAction::triggered, this, &TimeLine::newMultiPlaneCamera);
     connect(removeLayerButton, &QPushButton::clicked, this, &TimeLine::deleteCurrentLayer);
 
     connect(mLayerList, &TimeLineCells::mouseMovedY, mLayerList, &TimeLineCells::setMouseMoveY);

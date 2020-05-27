@@ -795,19 +795,6 @@ Status ActionCommands::addNewCameraLayer()
     return Status::OK;
 }
 
-Status ActionCommands::addNewMultiPlaneCameraLayer()
-{
-    bool ok;
-    QString text = QInputDialog::getText(nullptr, tr("Layer Properties"),
-                                         tr("Layer name:"), QLineEdit::Normal,
-                                         mEditor->layers()->nameSuggestLayer(tr("Multiplane Camera Layer")), &ok);
-    if (ok && !text.isEmpty())
-    {
-        mEditor->layers()->createMultiPlaneCamera(text);
-    }
-    return Status::OK;
-}
-
 Status ActionCommands::addNewSoundLayer()
 {
     bool ok = false;
