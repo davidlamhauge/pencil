@@ -56,7 +56,19 @@ void MoveTool::loadSettings()
 
 QCursor MoveTool::cursor()
 {
-    MoveMode mode = mEditor->select()->getMoveModeForSelectionAnchor(getCurrentPoint());
+    qDebug() << "TYPE: "  << mEditor->layers()->currentLayer()->type();
+    MoveMode mode = MoveMode::NONE;
+    if (mEditor->select()->somethingSelected())
+    {
+        mode = mEditor->select()->getMoveModeForSelectionAnchor(getCurrentPoint());
+        return mScribbleArea->currentTool()->selectMoveCursor(mode, type());
+    }
+    if (mEditor->layers()->currentLayer()->type() == Layer::CAMERA)
+    {
+        mode = mEditor->select()->getMoveModeForSelectionAnchor(getCurrentPoint());
+        qDebug() << "is camera...";
+        return mScribbleArea->currentTool()->selectMoveCursor(mode, type());
+    }
     return mScribbleArea->currentTool()->selectMoveCursor(mode, type());
 }
 
@@ -91,22 +103,30 @@ void MoveTool::pointerMoveEvent(PointerEvent* event)
     mCurrentLayer = currentPaintableLayer();
     if (mCurrentLayer == nullptr) return;
 
-    mEditor->select()->updatePolygons();
-
-    if (mScribbleArea->isPointerInUse())   // the user is also pressing the mouse (dragging)
+    if (mCurrentLayer->type() != Layer::CAMERA)
     {
-        transformSelection(event->modifiers(), mCurrentLayer);
+        mEditor->select()->updatePolygons();
+
+        if (mScribbleArea->isPointerInUse())   // the user is also pressing the mouse (dragging)
+        {
+            transformSelection(event->modifiers(), mCurrentLayer);
+        }
+        else
+        {
+            // the user is moving the mouse without pressing it
+            // update cursor to reflect selection corner interaction
+            mScribbleArea->updateToolCursor();
+
+            if (mCurrentLayer->type() == Layer::VECTOR)
+            {
+                storeClosestVectorCurve(mCurrentLayer);
+            }
+        }
     }
     else
     {
-        // the user is moving the mouse without pressing it
-        // update cursor to reflect selection corner interaction
-        mScribbleArea->updateToolCursor();
-
-        if (mCurrentLayer->type() == Layer::VECTOR)
-        {
-            storeClosestVectorCurve(mCurrentLayer);
-        }
+        // if moving mouse without pressing on CAMERA layer
+        qDebug()<< "TYPE 2: " << mEditor->layers()->currentLayer()->type();
     }
     mScribbleArea->updateCurrentFrame();
 }
@@ -377,7 +397,7 @@ Layer* MoveTool::currentPaintableLayer()
     Layer* layer = mEditor->layers()->currentLayer();
     if (layer == nullptr)
         return nullptr;
-    if (!layer->isPaintable())
+    if (!layer->isMovetoolReady())
         return nullptr;
     return layer;
 }

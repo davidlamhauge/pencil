@@ -683,6 +683,11 @@ bool Layer::isPaintable() const
     return (type() == BITMAP || type() == VECTOR);
 }
 
+bool Layer::isMovetoolReady() const
+{
+    return (type() == BITMAP || type() == VECTOR || type() == CAMERA);
+}
+
 bool Layer::keyExistsWhichCovers(int frameNumber)
 {
     return getKeyFrameWhichCovers(frameNumber) != nullptr;

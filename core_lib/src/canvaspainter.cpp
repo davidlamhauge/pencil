@@ -781,6 +781,33 @@ void CanvasPainter::paintCameraBorder(QPainter &painter)
             painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
         }
         painter.drawRect(mCameraRect);
+        int radius = 8;
+        int width = radius / 2;
+        painter.setBrush(QColor(255, 255, 255, 80));
+        const QRectF topLeftCorner = QRectF(mCameraRect.left() - width,
+                                            mCameraRect.top() - width,
+                                            radius, radius);
+        painter.drawRect(topLeftCorner);
+
+        const QRectF topRightCorner = QRectF(mCameraRect.right() - width,
+                                             mCameraRect.top() - width,
+                                             radius, radius);
+        painter.drawRect(topRightCorner);
+
+        const QRectF bottomLeftCorner = QRectF(mCameraRect.left() - width,
+                                               mCameraRect.bottom() - width,
+                                               radius, radius);
+        painter.drawRect(bottomLeftCorner);
+
+        const QRectF bottomRightCorner = QRectF(mCameraRect.right() - width,
+                                                mCameraRect.bottom() - width,
+                                                radius, radius);
+        painter.drawRect(bottomRightCorner);
+
+        const QRectF center = QRectF(mCameraRect.left() + mCameraRect.width()/2 - width,
+                                     mCameraRect.top() + mCameraRect.height()/2 - width,
+                                     radius, radius);
+        painter.drawRect(center);
     }
 
     painter.setPen(Qt::NoPen);

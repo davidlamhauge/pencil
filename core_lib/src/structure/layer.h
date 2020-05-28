@@ -126,6 +126,7 @@ public:
     virtual void editProperties();
 
     bool isPaintable() const;
+    bool isMovetoolReady() const;
 
     float getDistance() { return mDistance; }
     void setDistance(float distance) { mDistance = distance; }
