@@ -86,7 +86,12 @@ LayerCamera::LayerCamera( Object* object ) : Layer( object, Layer::CAMERA )
         mFieldW = 800;
         mFieldH = 600;
     }
-    viewRect = QRect(QPoint(-mFieldW/2, -mFieldH/2), QSize(mFieldW, mFieldH));
+    tmpViewRect = viewRect = QRect(QPoint(-mFieldW/2, -mFieldH/2), QSize(mFieldW, mFieldH));
+    mCamHandles.center = viewRect.center();
+    mCamHandles.topLeft = viewRect.topLeft();
+    mCamHandles.topRight = viewRect.topRight();
+    mCamHandles.bottomLeft = viewRect.bottomLeft();
+    mCamHandles.bottomRight = viewRect.bottomRight();
     dialog = nullptr;
 }
 
@@ -155,6 +160,53 @@ QTransform LayerCamera::getViewAtFrame(int frameNumber)
 
 }
 
+MoveMode LayerCamera::getMoveModeForCamera(QPointF point, qreal tolerance)
+{
+    if (QLineF(point, viewRect.center()).length() < tolerance)
+    {
+        return  MoveMode::CENTER;
+    }
+    if (QLineF(point, viewRect.topLeft()).length() < tolerance)
+    {
+        return  MoveMode::TOPLEFT;
+    }
+    if (QLineF(point, viewRect.topRight()).length() < tolerance)
+    {
+        return  MoveMode::TOPRIGHT;
+    }
+    if (QLineF(point, viewRect.bottomLeft()).length() < tolerance)
+    {
+        return  MoveMode::BOTTOMLEFT;
+    }
+    if (QLineF(point, viewRect.bottomRight()).length() < tolerance)
+    {
+        return  MoveMode::BOTTOMRIGHT;
+    }
+    return MoveMode::NONE;
+}
+
+void LayerCamera::transformCameraView(MoveMode mode, QPointF point, bool tmp)
+{
+    if (!tmp)
+    {
+        tmpViewRect = viewRect;
+        return;
+    }
+
+    viewRect = tmpViewRect;
+
+    qDebug() << "offset: " << mOffsetPoint << " * point: " << point;
+    switch (mode) {
+    case MoveMode::CENTER:
+//        qDebug() << viewRect << " - " << (mOffsetPoint + point).toPoint();
+        viewRect.translate((point - mOffsetPoint).toPoint());
+        break;
+    default:
+        break;
+    }
+
+}
+
 void LayerCamera::linearInterpolateTransform(Camera* cam)
 {
     if (keyFrameCount() == 0)
@@ -207,6 +259,7 @@ void LayerCamera::linearInterpolateTransform(Camera* cam)
 
 QRect LayerCamera::getViewRect()
 {
+    qDebug() << "get viewrect from layerCamera: " << viewRect;
     return viewRect;
 }
 

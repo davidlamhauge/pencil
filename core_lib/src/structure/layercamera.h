@@ -20,6 +20,7 @@ GNU General Public License for more details.
 #include <QList>
 #include <QDialog>
 #include "layer.h"
+#include "movemode.h"
 
 class QLineEdit;
 class QSpinBox;
@@ -45,6 +46,14 @@ private:
     Ui::CameraPropertiesDialog* ui = nullptr;
 };
 
+struct CameraHandles{
+    QPointF center = QPointF();
+    QPointF topLeft = QPointF();
+    QPointF topRight = QPointF();
+    QPointF bottomLeft = QPointF();
+    QPointF bottomRight = QPointF();
+};
+
 class LayerCamera : public Layer
 {
     Q_OBJECT
@@ -62,9 +71,12 @@ public:
     Camera* getCameraAtFrame(int frameNumber);
     Camera* getLastCameraAtFrame(int frameNumber, int increment);
     QTransform getViewAtFrame(int frameNumber);
+    MoveMode getMoveModeForCamera(QPointF point, qreal tolerance);
+    void transformCameraView(MoveMode mode, QPointF point, bool tmp);
 
     QRect getViewRect();
     QSize getViewSize();
+    void setOffsetPoint(QPointF offset) { mOffsetPoint = offset; }
 
 signals:
     void resolutionChanged();
@@ -74,11 +86,14 @@ protected:
     KeyFrame* createKeyFrame(int position, Object*) override;
 
 private:
+    CameraHandles mCamHandles;
     void linearInterpolateTransform(Camera*);
+    QPointF mOffsetPoint = QPointF();
 
     int mFieldW = 800;
     int mFieldH = 600;
     QRect viewRect;
+    QRect tmpViewRect;
     CameraPropertiesDialog* dialog = nullptr;
 };
 

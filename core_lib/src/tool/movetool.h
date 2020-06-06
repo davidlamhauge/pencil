@@ -23,6 +23,7 @@ GNU General Public License for more details.
 #include "preferencemanager.h"
 
 class Layer;
+class LayerCamera;
 class VectorImage;
 
 
@@ -57,16 +58,19 @@ private:
     void createVectorSelection(Qt::KeyboardModifiers keyMod, Layer* layer);
     void transformSelection(Qt::KeyboardModifiers keyMod, Layer* layer);
     void storeClosestVectorCurve(Layer* layer);
+    void transformCamera(bool tmp);
 
     void setCurveSelected(VectorImage* vectorImage, Qt::KeyboardModifiers keyMod);
     void setAreaSelected(VectorImage* vectorImage, Qt::KeyboardModifiers keyMod);
 
     QPointF offsetFromPressPos();
+    MoveMode mCamMoveMode;
 
     Layer* currentPaintableLayer();
 
     QPointF anchorOriginPoint;
     Layer* mCurrentLayer = nullptr;
+    LayerCamera* mCurrentCamera = nullptr;
     qreal mRotatedAngle = 0.0;
     int mRotationIncrement = 0;
 };

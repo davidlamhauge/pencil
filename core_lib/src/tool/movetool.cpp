@@ -29,6 +29,7 @@ GNU General Public License for more details.
 #include "scribblearea.h"
 #include "layervector.h"
 #include "layermanager.h"
+#include "layercamera.h"
 #include "mathutils.h"
 #include "vectorimage.h"
 
@@ -56,7 +57,6 @@ void MoveTool::loadSettings()
 
 QCursor MoveTool::cursor()
 {
-    qDebug() << "TYPE: "  << mEditor->layers()->currentLayer()->type();
     MoveMode mode = MoveMode::NONE;
     if (mEditor->select()->somethingSelected())
     {
@@ -65,8 +65,9 @@ QCursor MoveTool::cursor()
     }
     if (mEditor->layers()->currentLayer()->type() == Layer::CAMERA)
     {
-        mode = mEditor->select()->getMoveModeForSelectionAnchor(getCurrentPoint());
-        qDebug() << "is camera...";
+        LayerCamera* cam = static_cast<LayerCamera*>(mEditor->layers()->currentLayer());
+        mode = cam->getMoveModeForCamera(getCurrentPoint(), mEditor->select()->selectionTolerance());
+        mCamMoveMode = mode;
         return mScribbleArea->currentTool()->selectMoveCursor(mode, type());
     }
     return mScribbleArea->currentTool()->selectMoveCursor(mode, type());
@@ -96,6 +97,11 @@ void MoveTool::pointerPressEvent(PointerEvent* event)
 
     setAnchorToLastPoint();
     beginInteraction(event->modifiers(), mCurrentLayer);
+    if (mCurrentLayer->type() == Layer::CAMERA)
+    {
+        LayerCamera* cam = static_cast<LayerCamera*>(mCurrentLayer);
+        cam->setOffsetPoint(getCurrentPoint());
+    }
 }
 
 void MoveTool::pointerMoveEvent(PointerEvent* event)
@@ -103,36 +109,38 @@ void MoveTool::pointerMoveEvent(PointerEvent* event)
     mCurrentLayer = currentPaintableLayer();
     if (mCurrentLayer == nullptr) return;
 
-    if (mCurrentLayer->type() != Layer::CAMERA)
+    mEditor->select()->updatePolygons();
+
+    if (mScribbleArea->isPointerInUse())   // the user is also pressing the mouse (dragging)
     {
-        mEditor->select()->updatePolygons();
-
-        if (mScribbleArea->isPointerInUse())   // the user is also pressing the mouse (dragging)
-        {
+        if (type() == SELECT)
             transformSelection(event->modifiers(), mCurrentLayer);
-        }
-        else
-        {
-            // the user is moving the mouse without pressing it
-            // update cursor to reflect selection corner interaction
-            mScribbleArea->updateToolCursor();
-
-            if (mCurrentLayer->type() == Layer::VECTOR)
-            {
-                storeClosestVectorCurve(mCurrentLayer);
-            }
-        }
+        else if (mEditor->layers()->currentLayer()->type() == Layer::CAMERA)
+            transformCamera(true);  // true means that it is moving
     }
     else
     {
-        // if moving mouse without pressing on CAMERA layer
-        qDebug()<< "TYPE 2: " << mEditor->layers()->currentLayer()->type();
+        // the user is moving the mouse without pressing it
+        // update cursor to reflect selection corner interaction
+        mScribbleArea->updateToolCursor();
+
+        if (mCurrentLayer->type() == Layer::VECTOR)
+        {
+            storeClosestVectorCurve(mCurrentLayer);
+        }
     }
     mScribbleArea->updateCurrentFrame();
 }
 
 void MoveTool::pointerReleaseEvent(PointerEvent*)
 {
+    if (mCurrentLayer->type() == Layer::CAMERA)
+    {
+        transformCamera(false);
+        mScribbleArea->updateCurrentFrame();
+        return;
+    }
+
     auto selectMan = mEditor->select();
     if (!selectMan->somethingSelected())
         return;
@@ -298,6 +306,28 @@ void MoveTool::storeClosestVectorCurve(Layer* layer)
     auto layerVector = static_cast<LayerVector*>(layer);
     VectorImage* pVecImg = layerVector->getLastVectorImageAtFrame(mEditor->currentFrame(), 0);
     selectMan->setCurves(pVecImg->getCurvesCloseTo(getCurrentPoint(), selectMan->selectionTolerance()));
+}
+
+void MoveTool::transformCamera(bool tmp)
+{
+    LayerCamera* layer = static_cast<LayerCamera*>(mCurrentLayer);
+
+    switch (mCamMoveMode)
+    {
+    case MoveMode::CENTER:
+        layer->transformCameraView(mCamMoveMode, getCurrentPoint(), tmp);
+        break;
+    case MoveMode::TOPLEFT:
+    case MoveMode::BOTTOMRIGHT:
+        break;
+    case MoveMode::TOPRIGHT:
+    case MoveMode::BOTTOMLEFT:
+        break;
+    default:
+        ;
+    }
+//    mScribbleArea->updateCurrentFrame();
+    mScribbleArea->update();
 }
 
 void MoveTool::setAnchorToLastPoint()

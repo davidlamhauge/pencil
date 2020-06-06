@@ -4,6 +4,7 @@
 
 enum class MoveMode {
     MIDDLE,
+    CENTER,
     TOPLEFT,
     TOPRIGHT,
     BOTTOMLEFT,
