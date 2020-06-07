@@ -90,6 +90,13 @@ void MoveTool::updateSettings(const SETTING setting)
 
 void MoveTool::pointerPressEvent(PointerEvent* event)
 {
+    if (mCurrentLayer->type() == Layer::CAMERA)
+    {
+        LayerCamera* cam = static_cast<LayerCamera*>(mCurrentLayer);
+        cam->setOffsetPoint(getCurrentPoint());
+        return;
+    }
+
     mCurrentLayer = currentPaintableLayer();
     if (mCurrentLayer == nullptr) return;
 
@@ -97,11 +104,6 @@ void MoveTool::pointerPressEvent(PointerEvent* event)
 
     setAnchorToLastPoint();
     beginInteraction(event->modifiers(), mCurrentLayer);
-    if (mCurrentLayer->type() == Layer::CAMERA)
-    {
-        LayerCamera* cam = static_cast<LayerCamera*>(mCurrentLayer);
-        cam->setOffsetPoint(getCurrentPoint());
-    }
 }
 
 void MoveTool::pointerMoveEvent(PointerEvent* event)
@@ -113,10 +115,14 @@ void MoveTool::pointerMoveEvent(PointerEvent* event)
 
     if (mScribbleArea->isPointerInUse())   // the user is also pressing the mouse (dragging)
     {
-        if (type() == SELECT)
+        if (mEditor->select()->somethingSelected())
+        {
             transformSelection(event->modifiers(), mCurrentLayer);
+        }
         else if (mEditor->layers()->currentLayer()->type() == Layer::CAMERA)
+        {
             transformCamera(true);  // true means that it is moving
+        }
     }
     else
     {

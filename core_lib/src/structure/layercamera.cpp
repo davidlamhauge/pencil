@@ -259,7 +259,6 @@ void LayerCamera::linearInterpolateTransform(Camera* cam)
 
 QRect LayerCamera::getViewRect()
 {
-    qDebug() << "get viewrect from layerCamera: " << viewRect;
     return viewRect;
 }
 
