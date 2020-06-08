@@ -87,6 +87,7 @@ LayerCamera::LayerCamera( Object* object ) : Layer( object, Layer::CAMERA )
         mFieldH = 600;
     }
     tmpViewRect = viewRect = QRect(QPoint(-mFieldW/2, -mFieldH/2), QSize(mFieldW, mFieldH));
+    mAspectRatio = static_cast<qreal>(mFieldH) / static_cast<qreal>(mFieldW);
     mCamHandles.center = viewRect.center();
     mCamHandles.topLeft = viewRect.topLeft();
     mCamHandles.topRight = viewRect.topRight();
@@ -185,26 +186,47 @@ MoveMode LayerCamera::getMoveModeForCamera(QPointF point, qreal tolerance)
     return MoveMode::NONE;
 }
 
-void LayerCamera::transformCameraView(MoveMode mode, QPointF point, bool tmp)
+void LayerCamera::transformCameraView(MoveMode mode, QPointF point)
 {
-    if (!tmp)
-    {
-        tmpViewRect = viewRect;
-        return;
-    }
-
-    viewRect = tmpViewRect;
-
-    qDebug() << "offset: " << mOffsetPoint << " * point: " << point;
     switch (mode) {
     case MoveMode::CENTER:
-//        qDebug() << viewRect << " - " << (mOffsetPoint + point).toPoint();
-        viewRect.translate((point - mOffsetPoint).toPoint());
+        viewRect.translate((point - viewRect.center()).toPoint());
+        break;
+    case MoveMode::TOPLEFT:
+        if (point.x() < viewRect.right() && point.y() < viewRect.bottom())
+        {
+            mFieldW = viewRect.right() - point.x();
+            mFieldH = mFieldW * mAspectRatio;
+            viewRect = QRect(QPoint(viewRect.right() - mFieldW, viewRect.bottom() - mFieldH), viewRect.bottomRight());
+        }
+        break;
+    case MoveMode::TOPRIGHT:
+        if (point.x() > viewRect.left() && point.y() < viewRect.bottom())
+        {
+            mFieldW = point.x() - viewRect.left();
+            mFieldH = mFieldW * mAspectRatio;
+            viewRect = QRect(QPoint(viewRect.bottom() - mFieldH, viewRect.top()), QSize(mFieldW, mFieldH));
+        }
+        break;
+    case MoveMode::BOTTOMLEFT:
+        if (point.x() < viewRect.right() && point.y() > viewRect.top())
+        {
+            mFieldW = viewRect.right() - point.x();
+            mFieldH = mFieldW * mAspectRatio;
+            viewRect = QRect(QPoint(point.x(), viewRect.top()), QSize(mFieldW, mFieldH));
+        }
+        break;
+    case MoveMode::BOTTOMRIGHT:
+        if (point.x() > viewRect.left() && point.y() > viewRect.top())
+        {
+            mFieldW = point.x() - viewRect.left();
+            mFieldH = mFieldW * mAspectRatio;
+            viewRect = QRect(viewRect.left(), viewRect.top(), mFieldW, mFieldH);
+        }
         break;
     default:
         break;
     }
-
 }
 
 void LayerCamera::linearInterpolateTransform(Camera* cam)
@@ -308,6 +330,9 @@ void LayerCamera::editProperties()
         settings.setValue(SETTING_FIELD_W, dialog->getWidth());
         settings.setValue(SETTING_FIELD_H, dialog->getHeight());
         viewRect = QRect(-dialog->getWidth()/2, -dialog->getHeight()/2, dialog->getWidth(), dialog->getHeight());
+        mFieldW = dialog->getWidth();
+        mFieldH = dialog->getHeight();
+        mAspectRatio = static_cast<qreal>(mFieldH) / static_cast<qreal>(mFieldW);
 
         emit resolutionChanged();
     }

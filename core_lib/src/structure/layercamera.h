@@ -72,8 +72,9 @@ public:
     Camera* getLastCameraAtFrame(int frameNumber, int increment);
     QTransform getViewAtFrame(int frameNumber);
     MoveMode getMoveModeForCamera(QPointF point, qreal tolerance);
-    void transformCameraView(MoveMode mode, QPointF point, bool tmp);
+    void transformCameraView(MoveMode mode, QPointF point);
 
+    qreal mAspectRatio = 0.75; // Aspect ratio for 800x600
     QRect getViewRect();
     QSize getViewSize();
     void setOffsetPoint(QPointF offset) { mOffsetPoint = offset; }
