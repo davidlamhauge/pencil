@@ -27,9 +27,10 @@ class QSpinBox;
 class Camera;
 
 namespace Ui {
-class CameraPropertiesDialog;
+    class CameraPropertiesDialog;
 }
 
+// TODO: move this to somewhere else
 class CameraPropertiesDialog : public QDialog
 {
     Q_OBJECT
@@ -63,7 +64,7 @@ public:
     ~LayerCamera() override;
 
     void loadImageAtFrame(int frame, qreal dx, qreal dy, qreal rotate, qreal scale);
-    
+
     void editProperties() override;
     QDomElement createDomElement(QDomDocument& doc) override;
     void loadDomElement(const QDomElement& element, QString dataDirPath, ProgressCallback progressStep) override;
