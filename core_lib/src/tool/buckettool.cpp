@@ -45,16 +45,27 @@ ToolType BucketTool::type()
 
 void BucketTool::loadSettings()
 {
-    mPropertyEnabled[TOLERANCE] = true;
-    mPropertyEnabled[WIDTH] = true;
 
     QSettings settings(PENCIL2D, PENCIL2D);
+
+    mPropertyEnabled[TARGET_LAYER];
+    mPropertyEnabled[EXPAND_FILL];
+    mPropertyEnabled[TOLERANCE_ON] = settings.value("ToleranceFillOn", true).toBool();
+    mPropertyEnabled[TOLERANCE] = settings.value("ToleranceFill", 50).toInt();
+    mPropertyEnabled[TRANSPARENCYFILL_ON] = settings.value("TransparencyFillOn", false).toBool();
+    mPropertyEnabled[TRANSPARENCYFILL] = settings.value("TransparencyFill", 50).toInt();
+    mPropertyEnabled[WIDTH] = true;
 
     properties.width = settings.value("fillThickness", 4.0).toDouble();
     properties.feather = 10;
     properties.stabilizerLevel = StabilizationLevel::NONE;
     properties.useAA = DISABLED;
-    properties.tolerance = settings.value("tolerance", 32.0).toDouble();
+    properties.expandFill = false;
+    properties.tolerance_on = settings.value("ToleranceFillOn", true).toBool();
+    properties.tolerance = settings.value("ToleranceFill", 32.0).toDouble();
+    properties.transparency_on = settings.value("TransparencyFillOn",false).toBool();
+    properties.transparency = settings.value("TransparencyFill", 50).toInt();
+    setToleranceOn(properties.tolerance_on);
 }
 
 void BucketTool::resetToDefault()
@@ -95,6 +106,12 @@ void BucketTool::setWidth(const qreal width)
     settings.sync();
 }
 
+void BucketTool::updateSettings()
+{
+    QSettings settings(PENCIL2D, PENCIL2D);
+
+}
+/*
 void BucketTool::setTolerance(const int tolerance)
 {
     // Set current property
@@ -105,6 +122,7 @@ void BucketTool::setTolerance(const int tolerance)
     settings.setValue("tolerance", tolerance);
     settings.sync();
 }
+*/
 
 void BucketTool::pointerPressEvent(PointerEvent* event)
 {
@@ -162,6 +180,61 @@ bool BucketTool::startAdjusting(Qt::KeyboardModifiers modifiers, qreal argStep)
     return BaseTool::startAdjusting(modifiers, argStep);
 }
 
+void BucketTool::setExpandFill(const bool isOn)
+{
+    properties.expandFill = isOn;
+}
+
+void BucketTool::setToleranceOn(const bool isOn)
+{
+    // Set current property
+    properties.tolerance_on = isOn;
+    properties.transparency_on = !isOn;
+
+
+    // Update settings
+    QSettings settings(PENCIL2D, PENCIL2D);
+    settings.setValue("ToleranceFillOn", isOn);
+    settings.setValue("TransparencyFillOn", !isOn);
+    settings.sync();
+}
+
+void BucketTool::setTolerance(const int tolerance)
+{
+    // Set current property
+    properties.tolerance = tolerance;
+
+    // Update settings
+    QSettings settings(PENCIL2D, PENCIL2D);
+    settings.setValue("ToleranceFill", tolerance);
+    settings.sync();
+}
+
+void BucketTool::setTransparencyOn(const bool isOn)
+{
+    properties.transparency_on = isOn;
+    properties.tolerance_on = !isOn;
+
+    // Update settings
+    QSettings settings(PENCIL2D, PENCIL2D);
+    settings.setValue("TransparencyFillOn", isOn);
+    settings.setValue("ToleranceFillOn", !isOn);
+    settings.sync();
+}
+
+void BucketTool::setTransparency(const int transparency)
+{
+    qDebug() << "transparency set BEF: " << properties.transparency;
+    properties.transparency = transparency;
+
+    // Update settings
+    QSettings settings(PENCIL2D, PENCIL2D);
+    settings.setValue("TransparencyFill", transparency);
+    qDebug() << "transparency set AFT: " << properties.transparency;
+    qDebug() << "transparency setting: " << settings.value(SETTING_TRANSPARENCY_FILL);
+    settings.sync();
+}
+
 void BucketTool::paintBitmap(Layer* layer)
 {
     Layer* targetLayer = layer; // by default
@@ -176,7 +249,7 @@ void BucketTool::paintBitmap(Layer* layer)
                            cameraRect,
                            point,
                            qPremultiply(mEditor->color()->frontColor().rgba()),
-                           properties.tolerance);
+                           static_cast<int>(properties.tolerance));
 
     mScribbleArea->setModified(layerNumber, mEditor->currentFrame());
     mScribbleArea->setAllDirty();

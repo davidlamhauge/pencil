@@ -49,7 +49,6 @@ public:
 Q_SIGNALS:
     void penWidthValueChanged(float);
     void penFeatherValueChanged(float);
-    void toleranceValueChanged(qreal);
 
     void toolChanged(ToolType);
     void toolPropertyChanged(ToolType, ToolPropertyType);
@@ -67,7 +66,11 @@ public slots:
     void setPressure(bool);
     void setAA(int);
     void setStabilizerLevel(int);
+    void setExpandFill(bool);
+    void setToleranceOn(bool);
     void setTolerance(int);
+    void setTransparencyFillOn(bool);
+    void setTransparencyFill(int);
     void setUseFillContour(bool);
 
 private:

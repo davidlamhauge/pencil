@@ -31,7 +31,7 @@ public:
     BitmapImage(const QPoint& topLeft, const QImage& image);
     BitmapImage(const QPoint& topLeft, const QString& path);
 
-    ~BitmapImage();
+    ~BitmapImage() override;
     BitmapImage& operator=(const BitmapImage& a);
 
     BitmapImage* clone() override;

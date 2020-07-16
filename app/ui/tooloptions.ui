@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>164</width>
-    <height>361</height>
+    <width>179</width>
+    <height>474</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -107,16 +107,57 @@
     </widget>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <widget class="QLabel" name="bucketLabel">
+       <property name="text">
+        <string>Fill Layer:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="bucketFillCombo"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="expandFillBox">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>Expand fill</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QRadioButton" name="rbTolerance">
+     <property name="text">
+      <string>Tolerance fill</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QRadioButton" name="rbTransparency">
+     <property name="text">
+      <string>Transparency fill</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,0">
      <item>
-      <widget class="SpinSlider" name="toleranceSlider" native="true">
+      <widget class="SpinSlider" name="bucketFillSlider" native="true">
        <property name="toolTip">
         <string>The extent to which the color variation will be treated as being equal</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QSpinBox" name="toleranceSpinBox">
+      <widget class="QSpinBox" name="bucketFillSpinBox">
        <property name="maximum">
         <number>100</number>
        </property>
@@ -236,7 +277,7 @@
   <customwidget>
    <class>SpinSlider</class>
    <extends>QWidget</extends>
-   <header>spinslider.h</header>
+   <header location="global">spinslider.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

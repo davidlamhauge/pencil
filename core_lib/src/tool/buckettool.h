@@ -39,8 +39,13 @@ public:
 
     bool startAdjusting(Qt::KeyboardModifiers modifiers, qreal argStep) override;
 
+    void setExpandFill(const bool isOn) override;
+    void setToleranceOn(const bool isOn) override;
     void setTolerance(const int tolerance) override;
+    void setTransparencyOn(const bool isOn) override;
+    void setTransparency(const int transparency) override;
     void setWidth(const qreal width) override;
+    void updateSettings();
 
     void paintBitmap(Layer* layer);
     void paintVector(Layer* layer);

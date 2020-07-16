@@ -126,6 +126,11 @@ void PreferenceManager::loadPrefs()
     set(SETTING::SOUND_SCRUB_ACTIVE,       settings.value(SETTING_SOUND_SCRUB_ACTIVE,     false).toBool());
     set(SETTING::SOUND_SCRUB_MSEC,         settings.value(SETTING_SOUND_SCRUB_MSEC,       100).toInt());
 
+    set(SETTING::TOLERANCE_FILL_ON,        settings.value(SETTING_TOLERANCE_FILL_ON,       true).toBool());
+    set(SETTING::TOLERANCE_FILL,           settings.value(SETTING_TOLERANCE_FILL,          50).toInt());
+    set(SETTING::TRANSPARENCY_FILL_ON,     settings.value(SETTING_TRANSPARENCY_FILL_ON,    false).toBool());
+    set(SETTING::TRANSPARENCY_FILL,        settings.value(SETTING_TRANSPARENCY_FILL,       50).toInt());
+
     set(SETTING::LANGUAGE,                 settings.value(SETTING_LANGUAGE).toString());
 }
 
@@ -278,6 +283,12 @@ void PreferenceManager::set(SETTING option, int value)
     case SETTING::SOUND_SCRUB_MSEC :
         settings.setValue(SETTING_SOUND_SCRUB_MSEC, value);
         break;
+    case SETTING::TOLERANCE_FILL :
+        settings.setValue(SETTING_TOLERANCE_FILL, value);
+        break;
+    case SETTING::TRANSPARENCY_FILL :
+        settings.setValue(SETTING_TRANSPARENCY_FILL, value);
+        break;
     case SETTING::GRID_SIZE_W:
         settings.setValue(SETTING_GRID_SIZE_W, value);
         break;
@@ -414,6 +425,12 @@ void PreferenceManager::set(SETTING option, bool value)
         break;
     case SETTING::SOUND_SCRUB_ACTIVE:
         settings.setValue(SETTING_SOUND_SCRUB_ACTIVE, value);
+        break;
+    case SETTING::TOLERANCE_FILL_ON :
+        settings.setValue(SETTING_TOLERANCE_FILL_ON, value);
+        break;
+    case SETTING::TRANSPARENCY_FILL_ON :
+        settings.setValue(SETTING_TRANSPARENCY_FILL_ON, value);
         break;
     case SETTING::ASK_FOR_PRESET:
         settings.setValue(SETTING_ASK_FOR_PRESET, value);

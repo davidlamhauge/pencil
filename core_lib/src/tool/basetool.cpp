@@ -448,9 +448,29 @@ void BaseTool::setStabilizerLevel(const int level)
     properties.stabilizerLevel = level;
 }
 
+void BaseTool::setExpandFill(const bool on)
+{
+    properties.expandFill = on;
+}
+
+void BaseTool::setToleranceOn(const bool on)
+{
+    properties.tolerance_on = on;
+}
+
 void BaseTool::setTolerance(const int tolerance)
 {
     properties.tolerance = tolerance;
+}
+
+void BaseTool::setTransparencyOn(const bool on)
+{
+    properties.transparency_on = on;
+}
+
+void BaseTool::setTransparency(const int transparency)
+{
+    properties.transparency = transparency;
 }
 
 void BaseTool::setUseFillContour(const bool useFillContour)

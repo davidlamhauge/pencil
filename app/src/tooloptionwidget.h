@@ -51,6 +51,8 @@ public slots:
     void onToolPropertyChanged(ToolType, ToolPropertyType);
     void onToolChanged(ToolType);
     void setVisibility(BaseTool*);
+    void updateBucketCombo();
+    void updateBucketComboItems(int count);
 
 private:
     void setPenWidth(qreal);
@@ -62,7 +64,12 @@ private:
     void setVectorMergeEnabled(int);
     void setAA(int);
     void setStabilizerLevel(int);
+    void setExpandFill(bool);
+    void setToleranceOn(bool);
     void setTolerance(int);
+    void setTransparencyFillOn(bool);
+    void setTransparency(int);
+    void setBucketSlider(int);
     void setFillContour(int);
     void setBezier(bool);
 
@@ -71,6 +78,9 @@ private:
 
 private:
     Ui::ToolOptions* ui = nullptr;
+
+    int getLayerIndex(QString name);
+    int mCurrentComboLayerIndex = 1;
 };
 
 #endif // TOOLOPTIONDOCKWIDGET_H

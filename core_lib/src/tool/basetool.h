@@ -48,7 +48,11 @@ public:
     bool  useFeather = true;
     int   useAA = 0;
     int   stabilizerLevel = 0;
+    bool  expandFill = false;
+    bool  tolerance_on = true;
     qreal tolerance = 0;
+    bool  transparency_on = false;
+    qreal transparency = 0;
     bool  useFillContour = false;
 };
 
@@ -114,7 +118,11 @@ public:
     virtual void setVectorMergeEnabled(const bool vectorMergeEnabled);
     virtual void setAA(const int useAA);
     virtual void setStabilizerLevel(const int level);
+    virtual void setExpandFill(const bool on);
+    virtual void setToleranceOn(const bool on);
     virtual void setTolerance(const int tolerance);
+    virtual void setTransparencyOn(const bool on);
+    virtual void setTransparency(const int transparency);
     virtual void setUseFillContour(const bool useFillContour);
 
     virtual bool leavingThisTool() { return true; }

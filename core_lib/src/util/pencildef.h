@@ -56,7 +56,12 @@ enum ToolPropertyType
     VECTORMERGE,
     ANTI_ALIASING,
     STABILIZATION,
+    TARGET_LAYER,
+    EXPAND_FILL,
+    TOLERANCE_ON,
     TOLERANCE,
+    TRANSPARENCYFILL_ON,
+    TRANSPARENCYFILL,
     FILLCONTOUR
 };
 
@@ -255,6 +260,11 @@ constexpr int MaxFramesBound = 9999;
 #define SETTING_FLIP_INBETWEEN_MSEC     "FlipInbetween"
 #define SETTING_SOUND_SCRUB_ACTIVE      "SoundScrubActive"
 #define SETTING_SOUND_SCRUB_MSEC        "SoundScrubMsec"
+
+#define SETTING_TOLERANCE_FILL_ON       "ToleranceFillOn"
+#define SETTING_TOLERANCE_FILL          "ToleranceFill"
+#define SETTING_TRANSPARENCY_FILL_ON    "TransparencyFillOn"
+#define SETTING_TRANSPARENCY_FILL       "TransparencyFill"
 
 #define SETTING_LAYER_VISIBILITY "LayerVisibility"
 #define SETTING_LAYER_VISIBILITY_THRESHOLD "LayerVisibilityThreshold"

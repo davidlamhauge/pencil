@@ -29,7 +29,7 @@ GNU General Public License for more details.
 #include "selecttool.h"
 #include "smudgetool.h"
 #include "editor.h"
-
+#include <QDebug>
 
 ToolManager::ToolManager(Editor* editor) : BaseManager(editor)
 {
@@ -200,13 +200,40 @@ void ToolManager::setStabilizerLevel(int level)
     Q_EMIT toolPropertyChanged(currentTool()->type(), STABILIZATION);
 }
 
+void ToolManager::setExpandFill(bool isChecked)
+{
+    currentTool()->setExpandFill(isChecked);
+    Q_EMIT toolPropertyChanged(currentTool()->type(), EXPAND_FILL);
+}
+
+void ToolManager::setToleranceOn(bool isOn)
+{
+    currentTool()->setToleranceOn(isOn);
+    Q_EMIT toolPropertyChanged(currentTool()->type(), TOLERANCE_ON);
+}
+
 void ToolManager::setTolerance(int newTolerance)
 {
+    qDebug() << "TOOL toler: " << newTolerance;
     newTolerance = qMax(0, newTolerance);
 
     currentTool()->setTolerance(newTolerance);
-    Q_EMIT toleranceValueChanged(newTolerance);
     Q_EMIT toolPropertyChanged(currentTool()->type(), TOLERANCE);
+}
+
+void ToolManager::setTransparencyFillOn(bool isOn)
+{
+    currentTool()->setTransparencyOn(isOn);
+    Q_EMIT toolPropertyChanged(currentTool()->type(), TRANSPARENCYFILL_ON);
+}
+
+void ToolManager::setTransparencyFill(int transparency)
+{
+    qDebug() << "TOOL trans: " << transparency;
+    transparency = qMax(0, transparency);
+
+    currentTool()->setTransparency(transparency);
+    Q_EMIT toolPropertyChanged(currentTool()->type(), TRANSPARENCYFILL);
 }
 
 void ToolManager::setUseFillContour(bool useFillContour)
