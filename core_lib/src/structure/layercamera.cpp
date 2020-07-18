@@ -251,12 +251,7 @@ void LayerCamera::editProperties()
     if (result == QDialog::Accepted)
     {
         setName(dialog->getName());
-        QSettings settings(PENCIL2D, PENCIL2D);
-        settings.setValue(SETTING_FIELD_W, dialog->getWidth());
-        settings.setValue(SETTING_FIELD_H, dialog->getHeight());
-        viewRect = QRect(-dialog->getWidth() / 2, -dialog->getHeight() / 2, dialog->getWidth(), dialog->getHeight());
-
-        emit resolutionChanged();
+        setCameraSize(dialog->getWidth(), dialog->getHeight());
     }
 }
 
@@ -294,8 +289,8 @@ QDomElement LayerCamera::createDomElement(QDomDocument& doc)
 
 void LayerCamera::loadDomElement(const QDomElement& element, QString dataDirPath, ProgressCallback progressStep)
 {
-    Q_UNUSED(dataDirPath);
-    Q_UNUSED(progressStep);
+    Q_UNUSED(dataDirPath)
+    Q_UNUSED(progressStep)
 
     this->loadBaseDomElement(element);
 
