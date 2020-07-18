@@ -57,6 +57,7 @@ public:
     void loadImageAtFrame(int frame, qreal dx, qreal dy, qreal rotate, qreal scale);
 
     void editProperties() override;
+    void setCameraSize(int w, int h);
     QDomElement createDomElement(QDomDocument& doc) override;
     void loadDomElement(const QDomElement& element, QString dataDirPath, ProgressCallback progressStep) override;
 

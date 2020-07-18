@@ -49,7 +49,7 @@
      <x>0</x>
      <y>0</y>
      <width>831</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -263,12 +263,35 @@
     </property>
     <addaction name="actionReset_Windows"/>
    </widget>
+   <widget class="QMenu" name="menuCamera">
+    <property name="title">
+     <string>Camera</string>
+    </property>
+    <widget class="QMenu" name="menuCamera_field_size">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="title">
+      <string>Camera field/size</string>
+     </property>
+     <addaction name="action320x240"/>
+     <addaction name="action640x480_VGA"/>
+     <addaction name="action800x600_SVGA"/>
+     <addaction name="action1280x720_HD_720"/>
+     <addaction name="action1920x1080_HD_1080"/>
+     <addaction name="action3840x2160_UHD_1"/>
+     <addaction name="separator"/>
+     <addaction name="actionCustom_size"/>
+    </widget>
+    <addaction name="menuCamera_field_size"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
    <addaction name="menuAnimation"/>
    <addaction name="menuTools"/>
    <addaction name="menuLayer"/>
+   <addaction name="menuCamera"/>
    <addaction name="menuWindows"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -1078,6 +1101,46 @@
   <action name="actionOpen_Temporary_Directory">
    <property name="text">
     <string>Open Temporary Directory</string>
+   </property>
+  </action>
+  <action name="action320x240">
+   <property name="text">
+    <string>320x240 (QVGA)</string>
+   </property>
+  </action>
+  <action name="action640x480_VGA">
+   <property name="text">
+    <string>640x480 (VGA)</string>
+   </property>
+  </action>
+  <action name="action800x600_SVGA">
+   <property name="text">
+    <string>800x600 (SVGA)</string>
+   </property>
+  </action>
+  <action name="action1280x720_HD_720">
+   <property name="text">
+    <string>1280x720 (HD 720)</string>
+   </property>
+  </action>
+  <action name="action1920x1080_HD_1080">
+   <property name="text">
+    <string>1920x1080 (HD 1080)</string>
+   </property>
+  </action>
+  <action name="action3840x2160_UHD_1">
+   <property name="text">
+    <string>3840x2160 (UHD-1)</string>
+   </property>
+  </action>
+  <action name="actionCustom_size">
+   <property name="text">
+    <string>Custom size</string>
+   </property>
+  </action>
+  <action name="actionKeyframe_settings">
+   <property name="text">
+    <string>Keyframe settings</string>
    </property>
   </action>
  </widget>

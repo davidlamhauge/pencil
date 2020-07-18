@@ -260,6 +260,16 @@ void LayerCamera::editProperties()
     }
 }
 
+void LayerCamera::setCameraSize(int w, int h)
+{
+    QSettings settings(PENCIL2D, PENCIL2D);
+    settings.setValue(SETTING_FIELD_W, w);
+    settings.setValue(SETTING_FIELD_H, h);
+    viewRect = QRect(-w / 2, -h / 2, w, h);
+
+    emit resolutionChanged();
+}
+
 QDomElement LayerCamera::createDomElement(QDomDocument& doc)
 {
     QDomElement layerElem = this->createBaseDomElement(doc);

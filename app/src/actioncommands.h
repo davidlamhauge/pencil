@@ -71,6 +71,15 @@ public:
     void moveFrameForward();
     void moveFrameBackward();
 
+    // Camera
+    void camera320_240();
+    void camera640_480();
+    void camera800_600();
+    void camera1280_720();
+    void camera1920_1080();
+    void camera3840_2160();
+    void cameraCustom();
+
     // Layer
     Status addNewBitmapLayer();
     Status addNewVectorLayer();

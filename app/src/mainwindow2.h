@@ -72,6 +72,7 @@ public slots:
     void currentLayerChanged();
     void selectionChanged();
 
+
 public:
     void newDocument(bool force = false);
     void openDocument();
