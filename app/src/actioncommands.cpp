@@ -761,57 +761,43 @@ void ActionCommands::moveFrameBackward()
 
 void ActionCommands::camera320_240()
 {
-    if (mEditor->layers()->currentLayer()->type() != Layer::CAMERA) { return; }
-
-    LayerCamera* layer = static_cast<LayerCamera*>(mEditor->layers()->currentLayer());
+    LayerCamera* layer = static_cast<LayerCamera*>(mEditor->layers()->getLastCameraLayer());
     layer->setCameraSize(320, 240);
 }
 
 void ActionCommands::camera640_480()
 {
-    if (mEditor->layers()->currentLayer()->type() != Layer::CAMERA) { return; }
-
-    LayerCamera* layer = static_cast<LayerCamera*>(mEditor->layers()->currentLayer());
+    LayerCamera* layer = static_cast<LayerCamera*>(mEditor->layers()->getLastCameraLayer());
     layer->setCameraSize(640, 480);
 }
 
 void ActionCommands::camera800_600()
 {
-    if (mEditor->layers()->currentLayer()->type() != Layer::CAMERA) { return; }
-
-    LayerCamera* layer = static_cast<LayerCamera*>(mEditor->layers()->currentLayer());
+    LayerCamera* layer = static_cast<LayerCamera*>(mEditor->layers()->getLastCameraLayer());
     layer->setCameraSize(800, 600);
 }
 
 void ActionCommands::camera1280_720()
 {
-    if (mEditor->layers()->currentLayer()->type() != Layer::CAMERA) { return; }
-
-    LayerCamera* layer = static_cast<LayerCamera*>(mEditor->layers()->currentLayer());
+    LayerCamera* layer = static_cast<LayerCamera*>(mEditor->layers()->getLastCameraLayer());
     layer->setCameraSize(1280, 720);
 }
 
 void ActionCommands::camera1920_1080()
 {
-    if (mEditor->layers()->currentLayer()->type() != Layer::CAMERA) { return; }
-
-    LayerCamera* layer = static_cast<LayerCamera*>(mEditor->layers()->currentLayer());
+    LayerCamera* layer = static_cast<LayerCamera*>(mEditor->layers()->getLastCameraLayer());
     layer->setCameraSize(1920, 1080);
 }
 
 void ActionCommands::camera3840_2160()
 {
-    if (mEditor->layers()->currentLayer()->type() != Layer::CAMERA) { return; }
-
-    LayerCamera* layer = static_cast<LayerCamera*>(mEditor->layers()->currentLayer());
+    LayerCamera* layer = static_cast<LayerCamera*>(mEditor->layers()->getLastCameraLayer());
     layer->setCameraSize(3840, 2160);
 }
 
 void ActionCommands::cameraCustom()
 {
-    if (mEditor->layers()->currentLayer()->type() != Layer::CAMERA) { return; }
-
-    LayerCamera* layer = static_cast<LayerCamera*>(mEditor->layers()->currentLayer());
+    LayerCamera* layer = static_cast<LayerCamera*>(mEditor->layers()->getLastCameraLayer());
     layer->editProperties();
 }
 

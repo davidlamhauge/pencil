@@ -368,7 +368,6 @@ void MainWindow2::createMenus()
     connect(ui->action1920x1080_HD_1080, &QAction::triggered, mCommands, &ActionCommands::camera1920_1080);
     connect(ui->action3840x2160_UHD_1, &QAction::triggered, mCommands, &ActionCommands::camera3840_2160);
     connect(ui->actionCustom_size, &QAction::triggered, mCommands, &ActionCommands::cameraCustom);
-    if (mEditor->layers()->currentLayer()->type() != Layer::CAMERA) { ui->menuCamera->setEnabled(false); }
 
     //--- Window Menu ---
     QMenu* winMenu = ui->menuWindows;
@@ -485,17 +484,10 @@ void MainWindow2::currentLayerChanged()
     if (mEditor->layers()->currentLayer()->type() == Layer::BITMAP)
     {
         ui->menuChange_line_color->setEnabled(true);
-        ui->menuCamera->setEnabled(false);
-    }
-    else if (mEditor->layers()->currentLayer()->type() == Layer::CAMERA)
-    {
-        ui->menuChange_line_color->setEnabled(false);
-        ui->menuCamera->setEnabled(true);
     }
     else
     {
         ui->menuChange_line_color->setEnabled(false);
-        ui->menuCamera->setEnabled(false);
     }
 }
 

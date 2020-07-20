@@ -1135,7 +1135,7 @@
   </action>
   <action name="actionCustom_size">
    <property name="text">
-    <string>Custom size</string>
+    <string>Custom size (Rename)</string>
    </property>
   </action>
   <action name="actionKeyframe_settings">
