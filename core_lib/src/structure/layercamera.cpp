@@ -179,10 +179,7 @@ MoveMode LayerCamera::getMoveModeForCamera(QPointF point, qreal tolerance)
     {
         return  MoveMode::BOTTOMRIGHT;
     }
-    else if (QRect(viewRect.x() + static_cast<int>(tolerance),
-                   viewRect.y() + static_cast<int>(tolerance),
-                   viewRect.width() - 2 * static_cast<int>(tolerance),
-                   viewRect.height() - 2 * static_cast<int>(tolerance)).contains(point.toPoint()))
+    else if (viewRect.contains(point.toPoint()))
     {
         return  MoveMode::CENTER;
     }
