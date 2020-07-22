@@ -818,11 +818,6 @@ void CanvasPainter::paintCameraBorder(QPainter& painter)
                                                 mCameraRect.bottom() - width,
                                                 radius, radius);
         painter.drawRect(bottomRightCorner);
-
-        const QRectF center = QRectF(mCameraRect.left() + mCameraRect.width()/2 - width,
-                                     mCameraRect.top() + mCameraRect.height()/2 - width,
-                                     radius, radius);
-        painter.drawRect(center);
     }
 
     painter.setPen(Qt::NoPen);

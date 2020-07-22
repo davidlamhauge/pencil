@@ -163,25 +163,28 @@ QTransform LayerCamera::getViewAtFrame(int frameNumber)
 
 MoveMode LayerCamera::getMoveModeForCamera(QPointF point, qreal tolerance)
 {
-    if (QLineF(point, viewRect.center()).length() < tolerance)
-    {
-        return  MoveMode::CENTER;
-    }
     if (QLineF(point, viewRect.topLeft()).length() < tolerance)
     {
         return  MoveMode::TOPLEFT;
     }
-    if (QLineF(point, viewRect.topRight()).length() < tolerance)
+    else if (QLineF(point, viewRect.topRight()).length() < tolerance)
     {
         return  MoveMode::TOPRIGHT;
     }
-    if (QLineF(point, viewRect.bottomLeft()).length() < tolerance)
+    else if (QLineF(point, viewRect.bottomLeft()).length() < tolerance)
     {
         return  MoveMode::BOTTOMLEFT;
     }
-    if (QLineF(point, viewRect.bottomRight()).length() < tolerance)
+    else if (QLineF(point, viewRect.bottomRight()).length() < tolerance)
     {
         return  MoveMode::BOTTOMRIGHT;
+    }
+    else if (QRect(viewRect.x() + static_cast<int>(tolerance),
+                   viewRect.y() + static_cast<int>(tolerance),
+                   viewRect.width() - 2 * static_cast<int>(tolerance),
+                   viewRect.height() - 2 * static_cast<int>(tolerance)).contains(point.toPoint()))
+    {
+        return  MoveMode::CENTER;
     }
     return MoveMode::NONE;
 }
