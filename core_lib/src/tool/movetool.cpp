@@ -143,23 +143,25 @@ void MoveTool::pointerReleaseEvent(PointerEvent*)
     if (mCurrentLayer->type() == Layer::CAMERA)
     {
         transformCamera();
-        mScribbleArea->updateCurrentFrame();
         return;
     }
+    else
+    {
+        auto selectMan = mEditor->select();
+        if (!selectMan->somethingSelected())
+            return;
 
-    auto selectMan = mEditor->select();
-    if (!selectMan->somethingSelected())
-        return;
+        mRotatedAngle = selectMan->myRotation();
+        updateTransformation();
 
-    mRotatedAngle = selectMan->myRotation();
-    updateTransformation();
+        Layer* layer = mEditor->layers()->currentLayer();
+        if (layer->type() == Layer::VECTOR) {
+            applyTransformation();
+        }
 
-    Layer* layer = mEditor->layers()->currentLayer();
-    if (layer->type() == Layer::VECTOR) {
-        applyTransformation();
+        selectMan->updatePolygons();
+
     }
-
-    selectMan->updatePolygons();
 
     mScribbleArea->updateToolCursor();
     mScribbleArea->updateCurrentFrame();
@@ -319,9 +321,9 @@ void MoveTool::storeClosestVectorCurve(Layer* layer)
 void MoveTool::transformCamera()
 {
     LayerCamera* layer = static_cast<LayerCamera*>(mCurrentLayer);
-    layer->transformCameraView(mCamMoveMode, getCurrentPoint());
-//    mScribbleArea->updateCurrentFrame();
-    mScribbleArea->update();
+    layer->transformCameraView(mCamMoveMode, getCurrentPoint(), mEditor->currentFrame());
+    mScribbleArea->drawCanvas(mEditor->currentFrame(), layer->getCurrentRect());
+//    mScribbleArea->update();
 }
 
 void MoveTool::setAnchorToLastPoint()

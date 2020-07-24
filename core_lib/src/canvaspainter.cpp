@@ -768,7 +768,7 @@ void CanvasPainter::paintCameraBorder(QPainter& painter)
 
     QRectF viewRect = painter.viewport();
     QRect boundingRect;
-    mCameraRect = cameraLayer->getViewRect();
+    mCameraRect = cameraLayer->getCurrentRect();
 
     QRegion rg2(mCameraRect);
     painter.setWorldMatrixEnabled(true);
@@ -783,22 +783,14 @@ void CanvasPainter::paintCameraBorder(QPainter& painter)
 
     if (isCameraMode)
     {
-        if (mCameraRect.width() >= cameraLayer->getViewSize().width())
-        {
-            painter.setPen(QColor(0, 0, 0, 80));
-            painter.setBrush(Qt::NoBrush);
-            painter.setCompositionMode(QPainter::RasterOp_NotSourceAndNotDestination);
-        }
-        else
-        {
-            painter.setPen(QColor(200, 0, 0, 80));
-            painter.setBrush(QColor(200, 0, 0, 80));
-            painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-        }
+        qDebug() << "Drawing rect... " << mCameraRect;
         painter.drawRect(mCameraRect);
         int radius = 8;
         int width = radius / 2;
-        painter.setBrush(QColor(255, 255, 255, 80));
+
+        painter.setPen(QColor(0, 0, 0, 80));
+        painter.setBrush(Qt::NoBrush);
+        painter.setCompositionMode(QPainter::RasterOp_NotSourceAndNotDestination);
         const QRectF topLeftCorner = QRectF(mCameraRect.left() - width,
                                             mCameraRect.top() - width,
                                             radius, radius);
@@ -818,6 +810,11 @@ void CanvasPainter::paintCameraBorder(QPainter& painter)
                                                 mCameraRect.bottom() - width,
                                                 radius, radius);
         painter.drawRect(bottomRightCorner);
+
+        const QRectF rightSideCircle= QRectF(mCameraRect.right() - width,
+                                             mCameraRect.y() + mCameraRect.height() / 2 - width,
+                                             radius, radius);
+        painter.drawEllipse(rightSideCircle);
     }
 
     painter.setPen(Qt::NoPen);

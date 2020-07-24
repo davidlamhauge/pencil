@@ -47,14 +47,6 @@ private:
     Ui::CameraPropertiesDialog* ui = nullptr;
 };
 
-struct CameraHandles{
-    QPointF center = QPointF();
-    QPointF topLeft = QPointF();
-    QPointF topRight = QPointF();
-    QPointF bottomLeft = QPointF();
-    QPointF bottomRight = QPointF();
-};
-
 class LayerCamera : public Layer
 {
     Q_OBJECT
@@ -73,10 +65,11 @@ public:
     Camera* getLastCameraAtFrame(int frameNumber, int increment);
     QTransform getViewAtFrame(int frameNumber);
     MoveMode getMoveModeForCamera(QPointF point, qreal tolerance);
-    void transformCameraView(MoveMode mode, QPointF point);
+    void transformCameraView(MoveMode mode, QPointF point, int frame);
 
     qreal mAspectRatio = 0.75; // Aspect ratio for 800x600
     QRect getViewRect();
+    QRect getCurrentRect() { return mCurrentRect; }
     QSize getViewSize();
     void setOffsetPoint(QPointF offset) { mOffsetPoint = offset; }
 
@@ -88,14 +81,13 @@ protected:
     KeyFrame* createKeyFrame(int position, Object*) override;
 
 private:
-    CameraHandles mCamHandles;
     void linearInterpolateTransform(Camera*);
     QPointF mOffsetPoint = QPointF();
 
     int mFieldW = 800;
     int mFieldH = 600;
-    QRect viewRect;
-    QRect tmpViewRect;
+    QRect viewRect;         // camera output size, as in Settings
+    QRect mCurrentRect;     // current rect on canvas. Can be greater, equal to or less than viewRect
     CameraPropertiesDialog* dialog = nullptr;
 };
 

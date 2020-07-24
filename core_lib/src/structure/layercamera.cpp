@@ -85,14 +85,8 @@ LayerCamera::LayerCamera(Object* object) : Layer(object, Layer::CAMERA)
         mFieldW = 800;
         mFieldH = 600;
     }
-    tmpViewRect = viewRect = QRect(QPoint(-mFieldW/2, -mFieldH/2), QSize(mFieldW, mFieldH));
     mAspectRatio = static_cast<qreal>(mFieldH) / static_cast<qreal>(mFieldW);
-    mCamHandles.center = viewRect.center();
-    mCamHandles.topLeft = viewRect.topLeft();
-    mCamHandles.topRight = viewRect.topRight();
-    mCamHandles.bottomLeft = viewRect.bottomLeft();
-    mCamHandles.bottomRight = viewRect.bottomRight();
-    viewRect = QRect(QPoint(-mFieldW / 2, -mFieldH / 2), QSize(mFieldW, mFieldH));
+    mCurrentRect = viewRect = QRect(QPoint(-mFieldW / 2, -mFieldH / 2), QSize(mFieldW, mFieldH));
     dialog = nullptr;
 }
 
@@ -163,70 +157,77 @@ QTransform LayerCamera::getViewAtFrame(int frameNumber)
 
 MoveMode LayerCamera::getMoveModeForCamera(QPointF point, qreal tolerance)
 {
-    if (QLineF(point, viewRect.topLeft()).length() < tolerance)
+    if (QLineF(point, mCurrentRect.topLeft()).length() < tolerance)
     {
         return  MoveMode::TOPLEFT;
     }
-    else if (QLineF(point, viewRect.topRight()).length() < tolerance)
+    else if (QLineF(point, mCurrentRect.topRight()).length() < tolerance)
     {
         return  MoveMode::TOPRIGHT;
     }
-    else if (QLineF(point, viewRect.bottomLeft()).length() < tolerance)
+    else if (QLineF(point, mCurrentRect.bottomLeft()).length() < tolerance)
     {
         return  MoveMode::BOTTOMLEFT;
     }
-    else if (QLineF(point, viewRect.bottomRight()).length() < tolerance)
+    else if (QLineF(point, mCurrentRect.bottomRight()).length() < tolerance)
     {
         return  MoveMode::BOTTOMRIGHT;
     }
-    else if (viewRect.contains(point.toPoint()))
+    else if (QLineF(point, QPointF(mCurrentRect.right(), mCurrentRect.y() + mCurrentRect.height()/2)).length() < tolerance)
+    {
+        return  MoveMode::ROTATION;
+    }
+    else if (mCurrentRect.contains(point.toPoint()))
     {
         return  MoveMode::CENTER;
     }
     return MoveMode::NONE;
 }
 
-void LayerCamera::transformCameraView(MoveMode mode, QPointF point)
+void LayerCamera::transformCameraView(MoveMode mode, QPointF point, int frame)
 {
     switch (mode) {
     case MoveMode::CENTER:
-        viewRect.translate((point - viewRect.center()).toPoint());
+        mCurrentRect.translate((point - mOffsetPoint).toPoint());
+        setOffsetPoint(point);
         break;
     case MoveMode::TOPLEFT:
-        if (point.x() < viewRect.right() && point.y() < viewRect.bottom())
+        if (point.x() < mCurrentRect.right() && point.y() < mCurrentRect.bottom())
         {
-            mFieldW = viewRect.right() - point.x();
-            mFieldH = mFieldW * mAspectRatio;
-            viewRect = QRect(QPoint(viewRect.right() - mFieldW, viewRect.bottom() - mFieldH), viewRect.bottomRight());
+            mFieldW = mCurrentRect.right() - static_cast<int>(point.x());
+            mFieldH = static_cast<int>(mFieldW * mAspectRatio);
+            mCurrentRect = QRect(QPoint(point.toPoint().x(), point.toPoint().y()), QSize(mFieldW, mFieldH));
         }
         break;
     case MoveMode::TOPRIGHT:
-        if (point.x() > viewRect.left() && point.y() < viewRect.bottom())
+        if (point.x() > mCurrentRect.left() && point.y() < mCurrentRect.bottom())
         {
-            mFieldW = point.x() - viewRect.left();
-            mFieldH = mFieldW * mAspectRatio;
-            viewRect = QRect(QPoint(viewRect.bottom() - mFieldH, viewRect.top()), QSize(mFieldW, mFieldH));
+            mFieldW = static_cast<int>(point.x()) - mCurrentRect.left();
+            mFieldH = static_cast<int>(mFieldW * mAspectRatio);
+            mCurrentRect = QRect(QPoint(mCurrentRect.left(), point.toPoint().y()), QSize(mFieldW, mFieldH));
         }
         break;
     case MoveMode::BOTTOMLEFT:
-        if (point.x() < viewRect.right() && point.y() > viewRect.top())
+        if (point.x() < mCurrentRect.right() && point.y() > mCurrentRect.top())
         {
-            mFieldW = viewRect.right() - point.x();
-            mFieldH = mFieldW * mAspectRatio;
-            viewRect = QRect(QPoint(point.x(), viewRect.top()), QSize(mFieldW, mFieldH));
+            mFieldW = mCurrentRect.right() - static_cast<int>(point.x());
+            mFieldH = static_cast<int>(mFieldW * mAspectRatio);
+            mCurrentRect = QRect(QPoint(point.toPoint().x(), mCurrentRect.top()), QSize(mFieldW, mFieldH));
         }
         break;
     case MoveMode::BOTTOMRIGHT:
-        if (point.x() > viewRect.left() && point.y() > viewRect.top())
+        if (point.x() > mCurrentRect.left() && point.y() > mCurrentRect.top())
         {
-            mFieldW = point.x() - viewRect.left();
-            mFieldH = mFieldW * mAspectRatio;
-            viewRect = QRect(viewRect.left(), viewRect.top(), mFieldW, mFieldH);
+            mFieldW = static_cast<int>(point.x()) - mCurrentRect.left();
+            mFieldH = static_cast<int>(mFieldW * mAspectRatio);
+            mCurrentRect = QRect(mCurrentRect.topLeft(), QSize(mFieldW, mFieldH));
         }
         break;
     default:
         break;
     }
+
+    setModified(frame, true);
 }
 
 void LayerCamera::linearInterpolateTransform(Camera* cam)
@@ -329,11 +330,10 @@ void LayerCamera::editProperties()
         QSettings settings(PENCIL2D, PENCIL2D);
         settings.setValue(SETTING_FIELD_W, dialog->getWidth());
         settings.setValue(SETTING_FIELD_H, dialog->getHeight());
-        viewRect = QRect(-dialog->getWidth()/2, -dialog->getHeight()/2, dialog->getWidth(), dialog->getHeight());
         mFieldW = dialog->getWidth();
         mFieldH = dialog->getHeight();
         mAspectRatio = static_cast<qreal>(mFieldH) / static_cast<qreal>(mFieldW);
-        viewRect = QRect(-dialog->getWidth() / 2, -dialog->getHeight() / 2, dialog->getWidth(), dialog->getHeight());
+        mCurrentRect = viewRect = QRect(-dialog->getWidth() / 2, -dialog->getHeight() / 2, dialog->getWidth(), dialog->getHeight());
 
         emit resolutionChanged();
     }
@@ -342,7 +342,7 @@ void LayerCamera::editProperties()
 QDomElement LayerCamera::createDomElement(QDomDocument& doc)
 {
     QDomElement layerElem = this->createBaseDomElement(doc);
-    layerElem.setAttribute("width", viewRect.width());
+    layerElem.setAttribute("width", viewRect.width()); // TODO should this be viewRect or mCurrentRect?
     layerElem.setAttribute("height", viewRect.height());
 
     foreachKeyFrame([&](KeyFrame* pKeyFrame)
