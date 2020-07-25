@@ -783,7 +783,6 @@ void CanvasPainter::paintCameraBorder(QPainter& painter)
 
     if (isCameraMode)
     {
-        qDebug() << "Drawing rect... " << mCameraRect;
         painter.drawRect(mCameraRect);
         int radius = 8;
         int width = radius / 2;

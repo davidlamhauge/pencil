@@ -184,7 +184,7 @@ MoveMode LayerCamera::getMoveModeForCamera(QPointF point, qreal tolerance)
     return MoveMode::NONE;
 }
 
-void LayerCamera::transformCameraView(MoveMode mode, QPointF point, int frame)
+void LayerCamera::transformCameraView(MoveMode mode, QPointF point)
 {
     switch (mode) {
     case MoveMode::CENTER:
@@ -196,7 +196,7 @@ void LayerCamera::transformCameraView(MoveMode mode, QPointF point, int frame)
         {
             mFieldW = mCurrentRect.right() - static_cast<int>(point.x());
             mFieldH = static_cast<int>(mFieldW * mAspectRatio);
-            mCurrentRect = QRect(QPoint(point.toPoint().x(), point.toPoint().y()), QSize(mFieldW, mFieldH));
+            mCurrentRect = QRect(QPoint(mCurrentRect.right() - mFieldW, mCurrentRect.bottom() - mFieldH) , mCurrentRect.bottomRight());
         }
         break;
     case MoveMode::TOPRIGHT:
@@ -204,7 +204,8 @@ void LayerCamera::transformCameraView(MoveMode mode, QPointF point, int frame)
         {
             mFieldW = static_cast<int>(point.x()) - mCurrentRect.left();
             mFieldH = static_cast<int>(mFieldW * mAspectRatio);
-            mCurrentRect = QRect(QPoint(mCurrentRect.left(), point.toPoint().y()), QSize(mFieldW, mFieldH));
+            mCurrentRect = QRect(QPoint(mCurrentRect.left(), mCurrentRect.bottom() - mFieldH),
+                                 QPoint(mCurrentRect.left() + mFieldW, mCurrentRect.bottom()));
         }
         break;
     case MoveMode::BOTTOMLEFT:
@@ -212,7 +213,7 @@ void LayerCamera::transformCameraView(MoveMode mode, QPointF point, int frame)
         {
             mFieldW = mCurrentRect.right() - static_cast<int>(point.x());
             mFieldH = static_cast<int>(mFieldW * mAspectRatio);
-            mCurrentRect = QRect(QPoint(point.toPoint().x(), mCurrentRect.top()), QSize(mFieldW, mFieldH));
+            mCurrentRect = QRect(QPoint(point.toPoint().x(), mCurrentRect.top()), QPoint(mCurrentRect.right(), mCurrentRect.top() + mFieldH));
         }
         break;
     case MoveMode::BOTTOMRIGHT:
@@ -226,8 +227,6 @@ void LayerCamera::transformCameraView(MoveMode mode, QPointF point, int frame)
     default:
         break;
     }
-
-    setModified(frame, true);
 }
 
 void LayerCamera::linearInterpolateTransform(Camera* cam)
@@ -278,6 +277,11 @@ void LayerCamera::linearInterpolateTransform(Camera* cam)
     cam->translate(dx, dy);
     cam->rotate(r);
     cam->scale(s);
+}
+
+void LayerCamera::getCameraPathFrames(Camera* cam)
+{
+
 }
 
 QRect LayerCamera::getViewRect()

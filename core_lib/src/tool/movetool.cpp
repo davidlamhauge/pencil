@@ -90,7 +90,7 @@ void MoveTool::updateSettings(const SETTING setting)
 
 void MoveTool::pointerPressEvent(PointerEvent* event)
 {
-    if (mCurrentLayer->type() == Layer::CAMERA)
+    if (mCurrentLayer->type() == Layer::CAMERA && mCurrentLayer->keyExists(mEditor->currentFrame()))
     {
         LayerCamera* cam = static_cast<LayerCamera*>(mCurrentLayer);
         cam->setOffsetPoint(getCurrentPoint());
@@ -119,9 +119,10 @@ void MoveTool::pointerMoveEvent(PointerEvent* event)
         {
             transformSelection(event->modifiers(), mCurrentLayer);
         }
-        else if (mEditor->layers()->currentLayer()->type() == Layer::CAMERA)
+        else if (mEditor->layers()->currentLayer()->type() == Layer::CAMERA
+                 && mCurrentLayer->keyExists(mEditor->currentFrame()))
         {
-            transformCamera();  // true means that it is moving
+            transformCamera();
         }
     }
     else
@@ -140,7 +141,7 @@ void MoveTool::pointerMoveEvent(PointerEvent* event)
 
 void MoveTool::pointerReleaseEvent(PointerEvent*)
 {
-    if (mCurrentLayer->type() == Layer::CAMERA)
+    if (mCurrentLayer->type() == Layer::CAMERA && mCurrentLayer->keyExists(mEditor->currentFrame()))
     {
         transformCamera();
         return;
@@ -321,9 +322,8 @@ void MoveTool::storeClosestVectorCurve(Layer* layer)
 void MoveTool::transformCamera()
 {
     LayerCamera* layer = static_cast<LayerCamera*>(mCurrentLayer);
-    layer->transformCameraView(mCamMoveMode, getCurrentPoint(), mEditor->currentFrame());
-    mScribbleArea->drawCanvas(mEditor->currentFrame(), layer->getCurrentRect());
-//    mScribbleArea->update();
+    layer->transformCameraView(mCamMoveMode, getCurrentPoint());
+    mScribbleArea->setAllDirty();
 }
 
 void MoveTool::setAnchorToLastPoint()
