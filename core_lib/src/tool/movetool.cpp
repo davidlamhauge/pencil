@@ -144,6 +144,9 @@ void MoveTool::pointerReleaseEvent(PointerEvent*)
     if (mCurrentLayer->type() == Layer::CAMERA && mCurrentLayer->keyExists(mEditor->currentFrame()))
     {
         transformCamera();
+        LayerCamera* cam = static_cast<LayerCamera*>(mCurrentLayer);
+        cam->updateCameraTransform(mEditor->currentFrame());
+        mEditor->view()->updateViewTransforms();
         return;
     }
     else

@@ -142,7 +142,7 @@ void ViewManager::updateViewTransforms()
     }
     else
     { */
-        mCurrentCamera = mDefaultEditorCamera;
+        mCurrentCamera = mDefaultEditorCamera; // kun disse tre?
         mCurrentCamera->updateViewTransform();
 
         mView = mCurrentCamera->getView();

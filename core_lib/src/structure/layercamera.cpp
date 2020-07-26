@@ -229,6 +229,19 @@ void LayerCamera::transformCameraView(MoveMode mode, QPointF point)
     }
 }
 
+void LayerCamera::updateCameraTransform(int frame)
+{
+    Camera* camera = getCameraAtFrame(frame);
+    if (camera == nullptr) { return; }
+
+    camera->setTranslate(mCurrentRect.center());
+    camera->setScale(static_cast<qreal>(viewRect.width()) / static_cast<qreal>(mCurrentRect.width()));
+    camera->setRotate(0);
+    camera->setNeedUpdateView(true);
+    camera->modification();
+//    qDebug() << "After update: " << camera->getView();
+}
+
 void LayerCamera::linearInterpolateTransform(Camera* cam)
 {
     if (keyFrameCount() == 0)
@@ -314,7 +327,13 @@ KeyFrame* LayerCamera::createKeyFrame(int position, Object*)
 {
     Camera* c = new Camera;
     c->setPos(position);
-    linearInterpolateTransform(c);
+    Camera* old = static_cast<Camera*>(getLastKeyFrameAtPosition(position - 1));
+    if (old != nullptr)
+    {
+        c = old->clone();
+        qDebug() << "old: " << old->translation() << " T " << old->getView();
+    }
+    qDebug() << "c  : " << c->translation() << " T " << c->getView();
     return c;
 }
 
