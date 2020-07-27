@@ -155,6 +155,17 @@ QTransform LayerCamera::getViewAtFrame(int frameNumber)
 
 }
 
+QTransform LayerCamera::getRawViewAtFrame(int frame)
+{
+    if (keyFrameCount() == 0)
+    {
+        return QTransform();
+    }
+
+    Camera* camera = static_cast<Camera*>(getLastKeyFrameAtPosition(frame));
+    return camera->getView();
+}
+
 MoveMode LayerCamera::getMoveModeForCamera(QPointF point, qreal tolerance)
 {
     if (QLineF(point, mCurrentRect.topLeft()).length() < tolerance)
@@ -329,10 +340,13 @@ KeyFrame* LayerCamera::createKeyFrame(int position, Object*)
     Camera* c = new Camera;
     Camera* old = static_cast<Camera*>(getLastKeyFrameAtPosition(position - 1));
     if (old != nullptr)
-    {
-        c = new Camera(old->translation(), old->rotation(), old->scaling());
+    {/*
+        c->setTranslate(old->translation());
+        c->setRotate(old->rotation());
+        c->setScale(old->scaling()); */
+        c->assign(*old);
         c->setPos(position);
-//        loadKey(c);
+        linearInterpolateTransform(c);
         qDebug() << "CREATE frame: " << c->pos() << " point: " << c->translation() << " scale: " << c->scaling() << " rotate: " << c->rotation();
     }
     return  c;

@@ -22,6 +22,7 @@ GNU General Public License for more details.
 #include "layervector.h"
 #include "bitmapimage.h"
 #include "layercamera.h"
+#include "camera.h"
 #include "vectorimage.h"
 #include "util.h"
 
@@ -95,20 +96,20 @@ void CanvasPainter::paintCached()
 
     renderCurLayer(painter);
 
-    if (!mPostLayersCache)
-    {
+//    if (!mPostLayersCache)
+//    {
         renderPostLayers(tempPainter);
         mPostLayersCache.reset(new QPixmap(tempPixmap));
         painter.setWorldMatrixEnabled(false);
         painter.drawPixmap(0, 0, tempPixmap);
         painter.setWorldMatrixEnabled(true);
-    }
-    else
+//    }
+/*    else
     {
         painter.setWorldMatrixEnabled(false);
         painter.drawPixmap(0, 0, *(mPostLayersCache.get()));
         painter.setWorldMatrixEnabled(true);
-    }
+    } */
 }
 
 void CanvasPainter::resetLayerCache()
@@ -775,7 +776,8 @@ void CanvasPainter::paintCameraBorder(QPainter& painter)
     QTransform viewInverse = mViewTransform.inverted();
     boundingRect = viewInverse.mapRect(viewRect).toAlignedRect();
 
-    QTransform camTransform = cameraLayer->getViewAtFrame(mFrameNumber);
+    QTransform camTransform = cameraLayer->getRawViewAtFrame(mFrameNumber);
+//    QTransform camTransform = cameraLayer->getViewAtFrame(mFrameNumber);
     mCameraRect = camTransform.inverted().mapRect(mCameraRect);
     rg2 = camTransform.inverted().map(rg2);
 

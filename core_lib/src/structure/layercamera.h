@@ -64,6 +64,7 @@ public:
     Camera* getCameraAtFrame(int frameNumber);
     Camera* getLastCameraAtFrame(int frameNumber, int increment);
     QTransform getViewAtFrame(int frameNumber);
+    QTransform getRawViewAtFrame(int frame);
     MoveMode getMoveModeForCamera(QPointF point, qreal tolerance);
     void transformCameraView(MoveMode mode, QPointF point);
     void updateCameraTransform(int frame);
