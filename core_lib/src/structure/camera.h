@@ -47,6 +47,10 @@ public:
     qreal scaling() { return mScale; }
 
     QTransform view;
+    void setTranslate(QPointF point) { mTranslate = point; }
+    void setRotate(qreal rotate) { mRotate = rotate; }
+    void setScale(qreal scale) { mScale = scale; }
+    void setNeedUpdateView(bool b) { mNeedUpdateView = b; }
 
     bool operator==(const Camera& rhs) const;
 

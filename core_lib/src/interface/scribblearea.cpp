@@ -28,6 +28,7 @@ GNU General Public License for more details.
 #include "layerbitmap.h"
 #include "layervector.h"
 #include "layercamera.h"
+#include "camera.h"
 #include "bitmapimage.h"
 #include "vectorimage.h"
 

@@ -21,6 +21,7 @@ GNU General Public License for more details.
 #include "object.h"
 #include "camera.h"
 #include "layercamera.h"
+#include <QDebug>
 
 const static float mMinScale = 0.01f;
 const static float mMaxScale = 100.0f;
@@ -130,23 +131,9 @@ QTransform ViewManager::getViewInverse()
 
 void ViewManager::updateViewTransforms()
 {
-/*    if (mCameraLayer)
-    {
-        int frame = editor()->currentFrame();
-        mCurrentCamera = mCameraLayer->getCameraAtFrame(frame);
-        if (mCurrentCamera)
-        {
-            mCurrentCamera->updateViewTransform();
-        }
-        mView = mCameraLayer->getViewAtFrame(frame);
-    }
-    else
-    { */
-        mCurrentCamera = mDefaultEditorCamera;
-        mCurrentCamera->updateViewTransform();
-
-        mView = mCurrentCamera->getView();
-//    }
+    mCurrentCamera = mDefaultEditorCamera;
+    mCurrentCamera->updateViewTransform();
+    mView = mCurrentCamera->getView();
 
     mViewInverse = mView.inverted();
 

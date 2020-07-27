@@ -229,6 +229,20 @@ void LayerCamera::transformCameraView(MoveMode mode, QPointF point)
     }
 }
 
+void LayerCamera::updateCameraTransform(int frame)
+{
+    Camera* c = getCameraAtFrame(frame);
+    if (c == nullptr) { return; }
+
+    c->setTranslate(mCurrentRect.center());
+    c->setScale(static_cast<qreal>(mCurrentRect.width()) / static_cast<qreal>(viewRect.width()));
+    c->setRotate(0.);
+
+    c->setNeedUpdateView(true);
+    c->modification();
+    qDebug() << "UPDATE frame: " << c->pos() << " point: " << c->translation() << " scale: " << c->scaling() << " rotate: " << c->rotation();
+}
+
 void LayerCamera::linearInterpolateTransform(Camera* cam)
 {
     if (keyFrameCount() == 0)
@@ -313,9 +327,15 @@ Status LayerCamera::saveKeyFrameFile(KeyFrame*, QString)
 KeyFrame* LayerCamera::createKeyFrame(int position, Object*)
 {
     Camera* c = new Camera;
-    c->setPos(position);
-    linearInterpolateTransform(c);
-    return c;
+    Camera* old = static_cast<Camera*>(getLastKeyFrameAtPosition(position - 1));
+    if (old != nullptr)
+    {
+        c = new Camera(old->translation(), old->rotation(), old->scaling());
+        c->setPos(position);
+//        loadKey(c);
+        qDebug() << "CREATE frame: " << c->pos() << " point: " << c->translation() << " scale: " << c->scaling() << " rotate: " << c->rotation();
+    }
+    return  c;
 }
 
 void LayerCamera::editProperties()
@@ -390,6 +410,7 @@ void LayerCamera::loadDomElement(const QDomElement& element, QString dataDirPath
                 qreal scale = imageElement.attribute("s", "1").toDouble();
                 qreal dx = imageElement.attribute("dx", "0").toDouble();
                 qreal dy = imageElement.attribute("dy", "0").toDouble();
+                qDebug() << "LOAD   frame: " << frame << " point: " << dx << "," << dy << " scale: " << scale << " rotate: " << rotate;
 
                 loadImageAtFrame(frame, dx, dy, rotate, scale);
             }
