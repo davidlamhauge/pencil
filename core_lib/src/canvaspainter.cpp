@@ -776,7 +776,10 @@ void CanvasPainter::paintCameraBorder(QPainter& painter)
     boundingRect = viewInverse.mapRect(viewRect).toAlignedRect();
 
     QTransform camTransform = cameraLayer->getViewAtFrame(mFrameNumber);
+//    qDebug() << "CamTransform: " << camTransform;
+    qDebug() << "BEF Cam rect: " << mCameraRect;
     mCameraRect = camTransform.inverted().mapRect(mCameraRect);
+    qDebug() << "AFT Cam rect: " << mCameraRect;
     rg2 = camTransform.inverted().map(rg2);
 
     painter.setOpacity(1.0);

@@ -122,7 +122,7 @@ void MoveTool::pointerMoveEvent(PointerEvent* event)
         else if (mEditor->layers()->currentLayer()->type() == Layer::CAMERA
                  && mCurrentLayer->keyExists(mEditor->currentFrame()))
         {
-            transformCamera();
+            transformCamera(false);
         }
     }
     else
@@ -143,7 +143,7 @@ void MoveTool::pointerReleaseEvent(PointerEvent*)
 {
     if (mCurrentLayer->type() == Layer::CAMERA && mCurrentLayer->keyExists(mEditor->currentFrame()))
     {
-        transformCamera();
+        transformCamera(true);
         return;
     }
     else
@@ -319,10 +319,12 @@ void MoveTool::storeClosestVectorCurve(Layer* layer)
     selectMan->setCurves(pVecImg->getCurvesCloseTo(getCurrentPoint(), selectMan->selectionTolerance()));
 }
 
-void MoveTool::transformCamera()
+void MoveTool::transformCamera(bool updateRect)
 {
     LayerCamera* layer = static_cast<LayerCamera*>(mCurrentLayer);
-    layer->transformCameraView(mCamMoveMode, getCurrentPoint());
+    layer->transformCameraView(mEditor->currentFrame(), mCamMoveMode, getCurrentPoint());
+    if (updateRect && getCurrentPoint() != layer->getOffsetPoint())
+        layer->updateCamRects(mEditor->currentFrame());
     mScribbleArea->setAllDirty();
 }
 

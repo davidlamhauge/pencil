@@ -39,14 +39,20 @@ public:
     void translate(qreal dx, qreal dy);
     void translate(const QPointF);
     QPointF translation() { return mTranslate; }
+    void setTranslate(QPointF translate) { mTranslate = translate; }
 
     void rotate(qreal degree);
     qreal rotation() { return mRotate; }
+    void setRotate(qreal rotate) { mRotate = rotate; }
 
     void scale(qreal scaleValue);
     qreal scaling() { return mScale; }
+    void setScale(qreal scale) { mScale = scale; }
 
     QTransform view;
+    void setCamRect(QRect rect) { mCamRect = rect; }
+    QRect getCamRect() { return  mCamRect; }
+
 
     bool operator==(const Camera& rhs) const;
 
@@ -55,6 +61,7 @@ private:
     qreal mRotate = 0.;
     qreal mScale = 1.;
     bool mNeedUpdateView = true;
+    QRect mCamRect;
 };
 
 #endif // CAMERA_H

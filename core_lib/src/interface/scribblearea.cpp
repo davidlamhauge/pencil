@@ -191,6 +191,15 @@ void ScribbleArea::updateFrame(int frame)
     if (frameNumber < 0) { return; }
 
     Q_ASSERT(frame >= 0);
+
+    if (mEditor->layers()->currentLayer()->type() == Layer::CAMERA
+            && !mEditor->playback()->isPlaying())
+    {
+        LayerCamera* camera = static_cast<LayerCamera*>(mEditor->layers()->currentLayer());
+        camera->updateCamRects(frame);
+//        setAllDirty();
+    }
+
     if (mPixmapCacheKeys.size() <= static_cast<unsigned>(frame))
     {
         mPixmapCacheKeys.resize(static_cast<unsigned>(frame + 10)); // a buffer
