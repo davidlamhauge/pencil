@@ -39,15 +39,12 @@ public:
     void translate(qreal dx, qreal dy);
     void translate(const QPointF);
     QPointF translation() { return mTranslate; }
-    void setTranslate(QPointF translate) { mTranslate = translate; }
 
     void rotate(qreal degree);
     qreal rotation() { return mRotate; }
-    void setRotate(qreal rotate) { mRotate = rotate; }
 
     void scale(qreal scaleValue);
     qreal scaling() { return mScale; }
-    void setScale(qreal scale) { mScale = scale; }
 
     QTransform view;
     void setCamRect(QRect rect) { mCamRect = rect; }

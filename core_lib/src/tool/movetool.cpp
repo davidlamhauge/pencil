@@ -32,6 +32,7 @@ GNU General Public License for more details.
 #include "layercamera.h"
 #include "mathutils.h"
 #include "vectorimage.h"
+#include "camera.h"
 
 
 MoveTool::MoveTool(QObject* parent) : BaseTool(parent)
@@ -325,7 +326,6 @@ void MoveTool::transformCamera(bool updateRect)
     layer->transformCameraView(mEditor->currentFrame(), mCamMoveMode, getCurrentPoint());
     if (updateRect && getCurrentPoint() != layer->getOffsetPoint())
         layer->updateCamRects(mEditor->currentFrame());
-    mScribbleArea->setAllDirty();
 }
 
 void MoveTool::setAnchorToLastPoint()

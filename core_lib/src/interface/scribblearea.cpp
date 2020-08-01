@@ -28,6 +28,7 @@ GNU General Public License for more details.
 #include "layerbitmap.h"
 #include "layervector.h"
 #include "layercamera.h"
+#include "camera.h"
 #include "bitmapimage.h"
 #include "vectorimage.h"
 
@@ -197,7 +198,7 @@ void ScribbleArea::updateFrame(int frame)
     {
         LayerCamera* camera = static_cast<LayerCamera*>(mEditor->layers()->currentLayer());
         camera->updateCamRects(frame);
-//        setAllDirty();
+        setAllDirty();
     }
 
     if (mPixmapCacheKeys.size() <= static_cast<unsigned>(frame))

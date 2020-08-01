@@ -22,6 +22,7 @@ GNU General Public License for more details.
 #include "layervector.h"
 #include "bitmapimage.h"
 #include "layercamera.h"
+#include "camera.h"
 #include "vectorimage.h"
 #include "util.h"
 
@@ -43,6 +44,7 @@ void CanvasPainter::setCanvas(QPixmap* canvas)
 void CanvasPainter::setViewTransform(const QTransform view, const QTransform viewInverse)
 {
     if (mViewTransform != view || mViewInverse != viewInverse) {
+
         mViewTransform = view;
         mViewInverse = viewInverse;
 
@@ -776,10 +778,11 @@ void CanvasPainter::paintCameraBorder(QPainter& painter)
     boundingRect = viewInverse.mapRect(viewRect).toAlignedRect();
 
     QTransform camTransform = cameraLayer->getViewAtFrame(mFrameNumber);
-//    qDebug() << "CamTransform: " << camTransform;
-    qDebug() << "BEF Cam rect: " << mCameraRect;
+//    qDebug() << "CamTransform: " << camTransform << " camRect: " << mCameraRect;
+//    qDebug() << "BEF Cam rect: " << mCameraRect;
     mCameraRect = camTransform.inverted().mapRect(mCameraRect);
-    qDebug() << "AFT Cam rect: " << mCameraRect;
+//    qDebug() << "AFT Cam rect: " << camTransform << " camREct: " << mCameraRect << "\n";
+//    qDebug() << "View " << mViewTransform << "CamRect: " << mCameraRect << "\n";
     rg2 = camTransform.inverted().map(rg2);
 
     painter.setOpacity(1.0);
