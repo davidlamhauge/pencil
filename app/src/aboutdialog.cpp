@@ -45,7 +45,7 @@ void AboutDialog::init()
 #if defined(PENCIL2D_RELEASE_BUILD)
     devText << tr("Version: %1", "Version Number in About Dialog").arg(APP_VERSION);
 #elif defined(PENCIL2D_NIGHTLY_BUILD)
-    devText << "Nightly build";
+    devText << "Nightly Build " __DATE__;
 #else
     devText << "Development build";
 #endif

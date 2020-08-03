@@ -84,8 +84,10 @@ GNU General Public License for more details.
 #define BUILD_DATE __DATE__
 #endif
 
-#ifdef PENCIL2D_NIGHTLY_BUILD
-#define PENCIL_WINDOW_TITLE QString("[*]Pencil2D - Nightly Build %1").arg(BUILD_DATE)
+#if defined(PENCIL2D_RELEASE_BUILD)
+#define PENCIL_WINDOW_TITLE QString("[*]Pencil2D v%1").arg(APP_VERSION)
+#elif defined(PENCIL2D_NIGHTLY_BUILD)
+#define PENCIL_WINDOW_TITLE QString("[*]Pencil2D Nightly Build %1").arg(BUILD_DATE)
 #else
 #define PENCIL_WINDOW_TITLE QString("[*]Pencil2D v%1").arg(APP_VERSION)
 #endif
@@ -291,10 +293,19 @@ void MainWindow2::createMenus()
     connect(ui->actionChangeLineColorAll_keyframes_on_layer, &QAction::triggered, mCommands, &ActionCommands::changeallKeyframeLineColor);
 
     QList<QAction*> visibilityActions = ui->menuLayer_Visibility->actions();
+    auto visibilityGroup = new QActionGroup(this);
+    visibilityGroup->setExclusive(true);
     for (int i = 0; i < visibilityActions.size(); i++) {
         QAction* action = visibilityActions[i];
+        visibilityGroup->addAction(action);
         connect(action, &QAction::triggered, [=] { mCommands->setLayerVisibilityIndex(i); });
     }
+    visibilityActions[mEditor->preference()->getInt(SETTING::LAYER_VISIBILITY)]->setChecked(true);
+    connect(mEditor->preference(), &PreferenceManager::optionChanged, [=](SETTING e) {
+        if (e == SETTING::LAYER_VISIBILITY) {
+            visibilityActions[mEditor->preference()->getInt(SETTING::LAYER_VISIBILITY)]->setChecked(true);
+        }
+    });
 
     // --- View Menu ---
     connect(ui->actionZoom_In, &QAction::triggered, mCommands, &ActionCommands::ZoomIn);
