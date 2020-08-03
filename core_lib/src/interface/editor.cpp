@@ -712,7 +712,7 @@ Status Editor::setObject(Object* newObject)
         connect(newObject, &Object::layerViewChanged, mViewManager, &ViewManager::viewChanged);
     }
 
-    emit objectLoaded();
+    emit objectLoaded(currentFrame());
 
     return Status::OK;
 }

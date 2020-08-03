@@ -85,20 +85,7 @@ void Camera::updateViewTransform()
         QTransform s;
         s.scale(mScale, mScale);
 
-/*       qDebug() << "T " << t;
-        qDebug() << "R " << r;
-        qDebug() << "S " << s;*/
-//        view = t * r * s;
-        view.setMatrix(s.m11(),
-                       r.m12(),
-                       r.m13(),
-                       r.m21(),
-                       s.m22(),
-                       r.m23(),
-                       t.m31(),
-                       t.m32(),
-                       r.m33());
-//        qDebug() << "W " << view;
+        view = t * r * s;
     }
     mNeedUpdateView = false;
 }

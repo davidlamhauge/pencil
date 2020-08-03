@@ -174,6 +174,15 @@ QString LayerManager::nameSuggestLayer(const QString& name)
     return newName;
 }
 
+void LayerManager::objectLoaded(int frame)
+{
+    if (currentLayer()->type() == Layer::CAMERA)
+    {
+        LayerCamera* camera = static_cast<LayerCamera*>(currentLayer());
+        camera->ifObjectLoaded(frame);
+    }
+}
+
 LayerBitmap* LayerManager::createBitmapLayer(const QString& strLayerName)
 {
     LayerBitmap* layer = object()->addNewBitmapLayer();

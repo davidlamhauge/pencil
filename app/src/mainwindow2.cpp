@@ -1361,6 +1361,7 @@ void MainWindow2::makeConnections(Editor* editor)
     connect(editor, &Editor::needDisplayInfo, this, &MainWindow2::displayMessageBox);
     connect(editor, &Editor::needDisplayInfoNoTitle, this, &MainWindow2::displayMessageBoxNoTitle);
     connect(editor->layers(), &LayerManager::currentLayerChanged, this, &MainWindow2::currentLayerChanged);
+    connect(editor, &Editor::objectLoaded, editor->layers(), &LayerManager::objectLoaded);
 }
 
 void MainWindow2::makeConnections(Editor* editor, ColorBox* colorBox)

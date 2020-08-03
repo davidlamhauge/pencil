@@ -67,7 +67,6 @@ public:
     MoveMode getMoveModeForCamera(QPointF point, qreal tolerance);
     void transformCameraView(int frame, MoveMode mode, QPointF point);
     void updateCamRects(int frame);
-    void updateCamView(int frame);
 
     qreal mAspectRatio = 0.75; // Aspect ratio for 800x600
     QRect getViewRect();
@@ -75,6 +74,8 @@ public:
     QSize getViewSize();
     void setOffsetPoint(QPointF offset) { mOffsetPoint = offset; }
     QPointF getOffsetPoint() { return mOffsetPoint; }
+
+    void ifObjectLoaded(int currentFrame);
 
 signals:
     void resolutionChanged();

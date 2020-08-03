@@ -231,25 +231,12 @@ void LayerCamera::transformCameraView(int frame, MoveMode mode, QPointF point)
     Camera* c = getCameraAtFrame(frame);
     if (c == nullptr) { return; }
 
+    qDebug() << c->pos() << " CurrRect " << mCurrentRect << " VIEW " << c->view;
+
     c->translate(mCurrentRect.center());
     c->scale(static_cast<qreal>(viewRect.width()) / static_cast<qreal>(mCurrentRect.width()) );
 
-//    c->updateViewTransform();
-
-    /*
-    qreal s = static_cast<qreal>(mCurrentRect.width()) / static_cast<qreal>(viewRect.width());
-
-    c->view.setMatrix(s,
-                      c->view.m12(),
-                      c->view.m13(),
-                      c->view.m21(),
-                      s,
-                      c->view.m23(),
-                      mCurrentRect.center().x(),
-                      mCurrentRect.center().y(),
-                      c->view.m33());
-*/
-    qDebug() << c->pos() << " CurrRect " << mCurrentRect << " VIEW " << c->view;
+    qDebug() << c->pos() << " CurrRect " << mCurrentRect << " VIEW " << c->view << "\n";
 
     c->setCamRect(mCurrentRect);
 
@@ -264,23 +251,7 @@ void LayerCamera::updateCamRects(int frame)
     if (c == nullptr || !c->getCamRect().isValid()) { return; }
 
     mCurrentRect = c->getCamRect();
-}
-
-void LayerCamera::updateCamView(int frame)
-{
-    Camera* c = getCameraAtFrame(frame);
-    if (c == nullptr) { return; }
-
-    qreal s = static_cast<qreal>(viewRect.width()) / static_cast<qreal>(mCurrentRect.width());
-    c->view.setMatrix(s,
-                      c->view.m12(),
-                      c->view.m13(),
-                      c->view.m21(),
-                      s,
-                      c->view.m23(),
-                      mCurrentRect.center().x(),
-                      mCurrentRect.center().y(),
-                      c->view.m33());
+//    qDebug() << "UPDATE " << c->pos() << " " << c->getCamRect() << " "  << c->view;
 }
 
 void LayerCamera::linearInterpolateTransform(Camera* cam)
@@ -343,6 +314,31 @@ QSize LayerCamera::getViewSize()
     return viewRect.size();
 }
 
+void LayerCamera::ifObjectLoaded(int currentFrame)
+{
+    for (int i = firstKeyFramePosition(); i <= getMaxKeyFramePosition(); i++)
+    {
+        if (keyExists(i))
+        {
+            Camera* tmpCam = getCameraAtFrame(i);
+            int w = static_cast<int>(viewRect.width() * tmpCam->view.m11());
+            int h = static_cast<int>(viewRect.height() * tmpCam->view.m11());
+            QPoint topLeft = QPoint(static_cast<int>(tmpCam->view.dx() - w / 2), static_cast<int>(tmpCam->view.dy() - h/2));
+            QRect rect = QRect(topLeft, QSize(w, h));
+            tmpCam->setCamRect(rect);
+//            qDebug() << "I FOR-LOOP" << tmpCam->pos() << " rect: " << rect << " VIEW: " << tmpCam->view;
+        }
+    }
+
+    // set mCurrentRect
+    Camera* c = getCameraAtFrame(currentFrame);
+    if (c == nullptr) { return; }
+
+    mCurrentRect = QRect(QPoint(c->view.dx(), c->view.dy()), QSize(viewRect.width() * c->view.m11(), viewRect.height() * c->view.m11()));
+//    qDebug() << " FORBI FOR-LOOP" << c->pos() << " rect: " << mCurrentRect << " VIEW: " << c->view;
+    c->modification();
+}
+
 // used only when loading scene from xml file
 void LayerCamera::loadImageAtFrame(int frameNumber, qreal dx, qreal dy, qreal rotate, qreal scale)
 {
@@ -350,13 +346,15 @@ void LayerCamera::loadImageAtFrame(int frameNumber, qreal dx, qreal dy, qreal ro
     {
         removeKeyFrame(frameNumber);
     }
-    int w = static_cast<int>(viewRect.width() * scale);
-    int h = static_cast<int>(viewRect.height() * scale);
-    QPoint topLeft = QPoint(static_cast<int>(dx - w / 2), static_cast<int>(dy - h/2));
+
+    int w = static_cast<int>(viewRect.width() / scale);
+    int h = static_cast<int>(viewRect.height() / scale);
+    QPoint topLeft = QPoint(static_cast<int>(dx - w / 2), static_cast<int>(dy - h / 2));
     mCurrentRect = QRect(topLeft, QSize(w, h));
-    qDebug() << "after LOAD " << mCurrentRect;
+
     Camera* camera = new Camera(QPointF(dx, dy), rotate, scale);
     camera->setPos(frameNumber);
+//    qDebug() << "mcurrentRect after LOAD " << mCurrentRect;
 
     camera->setCamRect(mCurrentRect);
     camera->translate(QPointF(mCurrentRect.center()));
@@ -372,21 +370,16 @@ Status LayerCamera::saveKeyFrameFile(KeyFrame*, QString)
 KeyFrame* LayerCamera::createKeyFrame(int position, Object*)
 {
     Camera* c = new Camera;
-    /*
-    Camera* prev = static_cast<Camera*>(getKeyFrameAt(getPreviousKeyFramePosition(position)));
-    if (!keyExists(position) || prev == nullptr)
-        c = new Camera;
-    else
-        c = new Camera(*prev);
-        */
     c->setPos(position);
     linearInterpolateTransform(c);
-    int w = static_cast<int>(viewRect.width() * c->view.m11());
-    int h = static_cast<int>(viewRect.height() * c->view.m11());
-    c->setCamRect(QRect(QPoint(static_cast<int>(c->view.dx() - w / 2), static_cast<int>(c->view.dy() - h / 2)),
-                        QSize(w, h)));
-//    c->updateViewTransform();
-    qDebug() << "CREATE " << c->pos() << " " << c->getCamRect() << " "  << c->view;
+
+    int w = static_cast<int>(viewRect.width() / c->scaling());
+    int h = static_cast<int>(viewRect.height() / c->scaling());
+    QPoint topLeft = QPoint(static_cast<int>(c->view.dx() - w / 2), static_cast<int>(c->view.dy() - h / 2));
+    mCurrentRect = QRect(topLeft, QSize(w, h));
+    c->setCamRect(mCurrentRect);
+
+//    qDebug() << "CREATE " << c->pos() << " " << c->getCamRect() << " "  << c->view;
     return  c;
 }
 
@@ -427,15 +420,11 @@ QDomElement LayerCamera::createDomElement(QDomDocument& doc)
                         Camera* camera = static_cast<Camera*>(pKeyFrame);
                         QDomElement keyTag = doc.createElement("camera");
                         keyTag.setAttribute("frame", camera->pos());
-
-                        qreal s = 0.;
-                        if (camera->scaling() != 0.)
-                            s = 1 / camera->scaling();
                         keyTag.setAttribute("r", camera->rotation());
-                        keyTag.setAttribute("s", s);
-                        keyTag.setAttribute("dx", -camera->translation().x());
-                        keyTag.setAttribute("dy", -camera->translation().y());
-                        qDebug() << "SAVE T S: " << camera->pos() << " " << -camera->translation() << " " << s;
+                        keyTag.setAttribute("s", camera->scaling());
+                        keyTag.setAttribute("dx", camera->translation().x());
+                        keyTag.setAttribute("dy", camera->translation().y());
+                        qDebug() << "SAVE T S: " << camera->pos() << " " << camera->translation() << " " << camera->scaling();
                         layerElem.appendChild(keyTag);
                     });
 
@@ -467,11 +456,9 @@ void LayerCamera::loadDomElement(const QDomElement& element, QString dataDirPath
                 qreal scale = imageElement.attribute("s", "1").toDouble();
                 qreal dx = imageElement.attribute("dx", "0").toDouble();
                 qreal dy = imageElement.attribute("dy", "0").toDouble();
-                qDebug() << "LOAD T S: " << frame << " " << QPointF(dx, dy) << " " << scale;
 
                 loadImageAtFrame(frame, dx, dy, rotate, scale);
             }
         }
         imageTag = imageTag.nextSibling();
-    }
-}
+    }}

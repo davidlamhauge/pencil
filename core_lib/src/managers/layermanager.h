@@ -72,6 +72,9 @@ public:
     QString nameSuggestLayer(const QString& name);
     int getLastLayerIndex() { return count() - 1; }
 
+public slots:
+    void objectLoaded(int frame);
+
 Q_SIGNALS:
     void currentLayerChanged(int index);
     void layerCountChanged(int count);

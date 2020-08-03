@@ -122,7 +122,7 @@ Q_SIGNALS:
     void updateLayerCount();
     void updateBackup();
 
-    void objectLoaded();
+    void objectLoaded(int currentFrame);
 
     void changeThinLinesButton(bool);
     void currentFrameChanged(int n);
