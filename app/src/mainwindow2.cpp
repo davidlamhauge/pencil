@@ -73,6 +73,7 @@ GNU General Public License for more details.
 #include "shortcutfilter.h"
 #include "app_util.h"
 #include "presetdialog.h"
+#include "pegbaralignmentdialog.h"
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -1458,7 +1459,7 @@ void MainWindow2::makeConnections(Editor* pEditor, ColorPaletteWidget* pColorPal
     connect(pColorManager, &ColorManager::colorNumberChanged, pColorPalette, &ColorPaletteWidget::selectColorNumber);
 }
 
-void MainWindow2::bindActionWithSetting(QAction* action, SETTING setting)
+void MainWindow2::bindActionWithSetting(QAction* action, const SETTING& setting)
 {
     PreferenceManager* prefs = mEditor->preference();
 
