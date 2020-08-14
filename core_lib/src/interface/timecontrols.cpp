@@ -221,6 +221,9 @@ void TimeControls::jumpToStartButtonClicked()
         mEditor->scrubTo(mEditor->layers()->firstKeyFrameIndex());
     }
     mEditor->playback()->stopSounds();
+
+    if (mEditor->playback()->isPlaying())
+        mEditor->playback()->setCheckForSoundsHalfway(true);
 }
 
 void TimeControls::jumpToEndButtonClicked()
