@@ -1057,16 +1057,25 @@
    </property>
   </action>
   <action name="actionVisibilityCurrentLayerOnly">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Current layer only</string>
    </property>
   </action>
   <action name="actionVisibilityRelative">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Relative</string>
    </property>
   </action>
   <action name="actionVisibilityAll">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>All layers</string>
    </property>

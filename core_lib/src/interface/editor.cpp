@@ -2,7 +2,7 @@
 
 Pencil - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -1168,11 +1168,6 @@ void Editor::switchVisibilityOfLayer(int layerNumber)
     emit updateTimeLine();
 }
 
-void Editor::showLayerNotVisibleWarning()
-{
-    return mScribbleArea->showLayerNotVisibleWarning();
-}
-
 void Editor::swapLayers(int i, int j)
 {
     mObject->swapLayers(i, j);
@@ -1188,23 +1183,22 @@ void Editor::swapLayers(int i, int j)
     mScribbleArea->updateAllFrames();
 }
 
-Status::StatusInt Editor::pegBarAlignment(QStringList layers)
+Status Editor::pegBarAlignment(QStringList layers)
 {
-    Status::StatusInt retLeft;
-    Status::StatusInt retRight;
+    PegbarResult retLeft;
+    PegbarResult retRight;
 
     LayerBitmap* layerbitmap = static_cast<LayerBitmap*>(mLayerManager->currentLayer());
     BitmapImage* img = layerbitmap->getBitmapImageAtFrame(currentFrame());
     QRectF rect = select()->mySelectionRect();
     retLeft = img->findLeft(rect, 121);
     retRight = img->findTop(rect, 121);
-    if (retLeft.errorcode == Status::FAIL || retRight.errorcode == Status::FAIL)
+    if (STATUS_FAILED(retLeft.errorcode) || STATUS_FAILED(retRight.errorcode))
     {
-        retLeft.errorcode = Status::FAIL;
-        return retLeft;
+        return Status(Status::FAIL, "", tr("Peg hole not found!\nCheck selection, and please try again.", "PegBar error message"));
     }
-    int peg_x = retLeft.value;
-    int peg_y = retRight.value;
+    const int peg_x = retLeft.value;
+    const int peg_y = retRight.value;
 
     // move other layers
     for (int i = 0; i < layers.count(); i++)
@@ -1216,17 +1210,15 @@ Status::StatusInt Editor::pegBarAlignment(QStringList layers)
             {
                 img = layerbitmap->getBitmapImageAtFrame(k);
                 retLeft = img->findLeft(rect, 121);
-                const QString body = tr("Peg bar not found at %1, %2").arg(layerbitmap->name()).arg(k);
-                if (retLeft.errorcode == Status::FAIL)
+                const QString errorDescription = tr("Peg bar not found at %1, %2").arg(layerbitmap->name()).arg(k);
+                if (STATUS_FAILED(retLeft.errorcode))
                 {
-                    emit needDisplayInfoNoTitle(body);
-                    return retLeft;
+                    return Status(retLeft.errorcode, "", errorDescription);
                 }
                 retRight = img->findTop(rect, 121);
-                if (retRight.errorcode == Status::FAIL)
+                if (STATUS_FAILED(retRight.errorcode))
                 {
-                    emit needDisplayInfoNoTitle(body);
-                    return retRight;
+                    return Status(retRight.errorcode, "", errorDescription);
                 }
                 img->moveTopLeft(QPoint(img->left() + (peg_x - retLeft.value), img->top() + (peg_y - retRight.value)));
             }
@@ -1234,7 +1226,7 @@ Status::StatusInt Editor::pegBarAlignment(QStringList layers)
     }
     deselectAll();
 
-    return retLeft;
+    return retLeft.errorcode;
 }
 
 void Editor::prepareSave()

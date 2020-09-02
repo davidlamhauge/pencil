@@ -2,7 +2,7 @@
 
 Pencil - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -157,7 +157,6 @@ void TimeLine::initUI()
     mTimeControls = new TimeControls(this);
     mTimeControls->setEditor(editor());
     mTimeControls->initUI();
-    mTimeControls->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
     updateLength();
 
     QHBoxLayout* rightToolBarLayout = new QHBoxLayout();

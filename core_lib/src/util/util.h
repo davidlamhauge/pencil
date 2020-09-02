@@ -2,7 +2,7 @@
 
 Pencil - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -31,9 +31,13 @@ class ScopeGuard
 {
 public:
     explicit ScopeGuard(std::function< void() > onScopeExit) { m_onScopeExit = onScopeExit; }
-    ~ScopeGuard() { m_onScopeExit(); }
+    ScopeGuard(const ScopeGuard&) = delete;
+    ~ScopeGuard() { if(m_invoke) { m_onScopeExit(); } }
+
+    void dismiss() { m_invoke = false; };
 private:
     std::function<void()> m_onScopeExit;
+    bool m_invoke = true;
 };
 
 #define SCOPEGUARD_LINENAME_CAT(name, line) name##line

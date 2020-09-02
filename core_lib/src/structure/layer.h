@@ -2,7 +2,7 @@
 
 Pencil - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -74,8 +74,8 @@ public:
 
     virtual Status saveKeyFrameFile(KeyFrame*, QString dataPath) = 0;
     virtual void loadDomElement(const QDomElement& element, QString dataDirPath, ProgressCallback progressForward) = 0;
-    virtual QDomElement createDomElement(QDomDocument& doc) = 0;
-    QDomElement createBaseDomElement(QDomDocument& doc);
+    virtual QDomElement createDomElement(QDomDocument& doc) const = 0;
+    QDomElement createBaseDomElement(QDomDocument& doc) const;
     void loadBaseDomElement(const QDomElement& elem);
 
     // KeyFrame interface
@@ -103,7 +103,7 @@ public:
     KeyFrame *getKeyFrameWhichCovers(int frameNumber) const;
     bool getVisibility() { return mVisible; }
 
-    void foreachKeyFrame(std::function<void(KeyFrame*)>);
+    void foreachKeyFrame(std::function<void(KeyFrame*)>) const;
 
     void setModified(int position, bool isModified);
     void copyFrame(Layer *fromLayer, Layer *toLayer, int frame);
