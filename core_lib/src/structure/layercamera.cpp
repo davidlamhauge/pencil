@@ -194,39 +194,34 @@ void LayerCamera::transformCameraView(int frame, MoveMode mode, QPointF point)
     case MoveMode::TOPLEFT:
         if (point.x() < mCurrentRect.right() && point.y() < mCurrentRect.bottom())
         {
-            mFieldW = mCurrentRect.right() - static_cast<int>(point.x());
-            mFieldH = static_cast<int>(mFieldW * mAspectRatio);
-            mCurrentRect = QRect(QPoint(mCurrentRect.right() - mFieldW, mCurrentRect.bottom() - mFieldH) , mCurrentRect.bottomRight());
+            mCurrentRect.setTopLeft(point.toPoint());
         }
         break;
     case MoveMode::TOPRIGHT:
         if (point.x() > mCurrentRect.left() && point.y() < mCurrentRect.bottom())
         {
-            mFieldW = static_cast<int>(point.x()) - mCurrentRect.left();
-            mFieldH = static_cast<int>(mFieldW * mAspectRatio);
-            mCurrentRect = QRect(QPoint(mCurrentRect.left(), mCurrentRect.bottom() - mFieldH),
-                                 QPoint(mCurrentRect.left() + mFieldW, mCurrentRect.bottom()));
+            mCurrentRect.setTopRight(point.toPoint());
         }
         break;
     case MoveMode::BOTTOMLEFT:
         if (point.x() < mCurrentRect.right() && point.y() > mCurrentRect.top())
         {
-            mFieldW = mCurrentRect.right() - static_cast<int>(point.x());
-            mFieldH = static_cast<int>(mFieldW * mAspectRatio);
-            mCurrentRect = QRect(QPoint(point.toPoint().x(), mCurrentRect.top()), QPoint(mCurrentRect.right(), mCurrentRect.top() + mFieldH));
+            mCurrentRect.setBottomLeft(point.toPoint());
         }
         break;
     case MoveMode::BOTTOMRIGHT:
         if (point.x() > mCurrentRect.left() && point.y() > mCurrentRect.top())
         {
-            mFieldW = static_cast<int>(point.x()) - mCurrentRect.left();
-            mFieldH = static_cast<int>(mFieldW * mAspectRatio);
-            mCurrentRect = QRect(mCurrentRect.topLeft(), QSize(mFieldW, mFieldH));
+            mCurrentRect.setBottomRight(point.toPoint());
         }
         break;
     default:
         break;
     }
+
+    // to keep aspectratio
+    int rectW = mCurrentRect.right() - mCurrentRect.left();
+    mCurrentRect.setHeight(rectW * mAspectRatio);
 
     Camera* c = getCameraAtFrame(frame);
     if (c == nullptr) { return; }

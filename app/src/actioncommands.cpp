@@ -679,6 +679,10 @@ Status ActionCommands::addNewKey()
     Camera* cam = dynamic_cast<Camera*>(key);
     if (cam)
     {
+        if (mEditor->layers()->currentLayer()->keyExistsWhichCovers(cam->pos() - 1))
+        {
+            // set to previous frame...
+        }
         mEditor->view()->updateViewTransforms();
     }
 
