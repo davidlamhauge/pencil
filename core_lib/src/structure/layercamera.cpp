@@ -221,12 +221,10 @@ void LayerCamera::transformCameraView(int frame, MoveMode mode, QPointF point)
 
     // to keep aspectratio
     int rectW = mCurrentRect.right() - mCurrentRect.left();
-    mCurrentRect.setHeight(rectW * mAspectRatio);
+    mCurrentRect.setHeight(static_cast<int>(rectW * mAspectRatio));
 
     Camera* c = getCameraAtFrame(frame);
     if (c == nullptr) { return; }
-
-    qDebug() << c->pos() << " CurrRect " << mCurrentRect << " VIEW " << c->view;
 
     c->translate(mCurrentRect.center());
     c->scale(static_cast<qreal>(viewRect.width()) / static_cast<qreal>(mCurrentRect.width()) );
@@ -329,6 +327,7 @@ void LayerCamera::ifObjectLoaded(int currentFrame)
     Camera* c = getCameraAtFrame(currentFrame);
     if (c == nullptr) { return; }
 
+//    mCurrentRect = c->getCamRect();
     mCurrentRect = QRect(QPoint(c->view.dx(), c->view.dy()), QSize(viewRect.width() * c->view.m11(), viewRect.height() * c->view.m11()));
 //    qDebug() << " FORBI FOR-LOOP" << c->pos() << " rect: " << mCurrentRect << " VIEW: " << c->view;
     c->modification();
@@ -366,15 +365,23 @@ KeyFrame* LayerCamera::createKeyFrame(int position, Object*)
 {
     Camera* c = new Camera;
     c->setPos(position);
-    linearInterpolateTransform(c);
 
-    int w = static_cast<int>(viewRect.width() / c->scaling());
-    int h = static_cast<int>(viewRect.height() / c->scaling());
-    QPoint topLeft = QPoint(static_cast<int>(c->view.dx() - w / 2), static_cast<int>(c->view.dy() - h / 2));
-    mCurrentRect = QRect(topLeft, QSize(w, h));
-    c->setCamRect(mCurrentRect);
-
-//    qDebug() << "CREATE " << c->pos() << " " << c->getCamRect() << " "  << c->view;
+    if (firstKeyFramePosition() != 0 && getPreviousKeyFramePosition(position) != position)
+    {
+        Camera* tmp = getCameraAtFrame(getPreviousKeyFramePosition(position));
+        c->setCamRect(tmp->getCamRect());
+    }
+    else
+    {
+        linearInterpolateTransform(c);
+        int w = static_cast<int>(viewRect.width() / c->scaling());
+        int h = static_cast<int>(viewRect.height() / c->scaling());
+        QPoint topLeft = QPoint(static_cast<int>(c->view.dx() - w / 2), static_cast<int>(c->view.dy() - h / 2));
+        mCurrentRect = QRect(topLeft, QSize(w, h));
+        c->setCamRect(mCurrentRect);
+    }
+    c->updateViewTransform();
+    qDebug() << "CREATE " << c->pos() << " " << c->getCamRect() << " "  << c->view;
     return  c;
 }
 
