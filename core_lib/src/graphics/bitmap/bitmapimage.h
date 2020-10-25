@@ -29,8 +29,8 @@ class BitmapImage : public KeyFrame
 {
 public:
     const QRgb transp = qRgba(0, 0, 0, 0);
-    const QRgb rosa = qRgba(255,230,230,255);
-    const QRgb blackline = qRgba(1, 1, 1, 255);
+    const QRgb tmpColor = qRgba(252,253,254,255);
+    const QRgb blackline = qRgba(1, 0, 0, 255);
     const QRgb redline = qRgba(254,0,0,255);
     const QRgb greenline = qRgba(0,254,0,255);
     const QRgb blueline = qRgba(0,0,254,255);
@@ -161,7 +161,7 @@ private:
     int mThreshold = 200;
     const int mLowThreshold = 30;   // threshold for images to be given transparency
     const int COLORDIFF = 5; // difference in color values to decide color
-    const int GRAYSCALEDIFF = 15; // difference in grasycale values to decide color
+    const int GRAYSCALEDIFF = 10; // difference in grasycale values to decide color
     const int TRANSP_THRESHOLD = 60;// threshold when tracing black for two layer coloring
 
 };

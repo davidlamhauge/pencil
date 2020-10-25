@@ -415,7 +415,6 @@ void BitmapColoring::blendLines()
     QString orgName = mLayerBitmap->name();
     if (ui->cbMethodSelector->currentIndex() == 2)
         orgName.chop(2);
-    qDebug() << "artlayer: " << orgName;
     LayerBitmap* artLayer = static_cast<LayerBitmap*>(mEditor->layers()->findLayerByName(orgName));
     if (artLayer == nullptr) { return; }
 

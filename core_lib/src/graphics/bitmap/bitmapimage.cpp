@@ -703,7 +703,7 @@ BitmapImage* BitmapImage::scanToTransparent(BitmapImage *img, bool redEnabled, b
                     img->scanLine(x, y, transp);
                 }
             }
-            else if(greenValue > redValue + COLORDIFF && greenValue > blueValue + COLORDIFF && greenValue > grayValue + GRAYSCALEDIFF)
+                else if(greenValue > redValue + COLORDIFF && greenValue > blueValue + COLORDIFF && greenValue > grayValue + GRAYSCALEDIFF)
             {   // IF Green line
                 if (greenEnabled)
                 {
@@ -714,7 +714,7 @@ BitmapImage* BitmapImage::scanToTransparent(BitmapImage *img, bool redEnabled, b
                     img->scanLine(x, y, transp);
                 }
             }
-            else if(blueValue > redValue + COLORDIFF && blueValue > greenValue + COLORDIFF && blueValue > grayValue + GRAYSCALEDIFF)
+                else if(blueValue > redValue + COLORDIFF && blueValue > greenValue + COLORDIFF && blueValue > grayValue + GRAYSCALEDIFF)
             {   // IF Blue line
                 if (blueEnabled)
                 {
@@ -830,20 +830,19 @@ void BitmapImage::fillSpotAreas(BitmapImage *img)
             if (qAlpha(active) == 0)
             {
                 points.append(QPoint(x, y));
-                int areaSize = fillWithColor(QPoint(x, y), transp, rosa, img);
+                int areaSize = fillWithColor(QPoint(x, y), transp, tmpColor, img);
                 if (areaSize <= mSpotArea)
-                {   // replace rosa with last color
-                    qDebug() << "Fill spot area " << areaSize <<  " with:  " << qRed(previous) << " " << qGreen(previous) << " " << qBlue(previous) << " " << qAlpha(previous);
-                    fillWithColor(points.last(), rosa, previous, img);
+                {   // replace tmpColor with last color
+                    fillWithColor(points.last(), tmpColor, previous, img);
                     points.removeLast();
                 }
             }
             previous = active;
         }
     }
-    // replace rosa with trans
+    // replace tmpColor with trans
     while (!points.isEmpty()) {
-        fillWithColor(points[0], rosa, transp, img);
+        fillWithColor(points[0], tmpColor, transp, img);
         points.removeFirst();
     }
     img->modification();
