@@ -1,8 +1,8 @@
 /*
 
-Pencil - Traditional Animation Software
+Pencil2D - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -25,7 +25,7 @@ GNU General Public License for more details.
 
 BitmapImage::BitmapImage()
 {
-    mImage = std::make_shared<QImage>(); // create null image
+    mImage.reset(new QImage); // create null image
     mBounds = QRect(0, 0, 0, 0);
 }
 
@@ -34,13 +34,13 @@ BitmapImage::BitmapImage(const BitmapImage& a) : KeyFrame(a)
     mBounds = a.mBounds;
     mMinBound = a.mMinBound;
     mEnableAutoCrop = a.mEnableAutoCrop;
-    mImage = std::make_shared<QImage>(*a.mImage);
+    mImage.reset(new QImage(*a.mImage));
 }
 
 BitmapImage::BitmapImage(const QRect& rectangle, const QColor& color)
 {
     mBounds = rectangle;
-    mImage = std::make_shared<QImage>(mBounds.size(), QImage::Format_ARGB32_Premultiplied);
+    mImage.reset(new QImage(mBounds.size(), QImage::Format_ARGB32_Premultiplied));
     mImage->fill(color.rgba());
     mMinBound = false;
 }
@@ -49,7 +49,7 @@ BitmapImage::BitmapImage(const QPoint& topLeft, const QImage& image)
 {
     mBounds = QRect(topLeft, image.size());
     mMinBound = true;
-    mImage = std::make_shared<QImage>(image);
+    mImage.reset(new QImage(image));
 }
 
 BitmapImage::BitmapImage(const QPoint& topLeft, const QString& path)
@@ -79,7 +79,7 @@ BitmapImage& BitmapImage::operator=(const BitmapImage& a)
 {
     mBounds = a.mBounds;
     mMinBound = a.mMinBound;
-    mImage = std::make_shared<QImage>(*a.mImage);
+    mImage.reset(new QImage(*a.mImage));
     modification();
     return *this;
 }
@@ -93,7 +93,7 @@ void BitmapImage::loadFile()
 {
     if (mImage == nullptr)
     {
-        mImage = std::make_shared<QImage>(fileName());
+        mImage.reset(new QImage(fileName()));
         mBounds.setSize(mImage->size());
         mMinBound = false;
     }
@@ -110,6 +110,15 @@ void BitmapImage::unloadFile()
 bool BitmapImage::isLoaded()
 {
     return (mImage != nullptr);
+}
+
+quint64 BitmapImage::memoryUsage()
+{
+    if (mImage)
+    {
+        return imageSize(*mImage);
+    }
+    return 0;
 }
 
 void BitmapImage::paintImage(QPainter& painter)
@@ -660,11 +669,11 @@ void BitmapImage::drawPath(QPainterPath path, QPen pen, QBrush brush,
     modification();
 }
 
-Status::StatusInt BitmapImage::findLeft(QRectF rect, int grayValue)
+PegbarResult BitmapImage::findLeft(QRectF rect, int grayValue)
 {
-    Status::StatusInt retValues;
-    retValues.value = -1;
-    retValues.errorcode = Status::FAIL;
+    PegbarResult result;
+    result.value = -1;
+    result.errorcode = Status::FAIL;
     int left = static_cast<int>(rect.left());
     int right = static_cast<int>(rect.right());
     int top = static_cast<int>(rect.top());
@@ -675,20 +684,20 @@ Status::StatusInt BitmapImage::findLeft(QRectF rect, int grayValue)
         {
             if (qAlpha(constScanLine(x,y)) == 255 && qGray(constScanLine(x,y)) < grayValue)
             {
-                retValues.value = x;
-                retValues.errorcode = Status::OK;
-                return retValues;
+                result.value = x;
+                result.errorcode = Status::OK;
+                return result;
             }
         }
     }
-    return retValues;
+    return result;
 }
 
-Status::StatusInt BitmapImage::findTop(QRectF rect, int grayValue)
+PegbarResult BitmapImage::findTop(QRectF rect, int grayValue)
 {
-    Status::StatusInt retValues;
-    retValues.value = -1;
-    retValues.errorcode = Status::FAIL;
+    PegbarResult result;
+    result.value = -1;
+    result.errorcode = Status::FAIL;
     int left = static_cast<int>(rect.left());
     int right = static_cast<int>(rect.right());
     int top = static_cast<int>(rect.top());
@@ -699,13 +708,13 @@ Status::StatusInt BitmapImage::findTop(QRectF rect, int grayValue)
         {
             if (qAlpha(constScanLine(x,y)) == 255 && qGray(constScanLine(x,y)) < grayValue)
             {
-                retValues.value = y;
-                retValues.errorcode = Status::OK;
-                return retValues;
+                result.value = y;
+                result.errorcode = Status::OK;
+                return result;
             }
         }
     }
-    return retValues;
+    return result;
 }
 
 Status BitmapImage::writeFile(const QString& filename)
@@ -731,7 +740,7 @@ Status BitmapImage::writeFile(const QString& filename)
 
 void BitmapImage::clear()
 {
-    mImage = std::make_shared<QImage>(); // null image
+    mImage.reset(new QImage); // null image
     mBounds = QRect(0, 0, 0, 0);
     mMinBound = true;
     modification();

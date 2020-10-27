@@ -1,8 +1,8 @@
 /*
 
-Pencil - Traditional Animation Software
+Pencil2D - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -64,7 +64,7 @@ class Editor : public QObject
 
 public:
     explicit Editor(QObject* parent = nullptr);
-    virtual ~Editor();
+    ~Editor() override;
 
     bool init();
 
@@ -92,7 +92,7 @@ public:
     int fps();
     void setFps(int fps);
 
-    int  currentLayerIndex() { return mCurrentLayerIndex; }
+    int  currentLayerIndex() const { return mCurrentLayerIndex; }
     void setCurrentLayerIndex(int i);
 
     void scrubTo(int frameNumber);
@@ -117,7 +117,7 @@ public:
     BackupElement* currentBackup();
     QList<BackupElement*> mBackupList;
 
-Q_SIGNALS:
+signals:
     void updateTimeLine();
     void updateLayerCount();
     void updateBackup();
@@ -154,12 +154,22 @@ public: //slots
 
     void notifyAnimationLengthChanged();
     void switchVisibilityOfLayer(int layerNumber);
-    void showLayerNotVisibleWarning();
     void swapLayers(int i, int j);
-    Status::StatusInt pegBarAlignment(QStringList layers);
+    Status pegBarAlignment(QStringList layers);
 
     void backup(QString undoText);
     void backup(int layerNumber, int frameNumber, QString undoText);
+    /**
+     * Restores integrity of the backup elements after a layer has been deleted.
+     * Removes backup elements affecting the deleted layer and adjusts the layer
+     * index on other backup elements as necessary.
+     *
+     * @param layerIndex The index of the layer that was deleted
+     *
+     * @warning This serves as a temporary hack to prevent crashes until #864 is done
+     *          (see #1412).
+     */
+    void sanitizeBackupElementsAfterLayerDeletion(int layerIndex);
     void undo();
     void redo();
     void copy();
@@ -170,15 +180,15 @@ public: //slots
     void decreaseLayerVisibilityIndex();
     void flipSelection(bool flipVertical);
 
-    void toogleOnionSkinType();
+    void toggleOnionSkinType();
 
     void clearTemporary();
-    void addTemporaryDir(QTemporaryDir* const dir);
+    void addTemporaryDir(QTemporaryDir* dir);
 
     void settingUpdated(SETTING);
 
     void dontAskAutoSave(bool b) { mAutosaveNeverAskAgain = b; }
-    bool autoSaveNeverAskAgain() { return mAutosaveNeverAskAgain; }
+    bool autoSaveNeverAskAgain() const { return mAutosaveNeverAskAgain; }
     void resetAutoSaveCounter();
 
     void createNewBitmapLayer(const QString& name);
@@ -213,8 +223,6 @@ private:
     SelectionManager* mSelectionManager = nullptr;
 
     std::vector< BaseManager* > mAllManagers;
-
-    bool mIsAltPressed = false;
 
     bool mIsAutosave = true;
     int mAutosaveNumber = 12;

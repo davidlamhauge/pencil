@@ -40,6 +40,7 @@ HEADERS +=  \
     src/graphics/vector/vectorselection.h \
     src/graphics/vector/vertexref.h \
     src/interface/backupelement.h \
+    src/interface/camerapropertiesdialog.h \
     src/interface/editor.h \
     src/interface/flowlayout.h \
     src/interface/recentfilemenu.h \
@@ -95,6 +96,7 @@ HEADERS +=  \
     src/util/util.h \
     src/util/log.h \
     src/util/movemode.h \
+    src/util/pointerevent.h \
     src/canvaspainter.h \
     src/soundplayer.h \
     src/movieexporter.h \
@@ -102,8 +104,6 @@ HEADERS +=  \
     src/qminiz.h \
     src/activeframepool.h \
     src/external/platformhandler.h \
-    src/external/macosx/macosxnative.h \
-    src/util/pointerevent.h \
     src/selectionpainter.h
 
 
@@ -114,6 +114,8 @@ SOURCES +=  src/graphics/bitmap/bitmapimage.cpp \
     src/graphics/vector/vectorimage.cpp \
     src/graphics/vector/vectorselection.cpp \
     src/graphics/vector/vertexref.cpp \
+    src/interface/backupelement.cpp \
+    src/interface/camerapropertiesdialog.cpp \
     src/interface/editor.cpp \
     src/interface/flowlayout.cpp \
     src/interface/recentfilemenu.cpp \
@@ -131,6 +133,7 @@ SOURCES +=  src/graphics/bitmap/bitmapimage.cpp \
     src/managers/preferencemanager.cpp \
     src/managers/playbackmanager.cpp \
     src/managers/viewmanager.cpp \
+    src/managers/soundmanager.cpp \
     src/movieimporter.cpp \
     src/structure/camera.cpp \
     src/structure/keyframe.cpp \
@@ -163,29 +166,26 @@ SOURCES +=  src/graphics/bitmap/bitmapimage.cpp \
     src/util/pencilsettings.cpp \
     src/util/log.cpp \
     src/util/util.cpp \
+    src/util/pointerevent.cpp \
     src/canvaspainter.cpp \
     src/soundplayer.cpp \
-    src/managers/soundmanager.cpp \
     src/movieexporter.cpp \
     src/miniz.cpp \
     src/qminiz.cpp \
     src/activeframepool.cpp \
-    src/util/pointerevent.cpp \
     src/selectionpainter.cpp
 
 FORMS += \
     ui/camerapropertiesdialog.ui
 
 win32 {
-    CONFIG -= flat
-
     INCLUDEPATH += src/external/win32
     SOURCES += src/external/win32/win32.cpp
 }
 
 macx {
     INCLUDEPATH += src/external/macosx
-    LIBS += -framework AppKit
+    HEADERS += src/external/macosx/macosxnative.h
     SOURCES += src/external/macosx/macosx.cpp
     OBJECTIVE_SOURCES += src/external/macosx/macosxnative.mm
 }

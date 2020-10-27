@@ -1,8 +1,8 @@
 /*
 
-Pencil - Traditional Animation Software
+Pencil2D - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -151,14 +151,12 @@ void TimeLine::initUI()
     timelineButtons->addWidget(zoomLabel);
     timelineButtons->addWidget(zoomSlider);
     timelineButtons->addSeparator();
-    timelineButtons->addSeparator();
     timelineButtons->setFixedHeight(30);
 
     // --------- Time controls ---------
     mTimeControls = new TimeControls(this);
     mTimeControls->setEditor(editor());
     mTimeControls->initUI();
-    mTimeControls->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
     updateLength();
 
     QHBoxLayout* rightToolBarLayout = new QHBoxLayout();
@@ -289,7 +287,7 @@ void TimeLine::deleteCurrentLayer()
 
     int ret = QMessageBox::warning(this,
                                    tr("Delete Layer", "Windows title of Delete current layer pop-up."),
-                                   tr("Are you sure you want to delete layer: %1?").arg(strLayerName),
+                                   tr("Are you sure you want to delete layer: %1? This cannot be undone.").arg(strLayerName),
                                    QMessageBox::Ok | QMessageBox::Cancel,
                                    QMessageBox::Ok);
     if (ret == QMessageBox::Ok)

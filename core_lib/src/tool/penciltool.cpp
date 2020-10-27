@@ -1,8 +1,8 @@
 /*
 
-Pencil - Traditional Animation Software
+Pencil2D - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -146,14 +146,14 @@ QCursor PencilTool::cursor()
     return Qt::CrossCursor;
 }
 
-void PencilTool::pointerPressEvent(PointerEvent*)
+void PencilTool::pointerPressEvent(PointerEvent *event)
 {
     mScribbleArea->setAllDirty();
 
     mMouseDownPoint = getCurrentPoint();
     mLastBrushPoint = getCurrentPoint();
 
-    startStroke();
+    startStroke(event->inputType());
 
     // note: why are we doing this on device press event?
     if (mEditor->layers()->currentLayer()->type() == Layer::VECTOR && !mEditor->preference()->isOn(SETTING::INVISIBLE_LINES))
@@ -164,7 +164,7 @@ void PencilTool::pointerPressEvent(PointerEvent*)
 
 void PencilTool::pointerMoveEvent(PointerEvent* event)
 {
-    if (event->buttons() & Qt::LeftButton)
+    if (event->buttons() & Qt::LeftButton && event->inputType() == mCurrentInputType)
     {
         mCurrentPressure = strokeManager()->getPressure();
         drawStroke();
@@ -173,8 +173,10 @@ void PencilTool::pointerMoveEvent(PointerEvent* event)
     }
 }
 
-void PencilTool::pointerReleaseEvent(PointerEvent*)
+void PencilTool::pointerReleaseEvent(PointerEvent *event)
 {
+    if (event->inputType() != mCurrentInputType) return;
+
     mEditor->backup(typeName());
     qreal distance = QLineF(getCurrentPoint(), mMouseDownPoint).length();
     if (distance < 1)
