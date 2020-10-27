@@ -730,7 +730,7 @@ BitmapImage* BitmapImage::scanToTransparent(BitmapImage *img, bool redEnabled, b
                 if(grayValue >= mLowThreshold && grayValue < mThreshold)
                 {
                     qreal factor = qreal(mThreshold - grayValue) / qreal(mThreshold - mLowThreshold);
-                    img->scanLine(x , y, qRgba(0, 0, 0, static_cast<int>(mThreshold * factor)));
+                    img->scanLine(x , y, qRgba(1, 0, 0, static_cast<int>(mThreshold * factor)));
                 }
                 else
                 {
@@ -760,21 +760,21 @@ void BitmapImage::traceLine(BitmapImage* img, bool blackEnabled, bool redEnabled
             int alphaValue = qAlpha(rgba);
             if (alphaValue > 0)
             {
-                if(redValue > greenValue && redValue > blueValue)
+                if(redValue > greenValue + COLORDIFF && redValue > blueValue + COLORDIFF)
                 {
                     if(redEnabled)
                         img->scanLine(x, y, redline);
                     else
                         img->scanLine(x, y, transp);
                 }
-                else if(blueValue > redValue && blueValue > greenValue)
+                else if(blueValue > redValue + COLORDIFF && blueValue > greenValue + COLORDIFF)
                 {
                     if(blueEnabled)
                         img->scanLine(x, y, blueline);
                     else
                         img->scanLine(x, y, transp);
                 }
-                else if(greenValue > redValue && greenValue > blueValue)
+                else if(greenValue > redValue + COLORDIFF && greenValue > blueValue + COLORDIFF)
                 {
                     if(greenEnabled)
                         img->scanLine(x, y, greenline);
