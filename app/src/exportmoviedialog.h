@@ -51,6 +51,8 @@ public:
 private:
     void frameCheckboxClicked(bool checked);
     void onFilePathsChanged(QStringList filePaths);
+    void onResolutionChanged(int value);
+    void resolutionNotValid(QString txt);
 
     bool supportsLooping(QString filePath) const;
     bool supportsTransparency(QString filePath) const;

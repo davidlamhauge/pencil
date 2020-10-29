@@ -15,6 +15,8 @@ GNU General Public License for more details.
 
 */
 
+#include <QMessageBox>
+
 #include "exportmoviedialog.h"
 #include "ui_exportmovieoptions.h"
 #include "util.h"
@@ -32,6 +34,8 @@ ExportMovieDialog::ExportMovieDialog(QWidget *parent, Mode mode, FileType fileTy
         setWindowTitle(tr("Export Movie"));
     }
     connect(this, &ExportMovieDialog::filePathsChanged, this, &ExportMovieDialog::onFilePathsChanged);
+    connect(ui->widthSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &ExportMovieDialog::onResolutionChanged);
+    connect(ui->heightSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &ExportMovieDialog::onResolutionChanged);
 }
 
 ExportMovieDialog::~ExportMovieDialog()
@@ -128,6 +132,27 @@ void ExportMovieDialog::onFilePathsChanged(QStringList filePaths)
         ui->loopCheckBox->setChecked(false);
     }
     ui->transparencyCheckBox->setEnabled(supportsTransparency(filePath));
+}
+
+void ExportMovieDialog::onResolutionChanged(int value)
+{
+    if (ui->widthSpinBox->value() % 2 != 0)
+    {
+        ui->widthSpinBox->setValue(value + 1);
+        resolutionNotValid(tr("Export width must be an even number!"));
+    }
+    if (ui->heightSpinBox->value() % 2 != 0)
+    {
+        ui->heightSpinBox->setValue(value + 1);
+        resolutionNotValid(tr("Export height must be an even number!"));
+    }
+}
+
+void ExportMovieDialog::resolutionNotValid(QString txt)
+{
+    QMessageBox msgBox;
+    msgBox.setText(txt);
+    msgBox.exec();
 }
 
 bool ExportMovieDialog::supportsLooping(QString filePath) const
