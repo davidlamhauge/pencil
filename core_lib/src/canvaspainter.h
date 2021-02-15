@@ -85,6 +85,8 @@ public:
     void renderOverlays(QPainter& painter);
     void resetLayerCache();
 
+    void setIsInCameraMode(bool mode) { bIsInCameraMode = mode; }
+
 private:
 
     /**
@@ -141,6 +143,7 @@ private:
     QImage mScaledBitmap;
 
     bool bMultiLayerOnionSkin = false;
+    bool bIsInCameraMode = false;
 
     // Handle selection transformation
     bool mRenderTransform = false;

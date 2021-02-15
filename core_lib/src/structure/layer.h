@@ -98,6 +98,9 @@ public:
     KeyFrame *getKeyFrameWhichCovers(int frameNumber) const;
     bool getVisibility() const { return mVisible; }
 
+    void setDistance(qreal dist) { mDistance = dist; }
+    qreal getDistance() { return mDistance;}
+
     void foreachKeyFrame(std::function<void(KeyFrame*)>) const;
 
     void setModified(int position, bool isModified);
@@ -140,6 +143,7 @@ private:
     int        mId = 0;
     bool       mVisible = true;
     QString    mName;
+    qreal      mDistance = 10;      // Distance from camera (x=0, y=0, z=0)
 
     std::map<int, KeyFrame*, std::greater<int>> mKeyFrames;
 
