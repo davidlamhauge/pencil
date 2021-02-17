@@ -17,6 +17,7 @@ GNU General Public License for more details.
 #include "canvaspainter.h"
 
 #include <QtMath>
+#include "mathutils.h"
 #include "object.h"
 #include "layerbitmap.h"
 #include "layervector.h"
@@ -290,6 +291,7 @@ void CanvasPainter::paintBitmapFrame(QPainter& painter,
     LayerBitmap* bitmapLayer = static_cast<LayerBitmap*>(layer);
 #endif
 
+    qreal blur = bitmapLayer->getDistance();
     CANVASPAINTER_LOG("    Paint Bitmap Frame = %d, UseLastKeyFrame = %d", nFrame, useLastKeyFrame);
     BitmapImage* paintedImage = nullptr;
     if (useLastKeyFrame)
