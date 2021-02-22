@@ -22,6 +22,8 @@ GNU General Public License for more details.
 #include <QFile>
 #include <QPainterPath>
 #include "util.h"
+#include "blurutils.h"
+
 
 BitmapImage::BitmapImage()
 {

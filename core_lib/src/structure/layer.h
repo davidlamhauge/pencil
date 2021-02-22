@@ -141,7 +141,11 @@ private:
     int        mId = 0;
     bool       mVisible = true;
     QString    mName;
-    qreal      mDistance = 10;      // Distance from camera (x=0, y=0, z=0)
+
+    // values needed for Depth OfFocus and blur calculations
+    qreal      mDistance = 10.f;        // Distance from camera to layer
+    qreal      mDistNear = 5.f;         // Nearest distance of acceptable focus
+    qreal      mDistFar = 20.f;         // Farthest distance of acceptable focus
 
     std::map<int, KeyFrame*, std::greater<int>> mKeyFrames;
 
