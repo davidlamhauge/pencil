@@ -35,6 +35,7 @@ GNU General Public License for more details.
 #include "backupelement.h"
 
 #include "colormanager.h"
+#include "filemanager.h"
 #include "toolmanager.h"
 #include "layermanager.h"
 #include "playbackmanager.h"
@@ -57,7 +58,6 @@ Editor::Editor(QObject* parent) : QObject(parent)
     mBackupIndex = -1;
     clipboardBitmapOk = false;
     clipboardVectorOk = false;
-    clipboardSoundClipOk = false;
 }
 
 Editor::~Editor()
@@ -95,7 +95,6 @@ bool Editor::init()
     {
         pManager->init();
     }
-    //setAcceptDrops( true ); // TODO: drop event
 
     makeConnections();
 
@@ -105,7 +104,7 @@ bool Editor::init()
     return true;
 }
 
-int Editor::currentFrame()
+int Editor::currentFrame() const
 {
     return mFrame;
 }
@@ -127,30 +126,6 @@ void Editor::makeConnections()
     connect(QApplication::clipboard(), &QClipboard::dataChanged, this, &Editor::clipboardChanged);
     // XXX: This is a hack to prevent crashes until #864 is done (see #1412)
     connect(mLayerManager, &LayerManager::layerDeleted, this, &Editor::sanitizeBackupElementsAfterLayerDeletion);
-}
-
-void Editor::dragEnterEvent(QDragEnterEvent* event)
-{
-    event->acceptProposedAction();
-}
-
-void Editor::dropEvent(QDropEvent* event)
-{
-    if (event->mimeData()->hasUrls())
-    {
-        for (int i = 0; i < event->mimeData()->urls().size(); i++)
-        {
-            if (i > 0) scrubForward();
-            QUrl url = event->mimeData()->urls()[i];
-            QString filePath = url.toLocalFile();
-            if (filePath.endsWith(".png") || filePath.endsWith(".jpg") || filePath.endsWith(".jpeg"))
-            {
-                importImage(filePath);
-            }
-            //if ( filePath.endsWith( ".aif" ) || filePath.endsWith( ".mp3" ) || filePath.endsWith( ".wav" ) )
-                //importSound( filePath );
-        }
-    }
 }
 
 void Editor::settingUpdated(SETTING setting)
@@ -185,13 +160,10 @@ BackupElement* Editor::currentBackup()
     {
         return mBackupList[mBackupIndex];
     }
-    else
-    {
-        return nullptr;
-    }
+    return nullptr;
 }
 
-void Editor::backup(QString undoText)
+void Editor::backup(const QString& undoText)
 {
     KeyFrame* frame = nullptr;
     if (mLastModifiedLayer > -1 && mLastModifiedFrame > 0)
@@ -227,9 +199,9 @@ void Editor::backup(QString undoText)
     }
 }
 
-void Editor::backup(int backupLayer, int backupFrame, QString undoText)
+void Editor::backup(int backupLayer, int backupFrame, const QString& undoText)
 {
-    while (mBackupList.size() - 1 > mBackupIndex && mBackupList.size() > 0)
+    while (mBackupList.size() - 1 > mBackupIndex && !mBackupList.empty())
     {
         delete mBackupList.takeLast();
     }
@@ -428,7 +400,7 @@ void Editor::restoreKey()
 
 void Editor::undo()
 {
-    if (mBackupList.size() > 0 && mBackupIndex > -1)
+    if (!mBackupList.empty() && mBackupIndex > -1)
     {
         if (mBackupIndex == mBackupList.size() - 1)
         {
@@ -474,7 +446,7 @@ void Editor::undo()
 
 void Editor::redo()
 {
-    if (mBackupList.size() > 0 && mBackupIndex < mBackupList.size() - 2)
+    if (!mBackupList.empty() && mBackupIndex < mBackupList.size() - 2)
     {
         mBackupIndex++;
 
@@ -620,11 +592,6 @@ void Editor::setLayerVisibility(LayerVisibility visibility) {
     emit updateTimeLine();
 }
 
-void Editor::notifyAnimationLengthChanged()
-{
-    layers()->notifyAnimationLengthChanged();
-}
-
 LayerVisibility Editor::layerVisibility()
 {
     return mScribbleArea->getLayerVisibility();
@@ -642,22 +609,6 @@ void Editor::decreaseLayerVisibilityIndex()
     emit updateTimeLine();
 }
 
-void Editor::toggleOnionSkinType()
-{
-    QString onionSkinState = mPreferenceManager->getString(SETTING::ONION_TYPE);
-    QString newState;
-    if (onionSkinState == "relative")
-    {
-        newState = "absolute";
-    }
-    else
-    {
-        newState = "relative";
-    }
-
-    mPreferenceManager->set(SETTING::ONION_TYPE, newState);
-}
-
 void Editor::addTemporaryDir(QTemporaryDir* const dir)
 {
     mTemporaryDirs.append(dir);
@@ -673,13 +624,85 @@ void Editor::clearTemporary()
     }
 }
 
+Status Editor::openObject(const QString& strFilePath, const std::function<void(int)>& progressChanged, const std::function<void(int)>& progressRangeChanged)
+{
+    // Check for potential issues with the file
+    Q_ASSERT(!strFilePath.isEmpty());
+    QFileInfo fileInfo(strFilePath);
+    DebugDetails dd;
+    dd << QString("Raw file path: %1").arg(strFilePath);
+    dd << QString("Resolved file path: %1").arg(fileInfo.absoluteFilePath());
+    if (fileInfo.isDir())
+    {
+        return Status(Status::ERROR_FILE_CANNOT_OPEN,
+                      dd,
+                      tr("Could not open file"),
+                      tr("The file you have selected is a directory, so we are unable to open it. "
+                         "If you are are trying to open a project that uses the old structure, "
+                         "please open the file ending with .pcl, not the data folder."));
+    }
+    if (!fileInfo.exists())
+    {
+        return Status(Status::FILE_NOT_FOUND,
+                      dd,
+                      tr("Could not open file"),
+                      tr("The file you have selected does not exist, so we are unable to open it. "
+                         "Please make sure that you've entered the correct path and that the file is accessible and try again."));
+    }
+    if (!fileInfo.isReadable())
+    {
+        dd << QString("Permissions: 0x%1").arg(QString::number(fileInfo.permissions(), 16));
+        return Status(Status::ERROR_FILE_CANNOT_OPEN,
+                      dd,
+                      tr("Could not open file"),
+                      tr("This program does not have permission to read the file you have selected. "
+                         "Please check that you have read permissions for this file and try again."));
+    }
+
+    int progress = 0;
+    FileManager fm(this);
+    connect(&fm, &FileManager::progressChanged, [&progress, &progressChanged](int p)
+    {
+        progressChanged(progress = p);
+    });
+    connect(&fm, &FileManager::progressRangeChanged, [&progressRangeChanged](int max)
+    {
+        progressRangeChanged(max + 3);
+    });
+
+    QString fullPath = fileInfo.absoluteFilePath();
+
+    Object* object = fm.load(fullPath);
+
+    Status fmStatus = fm.error();
+    if (!fmStatus.ok())
+    {
+        dd.collect(fmStatus.details());
+        fmStatus.setDetails(dd);
+        return fmStatus;
+    }
+
+    if (object == nullptr)
+    {
+        return Status(Status::ERROR_FILE_CANNOT_OPEN,
+                      dd,
+                      tr("Could not open file"),
+                      tr("An unknown error occurred while trying to load the file and we are not able to load your file."));
+    }
+
+    setObject(object);
+
+    progressChanged(progress + 1);
+
+    layers()->notifyAnimationLengthChanged();
+    setFps(playback()->fps());
+
+    return Status::OK;
+}
+
 Status Editor::setObject(Object* newObject)
 {
-    if (newObject == nullptr)
-    {
-        Q_ASSERT(false);
-        return Status::INVALID_ARGUMENT;
-    }
+    Q_ASSERT(newObject);
 
     if (newObject == mObject.get())
     {
@@ -717,8 +740,6 @@ void Editor::updateObject()
     mAutosaveCounter = 0;
     mAutosaveNeverAskAgain = false;
 
-    emit objectChanged();
-
     if (mPreferenceManager)
     {
         mObject->setActiveFramePoolSize(mPreferenceManager->getInt(SETTING::FRAME_POOL_SIZE));
@@ -727,7 +748,7 @@ void Editor::updateObject()
     emit updateLayerCount();
 }
 
-bool Editor::importBitmapImage(QString filePath, int space)
+bool Editor::importBitmapImage(const QString& filePath, int space)
 {
     QImageReader reader(filePath);
 
@@ -771,7 +792,7 @@ bool Editor::importBitmapImage(QString filePath, int space)
     return true;
 }
 
-bool Editor::importVectorImage(QString filePath)
+bool Editor::importVectorImage(const QString& filePath)
 {
     Q_ASSERT(layers()->currentLayer()->type() == Layer::VECTOR);
 
@@ -797,31 +818,7 @@ bool Editor::importVectorImage(QString filePath)
     return ok;
 }
 
-void Editor::createNewBitmapLayer(const QString& name)
-{
-    Layer* layer = layers()->createBitmapLayer(name);
-    layers()->setCurrentLayer(layer);
-}
-
-void Editor::createNewVectorLayer(const QString& name)
-{
-    Layer* layer = layers()->createVectorLayer(name);
-    layers()->setCurrentLayer(layer);
-}
-
-void Editor::createNewSoundLayer(const QString& name)
-{
-    Layer* layer = layers()->createVectorLayer(name);
-    layers()->setCurrentLayer(layer);
-}
-
-void Editor::createNewCameraLayer(const QString& name)
-{
-    Layer* layer = layers()->createCameraLayer(name);
-    layers()->setCurrentLayer(layer);
-}
-
-bool Editor::importImage(QString filePath)
+bool Editor::importImage(const QString& filePath)
 {
     Layer* layer = layers()->currentLayer();
 
@@ -847,7 +844,7 @@ bool Editor::importImage(QString filePath)
     }
 }
 
-bool Editor::importGIF(QString filePath, int numOfImages)
+bool Editor::importGIF(const QString& filePath, int numOfImages)
 {
     Layer* layer = layers()->currentLayer();
     if (layer->type() == Layer::BITMAP)
@@ -857,12 +854,7 @@ bool Editor::importGIF(QString filePath, int numOfImages)
     return false;
 }
 
-qreal Editor::viewScaleInversed()
-{
-    return view()->getViewInverse().m11();
-}
-
-void Editor::selectAll()
+void Editor::selectAll() const
 {
     Layer* layer = layers()->currentLayer();
 
@@ -888,7 +880,7 @@ void Editor::selectAll()
     select()->setSelection(rect, false);
 }
 
-void Editor::deselectAll()
+void Editor::deselectAll() const
 {
     Layer* layer = layers()->currentLayer();
     if (layer == nullptr) { return; }
@@ -972,11 +964,7 @@ KeyFrame* Editor::addNewKey()
 KeyFrame* Editor::addKeyFrame(int layerNumber, int frameIndex)
 {
     Layer* layer = mObject->getLayer(layerNumber);
-    if (layer == nullptr)
-    {
-        Q_ASSERT(false);
-        return nullptr;
-    }
+    Q_ASSERT(layer);
 
     if (!layer->visible())
     {
@@ -1077,13 +1065,13 @@ void Editor::swapLayers(int i, int j)
     mScribbleArea->onLayerChanged();
 }
 
-Status Editor::pegBarAlignment(QStringList layers)
+Status Editor::pegBarAlignment(const QStringList& layers)
 {
     PegbarResult retLeft;
     PegbarResult retRight;
 
-    LayerBitmap* layerbitmap = static_cast<LayerBitmap*>(mLayerManager->currentLayer());
-    BitmapImage* img = layerbitmap->getBitmapImageAtFrame(currentFrame());
+    LayerBitmap* layerBitmap = static_cast<LayerBitmap*>(mLayerManager->currentLayer());
+    BitmapImage* img = layerBitmap->getBitmapImageAtFrame(currentFrame());
     QRectF rect = select()->mySelectionRect();
     retLeft = img->findLeft(rect, 121);
     retRight = img->findTop(rect, 121);
@@ -1097,14 +1085,14 @@ Status Editor::pegBarAlignment(QStringList layers)
     // move other layers
     for (int i = 0; i < layers.count(); i++)
     {
-        layerbitmap = static_cast<LayerBitmap*>(mLayerManager->findLayerByName(layers.at(i)));
-        for (int k = layerbitmap->firstKeyFramePosition(); k <= layerbitmap->getMaxKeyFramePosition(); k++)
+        layerBitmap = static_cast<LayerBitmap*>(mLayerManager->findLayerByName(layers.at(i)));
+        for (int k = layerBitmap->firstKeyFramePosition(); k <= layerBitmap->getMaxKeyFramePosition(); k++)
         {
-            if (layerbitmap->keyExists(k))
+            if (layerBitmap->keyExists(k))
             {
-                img = layerbitmap->getBitmapImageAtFrame(k);
+                img = layerBitmap->getBitmapImageAtFrame(k);
                 retLeft = img->findLeft(rect, 121);
-                const QString errorDescription = tr("Peg bar not found at %1, %2").arg(layerbitmap->name()).arg(k);
+                const QString errorDescription = tr("Peg bar not found at %1, %2").arg(layerBitmap->name()).arg(k);
                 if (STATUS_FAILED(retLeft.errorcode))
                 {
                     return Status(retLeft.errorcode, "", errorDescription);

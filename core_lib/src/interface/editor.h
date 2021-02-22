@@ -18,14 +18,13 @@ GNU General Public License for more details.
 #ifndef EDITOR_H
 #define EDITOR_H
 
+#include <functional>
 #include <memory>
 #include <QObject>
 #include "pencilerror.h"
 #include "pencildef.h"
 
 
-class QDragEnterEvent;
-class QDropEvent;
 class QTemporaryDir;
 class Object;
 class KeyFrame;
@@ -79,6 +78,7 @@ public:
     SelectionManager*  select() const { return mSelectionManager; }
 
     Object* object() const { return mObject.get(); }
+    Status openObject(const QString& strFilePath, const std::function<void(int)>& progressChanged, const std::function<void(int)>& progressRangeChanged);
     Status setObject(Object* object);
     void updateObject();
     void prepareSave();
@@ -86,7 +86,7 @@ public:
     void setScribbleArea(ScribbleArea* pScirbbleArea) { mScribbleArea = pScirbbleArea; }
     ScribbleArea* getScribbleArea() { return mScribbleArea; }
 
-    int currentFrame();
+    int currentFrame() const;
     int fps();
     void setFps(int fps);
 
@@ -101,9 +101,8 @@ public:
     void setLayerVisibility(LayerVisibility visibility);
     LayerVisibility layerVisibility();
 
-    qreal viewScaleInversed();
-    void deselectAll();
-    void selectAll();
+    void deselectAll() const;
+    void selectAll() const;
 
     // backup
     int mBackupIndex;
@@ -118,11 +117,8 @@ signals:
     /** This should be emitted after modifying the frame content */
     void frameModified(int frameNumber);
 
-    /** This should be emitted after the object has been changed */
-    void objectChanged();
-
-    /** This should be emitted after moving one or more frames */
-    void framesMoved();
+    /** This should be emitted after modifying multiple frames */
+    void framesModified();
 
     void updateTimeLine();
     void updateLayerCount();
@@ -130,7 +126,6 @@ signals:
 
     void objectLoaded();
 
-    void changeThinLinesButton(bool);
     void fpsChanged(int fps);
 
     void needSave();
@@ -154,8 +149,8 @@ public: //slots
 
     void cut();
 
-    bool importImage(QString filePath);
-    bool importGIF(QString filePath, int numOfImages = 0);
+    bool importImage(const QString& filePath);
+    bool importGIF(const QString& filePath, int numOfImages = 0);
     void restoreKey();
 
     void scrubNextKeyFrame();
@@ -166,13 +161,12 @@ public: //slots
     KeyFrame* addNewKey();
     void removeKey();
 
-    void notifyAnimationLengthChanged();
     void switchVisibilityOfLayer(int layerNumber);
     void swapLayers(int i, int j);
-    Status pegBarAlignment(QStringList layers);
+    Status pegBarAlignment(const QStringList& layers);
 
-    void backup(QString undoText);
-    void backup(int layerNumber, int frameNumber, QString undoText);
+    void backup(const QString& undoText);
+    void backup(int layerNumber, int frameNumber, const QString& undoText);
     /**
      * Restores integrity of the backup elements after a layer has been deleted.
      * Removes backup elements affecting the deleted layer and adjusts the layer
@@ -194,8 +188,6 @@ public: //slots
     void decreaseLayerVisibilityIndex();
     void flipSelection(bool flipVertical);
 
-    void toggleOnionSkinType();
-
     void clearTemporary();
     void addTemporaryDir(QTemporaryDir* dir);
 
@@ -205,19 +197,9 @@ public: //slots
     bool autoSaveNeverAskAgain() const { return mAutosaveNeverAskAgain; }
     void resetAutoSaveCounter();
 
-    void createNewBitmapLayer(const QString& name);
-    void createNewVectorLayer(const QString& name);
-    void createNewSoundLayer(const QString& name);
-    void createNewCameraLayer(const QString& name);
-
-protected:
-    // Need to move to somewhere...
-    void dragEnterEvent(QDragEnterEvent*);
-    void dropEvent(QDropEvent*);
-
 private:
-    bool importBitmapImage(QString, int space = 0);
-    bool importVectorImage(QString);
+    bool importBitmapImage(const QString&, int space = 0);
+    bool importVectorImage(const QString&);
 
     // the object to be edited by the editor
     std::unique_ptr<Object> mObject;
@@ -257,7 +239,6 @@ private:
     // clipboard
     bool clipboardBitmapOk = true;
     bool clipboardVectorOk = true;
-    bool clipboardSoundClipOk = true;
 };
 
 #endif
