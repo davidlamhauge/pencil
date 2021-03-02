@@ -20,6 +20,8 @@ GNU General Public License for more details.
 #include <QPainter>
 #include <QtMath>
 #include <QSettings>
+#include <QDebug>
+#include <QElapsedTimer>
 #include "pointerevent.h"
 
 #include "layer.h"
@@ -169,12 +171,15 @@ void BucketTool::paintBitmap(Layer* layer)
 
     QPoint point = QPoint(qFloor(getLastPoint().x()), qFloor(getLastPoint().y()));
     QRect cameraRect = mScribbleArea->getCameraRect().toRect();
-    BitmapImage::floodFill(targetImage,
+    QElapsedTimer t;
+    t.start();
+    BitmapImage::floodFillNew(targetImage,
                            cameraRect,
                            point,
                            qPremultiply(mEditor->color()->frontColor().rgba()),
                            properties.tolerance);
 
+    qDebug() << "ms: " << t.elapsed();
     mScribbleArea->setModified(layerNumber, mEditor->currentFrame());
 }
 
