@@ -40,6 +40,7 @@ PRECOMPILED_HEADER = src/app-pch.h
 
 HEADERS += \
     src/app-pch.h \
+    src/helpcommands.h \
     src/importlayersdialog.h \
     src/importpositiondialog.h \
     src/mainwindow2.h \
@@ -81,6 +82,7 @@ HEADERS += \
     src/commandlineexporter.h
 
 SOURCES += \
+    src/helpcommands.cpp \
     src/importlayersdialog.cpp \
     src/importpositiondialog.cpp \
     src/main.cpp \

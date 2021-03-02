@@ -49,7 +49,7 @@
      <x>0</x>
      <y>0</y>
      <width>831</width>
-     <height>26</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -267,6 +267,46 @@
     <addaction name="actionLockWindows"/>
     <addaction name="separator"/>
    </widget>
+   <widget class="QMenu" name="menuVideo_help">
+    <property name="title">
+     <string>Video-help</string>
+    </property>
+    <widget class="QMenu" name="menuTimeline">
+     <property name="title">
+      <string>Timeline</string>
+     </property>
+     <addaction name="actionBitmap_layer"/>
+     <addaction name="actionVector_Layer"/>
+     <addaction name="actionCamera_layer"/>
+     <addaction name="actionSound_layer"/>
+    </widget>
+    <widget class="QMenu" name="menuTools_2">
+     <property name="title">
+      <string>Tools</string>
+     </property>
+     <widget class="QMenu" name="menuSelect_tool">
+      <property name="title">
+       <string>Select tool</string>
+      </property>
+      <addaction name="actionSelect_area"/>
+      <addaction name="actionRotate_selection"/>
+      <addaction name="actionFlip_selection"/>
+     </widget>
+     <addaction name="actionPencil_tool"/>
+     <addaction name="actionBrush_tool"/>
+     <addaction name="actionPen_tool"/>
+     <addaction name="actionBucket_tool"/>
+     <addaction name="menuSelect_tool"/>
+     <addaction name="actionMove_tool"/>
+    </widget>
+    <addaction name="actionShort_intros"/>
+    <addaction name="menuTools_2"/>
+    <addaction name="actionPalette"/>
+    <addaction name="actionOnion_skin"/>
+    <addaction name="menuTimeline"/>
+    <addaction name="actionSelecting_colors"/>
+    <addaction name="actionPreferences"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
@@ -274,6 +314,7 @@
    <addaction name="menuTools"/>
    <addaction name="menuLayer"/>
    <addaction name="menuWindows"/>
+   <addaction name="menuVideo_help"/>
    <addaction name="menuHelp"/>
   </widget>
   <action name="actionNew">
@@ -1115,6 +1156,91 @@
   <action name="actionReset_Rotation">
    <property name="text">
     <string>Reset Rotation</string>
+   </property>
+  </action>
+  <action name="actionShort_intros">
+   <property name="text">
+    <string>Short intros</string>
+   </property>
+  </action>
+  <action name="actionPalette">
+   <property name="text">
+    <string>Palette</string>
+   </property>
+  </action>
+  <action name="actionOnion_skin">
+   <property name="text">
+    <string>Onion skin</string>
+   </property>
+  </action>
+  <action name="actionSelecting_colors">
+   <property name="text">
+    <string>Selecting colors</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences</string>
+   </property>
+  </action>
+  <action name="actionBitmap_layer">
+   <property name="text">
+    <string>Bitmap layer</string>
+   </property>
+  </action>
+  <action name="actionVector_Layer">
+   <property name="text">
+    <string>Vector layer</string>
+   </property>
+  </action>
+  <action name="actionCamera_layer">
+   <property name="text">
+    <string>Camera layer</string>
+   </property>
+  </action>
+  <action name="actionSound_layer">
+   <property name="text">
+    <string>Sound layer</string>
+   </property>
+  </action>
+  <action name="actionPencil_tool">
+   <property name="text">
+    <string>Pencil tool</string>
+   </property>
+  </action>
+  <action name="actionBrush_tool">
+   <property name="text">
+    <string>Brush tool</string>
+   </property>
+  </action>
+  <action name="actionPen_tool">
+   <property name="text">
+    <string>Pen tool</string>
+   </property>
+  </action>
+  <action name="actionBucket_tool">
+   <property name="text">
+    <string>Bucket tool</string>
+   </property>
+  </action>
+  <action name="actionMove_tool">
+   <property name="text">
+    <string>Move tool</string>
+   </property>
+  </action>
+  <action name="actionSelect_area">
+   <property name="text">
+    <string>Select</string>
+   </property>
+  </action>
+  <action name="actionRotate_selection">
+   <property name="text">
+    <string>Rotate selection</string>
+   </property>
+  </action>
+  <action name="actionFlip_selection">
+   <property name="text">
+    <string>Flip selection</string>
    </property>
   </action>
  </widget>
