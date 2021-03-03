@@ -894,11 +894,11 @@ void BitmapImage::floodFillNew(BitmapImage *targetImage, QRect cameraRect, QPoin
     QRgb oldColor = targetImage->pixel(point);
     oldColor = qRgba(qRed(oldColor), qGreen(oldColor), qBlue(oldColor), qAlpha(oldColor));
 
-    // Preparations
-    BitmapImage* replaceImage = nullptr;
-
     // Extend to size of Camera
     targetImage->extend(cameraRect);
+
+    // Make replaceImage, and set first point
+    BitmapImage* replaceImage = nullptr;
     replaceImage = new BitmapImage(targetImage->mBounds, Qt::transparent);
     replaceImage->scanLine(point.x(), point.y(), newColor);
     QPoint tmpP;
@@ -911,32 +911,32 @@ void BitmapImage::floodFillNew(BitmapImage *targetImage, QRect cameraRect, QPoin
     {
         tmpP = queue.takeFirst();
 
-        if (targetImage->bounds().contains(tmpP.x()+1,tmpP.y()) &&
-                replaceImage->constScanLine(tmpP.x()+1,tmpP.y()) != newColor &&
+        if (replaceImage->constScanLine(tmpP.x()+1,tmpP.y()) != newColor &&
+                targetImage->bounds().contains(tmpP.x()+1,tmpP.y()) &&
                 compareColor(targetImage->constScanLine(tmpP.x()+1, tmpP.y()), oldColor, tolerance, cache.data()))
         {
             replaceImage->scanLine(tmpP.x()+1, tmpP.y(), newColor);
             queue.append(QPoint(tmpP.x()+1, tmpP.y()));
         }
 
-        if (targetImage->bounds().contains(tmpP.x(),tmpP.y()+1) &&
-                replaceImage->constScanLine(tmpP.x(),tmpP.y()+1) != newColor &&
+        if (replaceImage->constScanLine(tmpP.x(),tmpP.y()+1) != newColor &&
+                targetImage->bounds().contains(tmpP.x(),tmpP.y()+1) &&
                 compareColor(targetImage->constScanLine(tmpP.x(), tmpP.y()+1), oldColor, tolerance, cache.data()))
         {
             replaceImage->scanLine(tmpP.x(), tmpP.y()+1, newColor);
             queue.append(QPoint(tmpP.x(), tmpP.y()+1));
         }
 
-        if (targetImage->bounds().contains(tmpP.x()-1,tmpP.y()) &&
-                replaceImage->constScanLine(tmpP.x()-1,tmpP.y()) != newColor &&
+        if (replaceImage->constScanLine(tmpP.x()-1,tmpP.y()) != newColor &&
+                targetImage->bounds().contains(tmpP.x()-1,tmpP.y()) &&
                 compareColor(targetImage->constScanLine(tmpP.x()-1, tmpP.y()), oldColor, tolerance, cache.data()))
         {
             replaceImage->scanLine(tmpP.x()-1, tmpP.y(), newColor);
             queue.append(QPoint(tmpP.x()-1, tmpP.y()));
         }
 
-        if (targetImage->bounds().contains(tmpP.x(),tmpP.y()-1) &&
-                replaceImage->constScanLine(tmpP.x(),tmpP.y()-1) != newColor &&
+        if (replaceImage->constScanLine(tmpP.x(),tmpP.y()-1) != newColor &&
+                targetImage->bounds().contains(tmpP.x(),tmpP.y()-1) &&
                 compareColor(targetImage->constScanLine(tmpP.x(), tmpP.y()-1), oldColor, tolerance, cache.data()))
         {
             replaceImage->scanLine(tmpP.x(), tmpP.y()-1, newColor);

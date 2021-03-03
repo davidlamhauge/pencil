@@ -174,10 +174,10 @@ void BucketTool::paintBitmap(Layer* layer)
     QElapsedTimer t;
     t.start();
     BitmapImage::floodFillNew(targetImage,
-                           cameraRect,
-                           point,
-                           qPremultiply(mEditor->color()->frontColor().rgba()),
-                           properties.tolerance);
+                              cameraRect,
+                              point,
+                              qPremultiply(mEditor->color()->frontColor().rgba()),
+                              properties.tolerance);
 
     qDebug() << "ms: " << t.elapsed();
     mScribbleArea->setModified(layerNumber, mEditor->currentFrame());
