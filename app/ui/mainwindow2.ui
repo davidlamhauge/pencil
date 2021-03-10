@@ -49,7 +49,7 @@
      <x>0</x>
      <y>0</y>
      <width>831</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -271,49 +271,55 @@
     <property name="title">
      <string>Tutorials</string>
     </property>
-    <widget class="QMenu" name="menuTimeline">
+    <widget class="QMenu" name="menuShort_intros">
      <property name="title">
-      <string>Timeline</string>
+      <string>Short intros</string>
      </property>
-     <widget class="QMenu" name="menuCamera_layer">
-      <property name="title">
-       <string>Camera layer</string>
-      </property>
-      <addaction name="actionSet_camera_size_2"/>
-      <addaction name="actionSet_camera_interpolation"/>
-      <addaction name="actionSelect_camera_field"/>
-     </widget>
-     <addaction name="actionBitmap_layer"/>
-     <addaction name="actionVector_Layer"/>
-     <addaction name="menuCamera_layer"/>
-     <addaction name="actionSound_layer"/>
+     <addaction name="actionInterface"/>
+     <addaction name="actionIdeas_for_improvement"/>
     </widget>
-    <widget class="QMenu" name="menuTools_2">
+    <widget class="QMenu" name="menuAnimation_2">
      <property name="title">
-      <string>Tools</string>
+      <string>Animation</string>
      </property>
-     <widget class="QMenu" name="menuSelect_tool">
-      <property name="title">
-       <string>Select tool</string>
-      </property>
-      <addaction name="actionSelect_area"/>
-      <addaction name="actionRotate_selection"/>
-      <addaction name="actionFlip_selection"/>
-     </widget>
-     <addaction name="actionPencil_tool"/>
-     <addaction name="actionBrush_tool"/>
-     <addaction name="actionPen_tool"/>
-     <addaction name="actionBucket_tool"/>
-     <addaction name="menuSelect_tool"/>
-     <addaction name="actionMove_tool"/>
+     <addaction name="actionOnion_skin"/>
+     <addaction name="actionFlipping_drawings"/>
     </widget>
-    <addaction name="actionShort_intros"/>
-    <addaction name="menuTools_2"/>
-    <addaction name="actionPalette"/>
-    <addaction name="actionOnion_skin"/>
-    <addaction name="menuTimeline"/>
-    <addaction name="actionSelecting_colors"/>
-    <addaction name="actionPreferences"/>
+    <widget class="QMenu" name="menuDockable_windows">
+     <property name="title">
+      <string>Dockable windows</string>
+     </property>
+     <widget class="QMenu" name="menuSelecting_colors">
+      <property name="title">
+       <string>Selecting colors</string>
+      </property>
+      <addaction name="actionPalette"/>
+      <addaction name="actionColor_wheel"/>
+     </widget>
+     <widget class="QMenu" name="menuTools_3">
+      <property name="title">
+       <string>Tools</string>
+      </property>
+      <addaction name="actionPencil_2"/>
+      <addaction name="actionPen_tool_2"/>
+      <addaction name="actionBrush_tool_2"/>
+      <addaction name="actionEraser_tool"/>
+     </widget>
+     <addaction name="actionTimeline_2"/>
+     <addaction name="menuTools_3"/>
+     <addaction name="menuSelecting_colors"/>
+    </widget>
+    <widget class="QMenu" name="menuPreferences">
+     <property name="title">
+      <string>Preferences</string>
+     </property>
+     <addaction name="actionChanging_preferences"/>
+     <addaction name="actionChanging_shortcuts"/>
+    </widget>
+    <addaction name="menuShort_intros"/>
+    <addaction name="menuPreferences"/>
+    <addaction name="menuDockable_windows"/>
+    <addaction name="menuAnimation_2"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -1166,11 +1172,6 @@
     <string>Reset Rotation</string>
    </property>
   </action>
-  <action name="actionShort_intros">
-   <property name="text">
-    <string>Short intros</string>
-   </property>
-  </action>
   <action name="actionPalette">
    <property name="text">
     <string>Palette</string>
@@ -1179,16 +1180,6 @@
   <action name="actionOnion_skin">
    <property name="text">
     <string>Onion skin</string>
-   </property>
-  </action>
-  <action name="actionSelecting_colors">
-   <property name="text">
-    <string>Selecting colors</string>
-   </property>
-  </action>
-  <action name="actionPreferences">
-   <property name="text">
-    <string>Preferences</string>
    </property>
   </action>
   <action name="actionBitmap_layer">
@@ -1204,11 +1195,6 @@
   <action name="actionSound_layer">
    <property name="text">
     <string>Sound layer</string>
-   </property>
-  </action>
-  <action name="actionPencil_tool">
-   <property name="text">
-    <string>Pencil tool</string>
    </property>
   </action>
   <action name="actionBrush_tool">
@@ -1274,6 +1260,66 @@
   <action name="actionSelect_camera_field">
    <property name="text">
     <string>Select camera field</string>
+   </property>
+  </action>
+  <action name="actionTimeline_2">
+   <property name="text">
+    <string>Timeline</string>
+   </property>
+  </action>
+  <action name="actionPencil_2">
+   <property name="text">
+    <string>Pencil tool</string>
+   </property>
+  </action>
+  <action name="actionPen_tool_2">
+   <property name="text">
+    <string>Pen tool</string>
+   </property>
+  </action>
+  <action name="actionBrush_tool_2">
+   <property name="text">
+    <string>Brush tool</string>
+   </property>
+  </action>
+  <action name="actionEraser_tool">
+   <property name="text">
+    <string>Eraser tool</string>
+   </property>
+  </action>
+  <action name="actionColor_wheel">
+   <property name="text">
+    <string>Color wheel</string>
+   </property>
+  </action>
+  <action name="actionInterface">
+   <property name="text">
+    <string>Interface of Pencil2D</string>
+   </property>
+  </action>
+  <action name="actionGet_Pencil2D">
+   <property name="text">
+    <string>Get Pencil2D</string>
+   </property>
+  </action>
+  <action name="actionIdeas_for_improvement">
+   <property name="text">
+    <string>Ideas for improvement?</string>
+   </property>
+  </action>
+  <action name="actionChanging_preferences">
+   <property name="text">
+    <string>Changing preferences</string>
+   </property>
+  </action>
+  <action name="actionChanging_shortcuts">
+   <property name="text">
+    <string>Changing shortcuts</string>
+   </property>
+  </action>
+  <action name="actionFlipping_drawings">
+   <property name="text">
+    <string>Flipping drawings</string>
    </property>
   </action>
  </widget>
