@@ -269,15 +269,23 @@
    </widget>
    <widget class="QMenu" name="menuVideo_help">
     <property name="title">
-     <string>Video-help</string>
+     <string>Tutorials</string>
     </property>
     <widget class="QMenu" name="menuTimeline">
      <property name="title">
       <string>Timeline</string>
      </property>
+     <widget class="QMenu" name="menuCamera_layer">
+      <property name="title">
+       <string>Camera layer</string>
+      </property>
+      <addaction name="actionSet_camera_size_2"/>
+      <addaction name="actionSet_camera_interpolation"/>
+      <addaction name="actionSelect_camera_field"/>
+     </widget>
      <addaction name="actionBitmap_layer"/>
      <addaction name="actionVector_Layer"/>
-     <addaction name="actionCamera_layer"/>
+     <addaction name="menuCamera_layer"/>
      <addaction name="actionSound_layer"/>
     </widget>
     <widget class="QMenu" name="menuTools_2">
@@ -1193,11 +1201,6 @@
     <string>Vector layer</string>
    </property>
   </action>
-  <action name="actionCamera_layer">
-   <property name="text">
-    <string>Camera layer</string>
-   </property>
-  </action>
   <action name="actionSound_layer">
    <property name="text">
     <string>Sound layer</string>
@@ -1241,6 +1244,36 @@
   <action name="actionFlip_selection">
    <property name="text">
     <string>Flip selection</string>
+   </property>
+  </action>
+  <action name="actionSet_camera_size">
+   <property name="text">
+    <string>Set camera size</string>
+   </property>
+  </action>
+  <action name="actionDefine_camera_interpolation">
+   <property name="text">
+    <string>Define camera interpolation</string>
+   </property>
+  </action>
+  <action name="actionChange_camera_field">
+   <property name="text">
+    <string>Change camera field</string>
+   </property>
+  </action>
+  <action name="actionSet_camera_size_2">
+   <property name="text">
+    <string>Set camera size</string>
+   </property>
+  </action>
+  <action name="actionSet_camera_interpolation">
+   <property name="text">
+    <string>Set camera interpolation</string>
+   </property>
+  </action>
+  <action name="actionSelect_camera_field">
+   <property name="text">
+    <string>Select camera field</string>
    </property>
   </action>
  </widget>
