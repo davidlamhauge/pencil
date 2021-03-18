@@ -38,18 +38,21 @@ class PointerEvent;
 class Properties
 {
 public:
-    qreal width = 1.f;
-    qreal feather = 1.f;
-    bool  pressure = true;
-    int   invisibility = 0;
-    int   preserveAlpha = 0;
-    bool  vectorMergeEnabled = false;
-    bool  bezier_state = false;
-    bool  useFeather = true;
-    int   useAA = 0;
-    int   stabilizerLevel = 0;
-    qreal tolerance = 0;
-    bool  useFillContour = false;
+    qreal   width = 1.f;
+    qreal   feather = 1.f;
+    bool    pressure = true;
+    int     invisibility = 0;
+    int     preserveAlpha = 0;
+    bool    vectorMergeEnabled = false;
+    bool    bezier_state = false;
+    bool    useFeather = true;
+    int     useAA = 0;
+    int     stabilizerLevel = 0;
+    qreal   tolerance = 0;
+    bool    useFillContour = false;
+    bool    spillFillUsed = false;
+    int     spillFillPixels = 1;
+    QString spillFillLayer = "";
 };
 
 const int ON = 1;

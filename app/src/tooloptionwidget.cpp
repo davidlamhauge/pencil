@@ -328,6 +328,12 @@ void ToolOptionWidget::setBezier(bool useBezier)
     ui->useBezierBox->setChecked(useBezier);
 }
 
+void ToolOptionWidget::setSpillFillUsed(bool spillFill)
+{
+    QSignalBlocker b(ui->spillFillCheckBox);
+    ui->spillFillCheckBox->setChecked(spillFill);
+}
+
 void ToolOptionWidget::disableAllOptions()
 {
     ui->sizeSlider->hide();

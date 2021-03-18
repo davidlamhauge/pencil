@@ -65,12 +65,14 @@ private:
     void setTolerance(int);
     void setFillContour(int);
     void setBezier(bool);
+    void setSpillFillUsed(bool);
 
     void disableAllOptions();
     void createUI();
 
 private:
     Ui::ToolOptions* ui = nullptr;
+    QString layerName = "";     // layer to receive spillFill
 };
 
 #endif // TOOLOPTIONDOCKWIDGET_H
