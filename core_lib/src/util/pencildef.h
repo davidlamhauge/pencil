@@ -41,6 +41,7 @@ enum ToolType : int
     BUCKET,
     EYEDROPPER,
     BRUSH,
+    TEXTTOOL,
     TOOL_TYPE_COUNT
 };
 
@@ -171,6 +172,7 @@ const static int MaxFramesBound = 9999;
 #define CMD_TOOL_BUCKET "CmdToolBucket"
 #define CMD_TOOL_EYEDROPPER "CmdToolEyedropper"
 #define CMD_TOOL_ERASER "CmdToolEraser"
+#define CMD_TOOL_TEXTTOOL "CmdToolTexttool"
 #define CMD_NEW_BITMAP_LAYER "CmdNewBitmapLayer"
 #define CMD_NEW_VECTOR_LAYER "CmdNewVectorLayer"
 #define CMD_NEW_SOUND_LAYER "CmdNewSoundLayer"

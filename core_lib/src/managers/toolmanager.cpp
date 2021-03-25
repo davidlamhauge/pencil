@@ -50,6 +50,7 @@ bool ToolManager::init()
     mToolSetHash.insert(POLYLINE, new PolylineTool(this));
     mToolSetHash.insert(SELECT, new SelectTool(this));
     mToolSetHash.insert(SMUDGE, new SmudgeTool(this));
+//    mToolSetHash.insert(TEXTTOOL, new SmudgeTool(this));
 
     foreach(BaseTool* pTool, mToolSetHash.values())
     {

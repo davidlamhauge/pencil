@@ -86,6 +86,7 @@ HEADERS +=  \
     src/tool/smudgetool.h \
     src/tool/strokemanager.h \
     src/tool/stroketool.h \
+    src/tool/texttool.h \
     src/util/blitrect.h \
     src/util/colordictionary.h \
     src/util/fileformat.h \
@@ -162,6 +163,7 @@ SOURCES +=  src/graphics/bitmap/bitmapimage.cpp \
     src/tool/smudgetool.cpp \
     src/tool/strokemanager.cpp \
     src/tool/stroketool.cpp \
+    src/tool/texttool.cpp \
     src/util/blitrect.cpp \
     src/util/fileformat.cpp \
     src/util/pencilerror.cpp \
@@ -178,7 +180,8 @@ SOURCES +=  src/graphics/bitmap/bitmapimage.cpp \
     src/selectionpainter.cpp
 
 FORMS += \
-    ui/camerapropertiesdialog.ui
+    ui/camerapropertiesdialog.ui \
+    ui/texttolldialog.ui
 
 win32 {
     INCLUDEPATH += src/external/win32
