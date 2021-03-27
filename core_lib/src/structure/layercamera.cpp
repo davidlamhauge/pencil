@@ -89,19 +89,25 @@ QTransform LayerCamera::getViewAtFrame(int frameNumber) const
     double frame2 = camera2->pos();
 
     // interpolation
-    qreal percent = getInterpolationPercent(camera1->getEasingType(), (frameNumber - frame1)/ (frame2 - frame1));
+    Camera* cam = camera1->clone();
+    cam->setEasingType(camera1->getEasingType());
+    qreal percent = getInterpolationPercent(cam->getEasingType(), (frameNumber - frame1)/ (frame2 - frame1));
+    QPoint point = QLineF(camera1->translation(), camera2->translation()).pointAt(percent).toPoint();
 
-    auto interpolation = [=](double f1, double f2) -> double
+    auto lerp = [](double f1, double f2, double percent) -> double
     {
         return f1 * (1.0 - percent) + f2 * percent;
     };
+    double dx = point.x();
+    double dy = point.y();
+    double r = lerp(camera1->rotation(), camera2->rotation(), percent);
+    double s = lerp(camera1->scaling(), camera2->scaling(), percent);
 
-    return QTransform(interpolation(camera1->view.m11(), camera2->view.m11()),
-                      interpolation(camera1->view.m12(), camera2->view.m12()),
-                      interpolation(camera1->view.m21(), camera2->view.m21()),
-                      interpolation(camera1->view.m22(), camera2->view.m22()),
-                      interpolation(camera1->view.m31(), camera2->view.m31()),
-                      interpolation(camera1->view.m32(), camera2->view.m32()));
+    cam->translate(dx, dy);
+    cam->rotate(r);
+    cam->scale(s);
+    cam->updateViewTransform();
+    return cam->getView();
 }
 
 MoveMode LayerCamera::getMoveModeForCamera(int frameNumber, QPointF point, qreal tolerance)
