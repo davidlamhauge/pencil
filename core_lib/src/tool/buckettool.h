@@ -41,6 +41,10 @@ public:
 
     void setTolerance(const int tolerance) override;
     void setWidth(const qreal width) override;
+    void setUseBleedFill(const bool bleedFill) override;
+    void setBleedFillLayer(const QString name) override;
+    void setUseExpandFill(const bool expandFill) override;
+    void setExpandFillSize(const int size) override;
 
     void paintBitmap(Layer* layer);
     void paintVector(Layer* layer);

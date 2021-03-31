@@ -47,6 +47,8 @@ void BucketTool::loadSettings()
 {
     mPropertyEnabled[TOLERANCE] = true;
     mPropertyEnabled[WIDTH] = true;
+    mPropertyEnabled[BLEEDFILL] = true;
+    mPropertyEnabled[EXPANDFILL] = true;
 
     QSettings settings(PENCIL2D, PENCIL2D);
 
@@ -55,12 +57,16 @@ void BucketTool::loadSettings()
     properties.stabilizerLevel = StabilizationLevel::NONE;
     properties.useAA = DISABLED;
     properties.tolerance = settings.value("tolerance", 32.0).toDouble();
+    properties.useBleedFill = settings.value("bleedFillOn", false).toBool();
+    properties.useExpandFill = settings.value("expandFillOn", false).toBool();
 }
 
 void BucketTool::resetToDefault()
 {
     setWidth(4.0);
     setTolerance(32.0);
+    setUseBleedFill(false);
+    setUseExpandFill(false);
 }
 
 QCursor BucketTool::cursor()
@@ -92,6 +98,44 @@ void BucketTool::setWidth(const qreal width)
     // Update settings
     QSettings settings(PENCIL2D, PENCIL2D);
     settings.setValue("fillThickness", width);
+    settings.sync();
+}
+
+void BucketTool::setUseBleedFill(const bool bleedFill)
+{
+    // Set current property
+    properties.useBleedFill = bleedFill;
+
+    // Update settings
+    QSettings settings(PENCIL2D, PENCIL2D);
+    settings.setValue("bleedFillOn", bleedFill);
+    settings.sync();
+}
+
+void BucketTool::setBleedFillLayer(const QString name)
+{
+    properties.bleedFillLayer = name;
+}
+
+void BucketTool::setUseExpandFill(const bool expandFill)
+{
+    // Set current property
+    properties.useExpandFill = expandFill;
+
+    // Update settings
+    QSettings settings(PENCIL2D, PENCIL2D);
+    settings.setValue("expandFillOn", expandFill);
+    settings.sync();
+}
+
+void BucketTool::setExpandFillSize(const int size)
+{
+    // Set current property
+    properties.expandFillSize = size;
+
+    // Update settings
+    QSettings settings(PENCIL2D, PENCIL2D);
+    settings.setValue("expandFillSize", size);
     settings.sync();
 }
 

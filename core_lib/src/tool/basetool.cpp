@@ -457,3 +457,23 @@ void BaseTool::setUseFillContour(const bool useFillContour)
 {
     properties.useFillContour = useFillContour;
 }
+
+void BaseTool::setUseBleedFill(const bool useBleedFill)
+{
+    properties.useBleedFill = useBleedFill;
+}
+
+void BaseTool::setBleedFillLayer(const QString name)
+{
+    properties.bleedFillLayer = name;
+}
+
+void BaseTool::setUseExpandFill(const bool useExpandFill)
+{
+    properties.useExpandFill = useExpandFill;
+}
+
+void BaseTool::setExpandFillSize(const int size)
+{
+    properties.expandFillSize = size;
+}

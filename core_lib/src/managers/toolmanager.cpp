@@ -29,7 +29,7 @@ GNU General Public License for more details.
 #include "selecttool.h"
 #include "smudgetool.h"
 #include "editor.h"
-
+#include <QDebug>
 
 ToolManager::ToolManager(Editor* editor) : BaseManager(editor)
 {
@@ -213,6 +213,28 @@ void ToolManager::setUseFillContour(bool useFillContour)
 {
     currentTool()->setUseFillContour(useFillContour);
     emit toolPropertyChanged(currentTool()->type(), FILLCONTOUR);
+}
+
+void ToolManager::setUseBleedFill(bool useBleedFill)
+{
+    currentTool()->setUseBleedFill(useBleedFill);
+    emit toolPropertyChanged(currentTool()->type(), BLEEDFILL);
+}
+
+void ToolManager::setBleedFillLayer(QString name)
+{
+    currentTool()->setBleedFillLayer(name);
+}
+
+void ToolManager::setUseExpandFill(bool useExpandFill)
+{
+    currentTool()->setUseExpandFill(useExpandFill);
+    emit toolPropertyChanged(currentTool()->type(), EXPANDFILL);
+}
+
+void ToolManager::setExpandFillSize(int size)
+{
+    currentTool()->setExpandFillSize(size);
 }
 
 

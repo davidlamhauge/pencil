@@ -65,14 +65,18 @@ private:
     void setTolerance(int);
     void setFillContour(int);
     void setBezier(bool);
-    void setSpillFillUsed(bool);
+    void setBleedFillUsed(bool);
+    void setBleedFillLayer(QString);
+    void setExpandFillUsed(bool);
+    void setExpandFillSpinBox(int);
+    void setExpandFillSlider(int);
 
     void disableAllOptions();
     void createUI();
 
 private:
     Ui::ToolOptions* ui = nullptr;
-    QString layerName = "";     // layer to receive spillFill
+    QString layerName = "";     // layer to receive bleedFill
 };
 
 #endif // TOOLOPTIONDOCKWIDGET_H

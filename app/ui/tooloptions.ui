@@ -30,8 +30,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>275</width>
-        <height>659</height>
+        <width>271</width>
+        <height>655</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -159,33 +159,53 @@
          <item>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
-            <widget class="QCheckBox" name="spillFillCheckBox">
+            <widget class="QCheckBox" name="bleedFillCheckBox">
              <property name="text">
-              <string>Separate layer?</string>
+              <string>Bleed fill</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="spillFillComboBox">
+            <widget class="QLabel" name="bleedFillLabel">
+             <property name="text">
+              <string>Select target layer:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="bleedFillComboBox">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
             </widget>
            </item>
           </layout>
          </item>
          <item>
+          <widget class="QCheckBox" name="expandFillCheckBox">
+           <property name="text">
+            <string>Expand fill</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <item>
-            <widget class="QSlider" name="spillFilllSlider">
+            <widget class="QSlider" name="expandFillSlider">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="minimum">
-              <number>1</number>
+              <number>0</number>
              </property>
              <property name="maximum">
               <number>5</number>
+             </property>
+             <property name="pageStep">
+              <number>1</number>
+             </property>
+             <property name="value">
+              <number>1</number>
              </property>
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -193,15 +213,18 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spillFillSpinBox">
+            <widget class="QSpinBox" name="expandFillSpinBox">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="minimum">
-              <number>1</number>
+              <number>0</number>
              </property>
              <property name="maximum">
               <number>5</number>
+             </property>
+             <property name="value">
+              <number>1</number>
              </property>
             </widget>
            </item>

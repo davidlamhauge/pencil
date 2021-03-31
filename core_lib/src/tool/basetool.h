@@ -50,9 +50,10 @@ public:
     int     stabilizerLevel = 0;
     qreal   tolerance = 0;
     bool    useFillContour = false;
-    bool    spillFillUsed = false;
-    int     spillFillPixels = 1;
-    QString spillFillLayer = "";
+    bool    useBleedFill = false;
+    QString bleedFillLayer = "";
+    bool    useExpandFill = false;
+    int     expandFillSize = 1;
 };
 
 const int ON = 1;
@@ -119,6 +120,10 @@ public:
     virtual void setStabilizerLevel(const int level);
     virtual void setTolerance(const int tolerance);
     virtual void setUseFillContour(const bool useFillContour);
+    virtual void setUseBleedFill(const bool useBleedFill);
+    virtual void setBleedFillLayer(const QString name);
+    virtual void setUseExpandFill(const bool useExpandFill);
+    virtual void setExpandFillSize(const int size);
 
     virtual bool leavingThisTool() { return true; }
     virtual bool switchingLayer() { return true; } // default state should be true
