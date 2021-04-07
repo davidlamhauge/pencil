@@ -310,18 +310,21 @@ void TimeLineCells::showCameraMenu(QPoint pos)
 
     int nextFrame = curLayer->getNextKeyFramePosition(frameNumber);
 
-    QString interpolateAt = tr("Interpolate frames at: %1");
+    // number-sensitive options
     QString interpolateFrom = tr("Interpolate frames from: %1 to %2");
-    QString clearMovementDesc = tr("Clear interpolation on: %1");
+    QString holdToFrame = tr("Hold to keyframe %1");
+    QString alignHorizontally = tr("Align keyframe %1 horizontally");
+    QString alignVertically = tr("Align keyframe %1 vertically");
+    QString showCameraPath = tr("Show camera path");
+    QString hideCameraPath = tr("Hide camera path");
 
     if (mCameraMenu == nullptr)
     {
-        qDebug() << "test 1";
         mCameraMenu = new QMenu(this);
 
-        mCamInterpolationMenu = new QMenu(mCameraMenu);
-        mCamInterpolationMenu = mCameraMenu->addMenu(tr("Camera interpolation frame %1 to %2").arg( QString::number(frameNumber), QString::number(nextFrame)));
+        mCamInterpolationMenu = mCameraMenu->addMenu(interpolateFrom);
 
+        // repeatedly used expressions
         QString easeInDesc = tr("Ease-in");
         QString easeOutDesc = tr("Ease-out");
         QString slowDesc = tr("Slow");
@@ -394,34 +397,39 @@ void TimeLineCells::showCameraMenu(QPoint pos)
         mCamFieldMenu->addAction(tr("Reset camera scaling to 1:1"), [=] { this->setCameraReset(CameraFieldOption::RESET_SCALING, frameNumber); });
         mCamFieldMenu->addAction(tr("Reset camera rotation to 0"), [=] { this->setCameraReset(CameraFieldOption::RESET_ROTATION, frameNumber); });
         mCamFieldMenu->addSeparator();
-        mCamFieldMenu->addAction(tr("Align keyframe %1 horizontally").arg(QString::number(nextFrame)), [=] { this->setCameraReset(CameraFieldOption::ALIGN_HORIZONTAL, frameNumber); });
-        mCamFieldMenu->addAction(tr("Align keyframe %1 vertically").arg(QString::number(nextFrame)), [=] { this->setCameraReset(CameraFieldOption::ALIGN_VERTICAL, frameNumber); });
+        mAlignHori = mCamFieldMenu->addAction(alignHorizontally.arg(QString::number(nextFrame)), [=] { this->setCameraReset(CameraFieldOption::ALIGN_HORIZONTAL, frameNumber); });
+        mAlignVerti = mCamFieldMenu->addAction(alignVertically.arg(QString::number(nextFrame)), [=] { this->setCameraReset(CameraFieldOption::ALIGN_VERTICAL, frameNumber); });
         mCamFieldMenu->addSeparator();
-        mCamFieldMenu->addAction(tr("Hold to keyframe %1").arg(QString::number(nextFrame)), [=] { this->setCameraReset(CameraFieldOption::HOLD_FRAME, frameNumber); });
+        mHoldAction = mCamFieldMenu->addAction(holdToFrame.arg(QString::number(nextFrame)), [=] { this->setCameraReset(CameraFieldOption::HOLD_FRAME, frameNumber); });
+
+        QString dotColor(tr("Dot color: %1"));
 
         mCamPathMenu = new QMenu(mCameraMenu);
         mCamPathMenu = mCameraMenu->addMenu(tr("Camera path"));
-        mShowPath = mCamPathMenu->addAction(tr("Show camera path"), [=] { this->toggleShowCameraPath(); });
+        mShowPath = mCamPathMenu->addAction(showCameraPath, [=] { this->toggleShowCameraPath(); });
         mCamPathMenu->addSeparator();
-        mCamPathMenu->addAction(tr("Dot color: Red"), [=] { this->setDotColor(DotColor::RED_DOT); });
-        mCamPathMenu->addAction(tr("Dot color: Green"), [=] { this->setDotColor(DotColor::GREEN_DOT); });
-        mCamPathMenu->addAction(tr("Dot color: Blue"), [=] { this->setDotColor(DotColor::BLUE_DOT); });
-        mCamPathMenu->addAction(tr("Dot color: Black"), [=] { this->setDotColor(DotColor::BLACK_DOT); });
-        mCamPathMenu->addAction(tr("Dot color: White"), [=] { this->setDotColor(DotColor::WHITE_DOT); });
+        mCamPathMenu->addAction(dotColor.arg(tr("Red")), [=] { this->setDotColor(DotColor::RED_DOT); });
+        mCamPathMenu->addAction(dotColor.arg(tr("Green")), [=] { this->setDotColor(DotColor::GREEN_DOT); });
+        mCamPathMenu->addAction(dotColor.arg(tr("Blue")), [=] { this->setDotColor(DotColor::BLUE_DOT); });
+        mCamPathMenu->addAction(dotColor.arg(tr("Black")), [=] { this->setDotColor(DotColor::BLACK_DOT); });
+        mCamPathMenu->addAction(dotColor.arg(tr("White")), [=] { this->setDotColor(DotColor::WHITE_DOT); });
         mCamPathMenu->addSeparator();
         mCamPathMenu->addAction(tr("Reset camera path"), [=] { this->resetCameraPath(frameNumber); });
-        qDebug() << "test 2";
     }
 
+    // update info on number-sensitive options
+    mCamInterpolationMenu->setTitle(interpolateFrom.arg(QString::number(frameNumber)).arg(QString::number(nextFrame)));
+    mAlignHori->setText(alignHorizontally.arg(QString::number(nextFrame)));
+    mAlignVerti->setText(alignVertically.arg(QString::number(nextFrame)));
+    mHoldAction->setText(holdToFrame.arg(QString::number(nextFrame)));
     LayerCamera* layer = static_cast<LayerCamera*>(curLayer);
     if (layer->getShowPath() == false)
-        mShowPath->setText(tr("Show camera path"));
+        mShowPath->setText(showCameraPath);
     else
-        mShowPath->setText(tr("Hide  camera path"));
-    qDebug() << "test 3";
+        mShowPath->setText(hideCameraPath);
 
-    mCameraMenu->exec(pos);
-    qDebug() << "test 4";
+    mCameraMenu->popup(pos);
+
     mEditor->scrubTo(mEditor->currentFrame());
     updateContent();
 }

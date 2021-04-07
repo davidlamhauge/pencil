@@ -163,6 +163,8 @@ private:
     QMenu* mCamPathMenu = nullptr;          // camera path menu
     QAction* mHoldAction = nullptr;         // special action for hold key
     QAction* mShowPath = nullptr;           // special action for show/hide path
+    QAction* mAlignHori = nullptr;          // action for horizontal alignment
+    QAction* mAlignVerti = nullptr;         // action for vertical alignment
 };
 
 #endif // TIMELINECELLS_H
