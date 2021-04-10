@@ -82,7 +82,6 @@ void ToolOptionWidget::updateUI()
     setStabilizerLevel(p.stabilizerLevel);
     setTolerance(static_cast<int>(p.tolerance));
     setFillContour(p.useFillContour);
-    setBleedFillUsed(p.useBleedFill);
     setExpandFillUsed(p.useExpandFill);
 }
 
@@ -120,10 +119,7 @@ void ToolOptionWidget::makeConnectionToEditor(Editor* editor)
 
     connect(ui->fillContourBox, &QCheckBox::clicked, toolManager, &ToolManager::setUseFillContour);
 
-    connect(ui->bleedFillCheckBox, &QCheckBox::clicked, toolManager, &ToolManager::setUseBleedFill);
-    connect(ui->expandFillCheckBox, &QCheckBox::clicked, toolManager, &ToolManager::setUseExpandFill);
-    connect(ui->expandFillSlider, &QSlider::valueChanged, this, &ToolOptionWidget::setExpandFillSpinBox);
-    connect(ui->expandFillSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &ToolOptionWidget::setExpandFillSlider);
+    connect(ui->expandFillRadioButton, &QRadioButton::toggled, toolManager, &ToolManager::setUseBleedFill);
     clearFocusOnFinished(ui->expandFillSpinBox);
     connect(ui->toleranceSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), toolManager, &ToolManager::setTolerance);
 
@@ -149,7 +145,6 @@ void ToolOptionWidget::onToolPropertyChanged(ToolType, ToolPropertyType ePropert
     case TOLERANCE: setTolerance(static_cast<int>(p.tolerance)); break;
     case FILLCONTOUR: setFillContour(p.useFillContour); break;
     case BEZIER: setBezier(p.bezier_state); break;
-    case BLEEDFILL: setBleedFillUsed(p.useBleedFill); break;
     case EXPANDFILL: setExpandFillUsed(p.useExpandFill); break;
     default:
         Q_ASSERT(false);
@@ -174,12 +169,8 @@ void ToolOptionWidget::setVisibility(BaseTool* tool)
     ui->toleranceSlider->setVisible(tool->isPropertyEnabled(TOLERANCE));
     ui->toleranceSpinBox->setVisible(tool->isPropertyEnabled(TOLERANCE));
     ui->fillContourBox->setVisible(tool->isPropertyEnabled(FILLCONTOUR));
-    ui->bleedFillCheckBox->setVisible(tool->isPropertyEnabled(BLEEDFILL));
-    ui->bleedFillLabel->setVisible(false);
-    ui->bleedFillComboBox->setVisible(false);
-    ui->expandFillCheckBox->setVisible(tool->isPropertyEnabled(EXPANDFILL));
-    ui->expandFillSlider->setVisible(false);
-    ui->expandFillSpinBox->setVisible(false);
+    ui->expandFillRadioButton->setVisible(tool->isPropertyEnabled(EXPANDFILL));
+    ui->expandFillSpinBox->setVisible(tool->isPropertyEnabled(EXPANDFILL));
 
     auto currentLayerType = editor()->layers()->currentLayer()->type();
     auto propertyType = editor()->tools()->currentTool()->type();
@@ -224,17 +215,6 @@ void ToolOptionWidget::setVisibility(BaseTool* tool)
         case BUCKET:
             ui->brushSpinBox->setVisible(false);
             ui->sizeSlider->setVisible(false);
-            ui->bleedFillLabel->setVisible(true);
-            ui->bleedFillComboBox->setVisible(true);
-            ui->expandFillSlider->setVisible(true);
-            ui->expandFillSpinBox->setVisible(true);
-            ui->bleedFillComboBox->clear();
-            for (int i = 0; i < editor()->layers()->count(); i++)
-            {
-                Layer* layer = editor()->layers()->getLayer(i);
-                if (layer->type() == Layer::BITMAP && layer->name() != editor()->layers()->currentLayer()->name())
-                    ui->bleedFillComboBox->addItem(layer->name());
-            }
             break;
         default:
             ui->makeInvisibleBox->setVisible(false);
@@ -357,34 +337,16 @@ void ToolOptionWidget::setBezier(bool useBezier)
     ui->useBezierBox->setChecked(useBezier);
 }
 
-void ToolOptionWidget::setBleedFillUsed(bool bleedFill)
-{
-    QSignalBlocker b(ui->bleedFillCheckBox);
-    ui->bleedFillCheckBox->setChecked(bleedFill);
-}
-
-void ToolOptionWidget::setBleedFillLayer(QString name)
-{
-
-}
-
 void ToolOptionWidget::setExpandFillUsed(bool expandFill)
 {
-    QSignalBlocker b(ui->expandFillCheckBox);
-    ui->expandFillCheckBox->setChecked(expandFill);
+    QSignalBlocker b(ui->expandFillRadioButton);
+    ui->expandFillRadioButton->setChecked(expandFill);
 }
 
 void ToolOptionWidget::setExpandFillSpinBox(int size)
 {
     QSignalBlocker b(ui->expandFillSpinBox);
     ui->expandFillSpinBox->setValue(size);
-    editor()->tools()->setExpandFillSize(size);
-}
-
-void ToolOptionWidget::setExpandFillSlider(int size)
-{
-    QSignalBlocker b(ui->expandFillSlider);
-    ui->expandFillSlider->setValue(size);
     editor()->tools()->setExpandFillSize(size);
 }
 
@@ -405,6 +367,6 @@ void ToolOptionWidget::disableAllOptions()
     ui->toleranceSlider->hide();
     ui->toleranceSpinBox->hide();
     ui->fillContourBox->hide();
-    ui->bleedFillCheckBox->hide();
-    ui->expandFillCheckBox->hide();
+    ui->expandFillRadioButton->hide();
+    ui->expandFillSpinBox->hide();
 }

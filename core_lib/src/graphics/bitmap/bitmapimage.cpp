@@ -881,3 +881,26 @@ void BitmapImage::floodFill(BitmapImage* targetImage,
     targetImage->modification();
     delete replaceImage;
 }
+
+void BitmapImage::expandFill(BitmapImage *targetImage, QRect cameraRect, QPoint point, QRgb newColor)
+{
+    floodFill(targetImage, cameraRect, point, newColor, 0);
+
+    theExpandFill(targetImage, cameraRect, point, newColor);
+}
+
+void BitmapImage::theExpandFill(BitmapImage *targetImage, QRect cameraRect, QPoint point, QRgb newColor)
+{
+    // Preparations
+    QList<QPoint> queue; // queue all the pixels of the filled area (as they are found)
+
+    BitmapImage* replaceImage = nullptr;
+    QPoint tempPoint;
+
+    // Extend to size of Camera
+    targetImage->extend(cameraRect);
+    replaceImage = new BitmapImage(targetImage->mBounds, Qt::transparent);
+
+    queue.append(point);
+    // Preparations END
+}

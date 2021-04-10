@@ -47,7 +47,6 @@ void BucketTool::loadSettings()
 {
     mPropertyEnabled[TOLERANCE] = true;
     mPropertyEnabled[WIDTH] = true;
-    mPropertyEnabled[BLEEDFILL] = true;
     mPropertyEnabled[EXPANDFILL] = true;
 
     QSettings settings(PENCIL2D, PENCIL2D);
@@ -180,7 +179,7 @@ void BucketTool::pointerReleaseEvent(PointerEvent* event)
 
         switch (layer->type())
         {
-        case Layer::BITMAP: paintBitmap(layer); break;
+        case Layer::BITMAP: paintBitmap(layer, properties.useExpandFill); break;
         case Layer::VECTOR: paintVector(layer); break;
         default:
             break;
@@ -203,7 +202,7 @@ bool BucketTool::startAdjusting(Qt::KeyboardModifiers modifiers, qreal argStep)
     return BaseTool::startAdjusting(modifiers, argStep);
 }
 
-void BucketTool::paintBitmap(Layer* layer)
+void BucketTool::paintBitmap(Layer* layer, bool expandFill)
 {
     Layer* targetLayer = layer; // by default
     int layerNumber = editor()->layers()->currentLayerIndex(); // by default
@@ -213,11 +212,21 @@ void BucketTool::paintBitmap(Layer* layer)
 
     QPoint point = QPoint(qFloor(getLastPoint().x()), qFloor(getLastPoint().y()));
     QRect cameraRect = mScribbleArea->getCameraRect().toRect();
-    BitmapImage::floodFill(targetImage,
-                           cameraRect,
-                           point,
-                           qPremultiply(mEditor->color()->frontColor().rgba()),
-                           properties.tolerance);
+    if (!expandFill)
+    {
+        BitmapImage::floodFill(targetImage,
+                               cameraRect,
+                               point,
+                               qPremultiply(mEditor->color()->frontColor().rgba()),
+                               properties.tolerance);
+    }
+    else
+    {
+        BitmapImage::expandFill(targetImage,
+                                cameraRect,
+                                point,
+                                qPremultiply(mEditor->color()->frontColor().rgba()));
+    }
 
     mScribbleArea->setModified(layerNumber, mEditor->currentFrame());
 }

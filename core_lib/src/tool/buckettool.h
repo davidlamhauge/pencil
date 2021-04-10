@@ -46,7 +46,7 @@ public:
     void setUseExpandFill(const bool expandFill) override;
     void setExpandFillSize(const int size) override;
 
-    void paintBitmap(Layer* layer);
+    void paintBitmap(Layer* layer, bool expandFill);
     void paintVector(Layer* layer);
     void drawStroke();
 

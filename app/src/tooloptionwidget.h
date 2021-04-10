@@ -65,11 +65,8 @@ private:
     void setTolerance(int);
     void setFillContour(int);
     void setBezier(bool);
-    void setBleedFillUsed(bool);
-    void setBleedFillLayer(QString);
     void setExpandFillUsed(bool);
     void setExpandFillSpinBox(int);
-    void setExpandFillSlider(int);
 
     void disableAllOptions();
     void createUI();
