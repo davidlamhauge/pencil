@@ -179,7 +179,7 @@ void BucketTool::pointerReleaseEvent(PointerEvent* event)
 
         switch (layer->type())
         {
-        case Layer::BITMAP: paintBitmap(layer, properties.useExpandFill); break;
+        case Layer::BITMAP: paintBitmap(layer); break;
         case Layer::VECTOR: paintVector(layer); break;
         default:
             break;
@@ -202,7 +202,7 @@ bool BucketTool::startAdjusting(Qt::KeyboardModifiers modifiers, qreal argStep)
     return BaseTool::startAdjusting(modifiers, argStep);
 }
 
-void BucketTool::paintBitmap(Layer* layer, bool expandFill)
+void BucketTool::paintBitmap(Layer* layer)
 {
     Layer* targetLayer = layer; // by default
     int layerNumber = editor()->layers()->currentLayerIndex(); // by default
@@ -212,7 +212,7 @@ void BucketTool::paintBitmap(Layer* layer, bool expandFill)
 
     QPoint point = QPoint(qFloor(getLastPoint().x()), qFloor(getLastPoint().y()));
     QRect cameraRect = mScribbleArea->getCameraRect().toRect();
-    if (!expandFill)
+    if (!properties.useExpandFill)
     {
         BitmapImage::floodFill(targetImage,
                                cameraRect,
@@ -225,7 +225,9 @@ void BucketTool::paintBitmap(Layer* layer, bool expandFill)
         BitmapImage::expandFill(targetImage,
                                 cameraRect,
                                 point,
-                                qPremultiply(mEditor->color()->frontColor().rgba()));
+                                qPremultiply(mEditor->color()->frontColor().rgba()),
+                                properties.expandFillSize,
+                                properties.tolerance);
     }
 
     mScribbleArea->setModified(layerNumber, mEditor->currentFrame());

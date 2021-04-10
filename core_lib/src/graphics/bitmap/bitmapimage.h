@@ -76,8 +76,7 @@ public:
 
     static inline bool compareColor(QRgb newColor, QRgb oldColor, int tolerance, QHash<QRgb, bool> *cache);
     static void floodFill(BitmapImage* targetImage, QRect cameraRect, QPoint point, QRgb newColor, int tolerance);
-    static void expandFill(BitmapImage* targetImage, QRect cameraRect, QPoint point, QRgb newColor);
-    static void theExpandFill(BitmapImage* targetImage, QRect cameraRect, QPoint point, QRgb newColor);
+    static void expandFill(BitmapImage* targetImage, QRect cameraRect, QPoint point, QRgb newColor, int expand, int tolerance);
 
     void drawLine(QPointF P1, QPointF P2, QPen pen, QPainter::CompositionMode cm, bool antialiasing);
     void drawRect(QRectF rectangle, QPen pen, QBrush brush, QPainter::CompositionMode cm, bool antialiasing);
@@ -120,6 +119,8 @@ protected:
     void updateBounds(QRect rectangle);
     void extend(const QPoint& p);
     void extend(QRect rectangle);
+
+    static void expandTheFill(BitmapImage* targetImage, BitmapImage* replaceImage, QRect expandRect, QRgb newColor, int expand);
 
     void setCompositionModeBounds(BitmapImage *source, QPainter::CompositionMode cm);
     void setCompositionModeBounds(QRect sourceBounds, bool isSourceMinBounds, QPainter::CompositionMode cm);

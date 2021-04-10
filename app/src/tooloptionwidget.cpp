@@ -119,7 +119,8 @@ void ToolOptionWidget::makeConnectionToEditor(Editor* editor)
 
     connect(ui->fillContourBox, &QCheckBox::clicked, toolManager, &ToolManager::setUseFillContour);
 
-    connect(ui->expandFillRadioButton, &QRadioButton::toggled, toolManager, &ToolManager::setUseBleedFill);
+    connect(ui->expandFillCheckBox, &QCheckBox::toggled, toolManager, &ToolManager::setUseExpandFill);
+    connect(ui->expandFillSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), toolManager, &ToolManager::setExpandFillSize);
     clearFocusOnFinished(ui->expandFillSpinBox);
     connect(ui->toleranceSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), toolManager, &ToolManager::setTolerance);
 
@@ -169,7 +170,7 @@ void ToolOptionWidget::setVisibility(BaseTool* tool)
     ui->toleranceSlider->setVisible(tool->isPropertyEnabled(TOLERANCE));
     ui->toleranceSpinBox->setVisible(tool->isPropertyEnabled(TOLERANCE));
     ui->fillContourBox->setVisible(tool->isPropertyEnabled(FILLCONTOUR));
-    ui->expandFillRadioButton->setVisible(tool->isPropertyEnabled(EXPANDFILL));
+    ui->expandFillCheckBox->setVisible(tool->isPropertyEnabled(EXPANDFILL));
     ui->expandFillSpinBox->setVisible(tool->isPropertyEnabled(EXPANDFILL));
 
     auto currentLayerType = editor()->layers()->currentLayer()->type();
@@ -339,15 +340,8 @@ void ToolOptionWidget::setBezier(bool useBezier)
 
 void ToolOptionWidget::setExpandFillUsed(bool expandFill)
 {
-    QSignalBlocker b(ui->expandFillRadioButton);
-    ui->expandFillRadioButton->setChecked(expandFill);
-}
-
-void ToolOptionWidget::setExpandFillSpinBox(int size)
-{
-    QSignalBlocker b(ui->expandFillSpinBox);
-    ui->expandFillSpinBox->setValue(size);
-    editor()->tools()->setExpandFillSize(size);
+    QSignalBlocker b(ui->expandFillCheckBox);
+    ui->expandFillCheckBox->setChecked(expandFill);
 }
 
 void ToolOptionWidget::disableAllOptions()
@@ -367,6 +361,6 @@ void ToolOptionWidget::disableAllOptions()
     ui->toleranceSlider->hide();
     ui->toleranceSpinBox->hide();
     ui->fillContourBox->hide();
-    ui->expandFillRadioButton->hide();
+    ui->expandFillCheckBox->hide();
     ui->expandFillSpinBox->hide();
 }

@@ -215,17 +215,6 @@ void ToolManager::setUseFillContour(bool useFillContour)
     emit toolPropertyChanged(currentTool()->type(), FILLCONTOUR);
 }
 
-void ToolManager::setUseBleedFill(bool useBleedFill)
-{
-    currentTool()->setUseBleedFill(useBleedFill);
-    emit toolPropertyChanged(currentTool()->type(), BLEEDFILL);
-}
-
-void ToolManager::setBleedFillLayer(QString name)
-{
-    currentTool()->setBleedFillLayer(name);
-}
-
 void ToolManager::setUseExpandFill(bool useExpandFill)
 {
     currentTool()->setUseExpandFill(useExpandFill);

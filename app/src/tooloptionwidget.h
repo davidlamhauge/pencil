@@ -66,7 +66,6 @@ private:
     void setFillContour(int);
     void setBezier(bool);
     void setExpandFillUsed(bool);
-    void setExpandFillSpinBox(int);
 
     void disableAllOptions();
     void createUI();

@@ -53,7 +53,7 @@ public:
     bool    useBleedFill = false;
     QString bleedFillLayer = "";
     bool    useExpandFill = false;
-    int     expandFillSize = 1;
+    int     expandFillSize = 2;
 };
 
 const int ON = 1;

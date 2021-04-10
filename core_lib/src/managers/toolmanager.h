@@ -69,8 +69,6 @@ public slots:
     void setStabilizerLevel(int);
     void setTolerance(int);
     void setUseFillContour(bool);
-    void setUseBleedFill(bool);
-    void setBleedFillLayer(QString);
     void setUseExpandFill(bool);
     void setExpandFillSize(int);
 
