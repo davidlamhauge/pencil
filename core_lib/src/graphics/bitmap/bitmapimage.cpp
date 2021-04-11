@@ -884,131 +884,147 @@ void BitmapImage::floodFill(BitmapImage* targetImage,
 
 void BitmapImage::expandFill(BitmapImage *targetImage, QRect cameraRect, QPoint point, QRgb newColor, int expand, int tolerance)
 {
-    // Extend to expand size
-    QRect expRect(targetImage->topLeft() - QPoint(expand, expand), targetImage->bottomRight() + QPoint(expand, expand));
-    targetImage->extend(expRect);
     if (!targetImage->bounds().contains(point))
         return;
 
-    // fill without tolerance
-    floodFill(targetImage, cameraRect, point, newColor, tolerance);
-    // NB the targetImage has been extended with camerarect
-
     BitmapImage* replaceImage = nullptr;
-    replaceImage = new BitmapImage(targetImage->mBounds, Qt::transparent);
+    replaceImage = new BitmapImage(targetImage->bounds(), Qt::transparent);
+
+    // first floodfill. NB targetImage will be extended with camerarect
+    floodFill(targetImage, cameraRect, point, newColor, tolerance);
+
+    // copy fill from targetImage to replaceImage
+    for (int y = replaceImage->top(); y <= replaceImage->bottom(); y++)
+    {
+        for (int x = replaceImage->left(); x <= replaceImage->right(); x++)
+        {
+            if (targetImage->constScanLine(x, y) == newColor)
+                replaceImage->scanLine(x, y, newColor);
+        }
+    }
 
     // do the wanted expand-fill
-    expandTheFill(targetImage, replaceImage, expRect, newColor, expand);
+    expandTheFill(replaceImage, newColor, expand);
 
-    replaceImage->paste(targetImage);
-    targetImage->paste(replaceImage);
+    targetImage->paste(replaceImage, QPainter::CompositionMode_DestinationOver);
     targetImage->modification();
     delete replaceImage;
 }
 
-void BitmapImage::expandTheFill(BitmapImage *targetImage, BitmapImage *replaceImage, QRect expandRect, QRgb newColor, int expand)
+void BitmapImage::expandTheFill(BitmapImage *replaceImage, QRgb newColor, int expand)
 {
-
-    QList<QPoint> expanded; // all the pixels that are expand-filled
-
-    // LEFT to RIGHT
     bool doExpand = false;
-    for (int y = expandRect.top(); y <= expandRect.bottom(); y++)
-    {
-        for (int x = expandRect.left(); x <= expandRect.right(); x++)
-        {
-            if (doExpand && targetImage->constScanLine(x, y) != newColor)
-            {
-                for (int i = x; i < x + expand; i++)
-                {
-                    if (!expanded.contains(QPoint(i, y)))
-                    {
-                        replaceImage->scanLine(i, y, newColor);
-                        expanded.append(QPoint(i, y));
-                    }
-                }
-                doExpand = false;
-            }
-            else if (targetImage->constScanLine(x, y) == newColor)
-            {
-                doExpand = true;
-            }
-        }
-    }
+    QList<QPoint> expandPoints;
 
-    // TOP to BOTTOM
-    doExpand = false;
-    for (int x = expandRect.left(); x <= expandRect.right(); x++)
+    for (int i = 0; i < expand; i++)
     {
+        QRect expandRect = QRect(replaceImage->topLeft() - QPoint(1, 1), replaceImage->bottomRight() + QPoint(1, 1));
+        replaceImage->extend(expandRect);
+
+        // LEFT to RIGHT
         for (int y = expandRect.top(); y <= expandRect.bottom(); y++)
         {
-            if (doExpand && targetImage->constScanLine(x, y) != newColor)
+            doExpand = false;
+            for (int x = expandRect.left(); x <= expandRect.right(); x++)
             {
-                for (int i = y; i < y + expand; i++)
+                if (doExpand)
                 {
-                    if (!expanded.contains(QPoint(x, i)))
+                    if (replaceImage->constScanLine(x, y) != newColor)
                     {
-                        replaceImage->scanLine(x, i, newColor);
-                        expanded.append(QPoint(x, i));
+                        if (!expandPoints.contains(QPoint(x - 1, y)))
+                        {
+                            replaceImage->scanLine(x, y, newColor);
+                            expandPoints.append(QPoint(x, y));
+                        }
+                        doExpand = false;
                     }
                 }
-                doExpand = false;
-            }
-            else if (targetImage->constScanLine(x, y) == newColor)
-            {
-                doExpand = true;
-            }
-        }
-    }
-
-    // RIGHT to LEFT
-    doExpand = false;
-    for (int y = expandRect.top(); y <= expandRect.bottom(); y++)
-    {
-        for (int x = expandRect.right(); x >= expandRect.left(); x--)
-        {
-            if (doExpand && targetImage->constScanLine(x, y) != newColor)
-            {
-                for (int i = x; i > x - expand; i--)
+                else
                 {
-                    if (!expanded.contains(QPoint(i, y)))
-                    {
-                        replaceImage->scanLine(i, y, newColor);
-                        expanded.append(QPoint(i, y));
-                    }
+                    if (replaceImage->constScanLine(x, y) == newColor)
+                        doExpand = true;
                 }
-                doExpand = false;
-            }
-            else if (targetImage->constScanLine(x, y) == newColor)
-            {
-                doExpand = true;
             }
         }
-    }
 
-    // BOTTOM to TOP
-    doExpand = false;
-    for (int x = expandRect.left(); x <= expandRect.right(); x++)
-    {
+        // RIGHT to LEFT
         for (int y = expandRect.bottom(); y >= expandRect.top(); y--)
         {
-            if (doExpand && targetImage->constScanLine(x, y) != newColor)
+            doExpand = false;
+            for (int x = expandRect.right(); x >= expandRect.left(); x--)
             {
-                for (int i = y; i > y - expand; i--)
+                if (doExpand)
                 {
-                    if (!expanded.contains(QPoint(x, i)))
+                    if (replaceImage->constScanLine(x, y) != newColor)
                     {
-                        replaceImage->scanLine(x, i, newColor);
-                        expanded.append(QPoint(x, i));
+                        if (!expandPoints.contains(QPoint(x + 1, y)))
+                        {
+                            replaceImage->scanLine(x, y, newColor);
+                            expandPoints.append(QPoint(x, y));
+                        }
+                        doExpand = false;
                     }
                 }
-                doExpand = false;
-            }
-            else if (targetImage->constScanLine(x, y) == newColor)
-            {
-                doExpand = true;
+                else
+                {
+                    if (replaceImage->constScanLine(x, y) == newColor)
+                        doExpand = true;
+                }
             }
         }
-    }
 
+        // TOP to BOTTOM
+        for (int x = expandRect.right(); x >= expandRect.left(); x--)
+        {
+            doExpand = false;
+            for (int y = expandRect.top(); y <= expandRect.bottom(); y++)
+            {
+                if (doExpand)
+                {
+                    if (replaceImage->constScanLine(x, y) != newColor)
+                    {
+                        if (!expandPoints.contains(QPoint(x, y - 1)))
+                        {
+                            replaceImage->scanLine(x, y, newColor);
+                            expandPoints.append(QPoint(x, y));
+                        }
+                        doExpand = false;
+                    }
+                }
+                else
+                {
+                    if (replaceImage->constScanLine(x, y) == newColor)
+                        doExpand = true;
+                }
+            }
+        }
+
+        // BOTTOM to TOP
+        for (int x = expandRect.left(); x <= expandRect.right(); x++)
+        {
+            doExpand = false;
+            for (int y = expandRect.bottom(); y >= expandRect.top(); y--)
+            {
+                if (doExpand)
+                {
+                    if (replaceImage->constScanLine(x, y) != newColor)
+                    {
+                        if (!expandPoints.contains(QPoint(x, y + 1)))
+                        {
+                            replaceImage->scanLine(x, y, newColor);
+                            expandPoints.append(QPoint(x, y));
+                        }
+                        doExpand = false;
+                    }
+                }
+                else
+                {
+                    if (replaceImage->constScanLine(x, y) == newColor)
+                        doExpand = true;
+                }
+            }
+        }
+        expandPoints.clear();
+    }
 }
+

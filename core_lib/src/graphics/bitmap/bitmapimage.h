@@ -120,7 +120,7 @@ protected:
     void extend(const QPoint& p);
     void extend(QRect rectangle);
 
-    static void expandTheFill(BitmapImage* targetImage, BitmapImage* replaceImage, QRect expandRect, QRgb newColor, int expand);
+    static void expandTheFill(BitmapImage* replaceImage, QRgb newColor, int expand);
 
     void setCompositionModeBounds(BitmapImage *source, QPainter::CompositionMode cm);
     void setCompositionModeBounds(QRect sourceBounds, bool isSourceMinBounds, QPainter::CompositionMode cm);
