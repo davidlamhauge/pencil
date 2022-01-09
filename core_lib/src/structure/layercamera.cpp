@@ -23,7 +23,6 @@ GNU General Public License for more details.
 #include "pencildef.h"
 #include "mathutils.h"
 
-
 LayerCamera::LayerCamera(Object* object) : Layer(object, Layer::CAMERA)
 {
     setName(QObject::tr("Camera Layer"));
@@ -352,7 +351,7 @@ void LayerCamera::updateOnAddFrame(int frame)
     // if frame is last keyframe
     if (next == frame)
     {
-        return;
+        setCameraReset(CameraFieldOption::HOLD_FRAME, frame);
     }
     // if inbetween frames
     else if (prev < frame)
