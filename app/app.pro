@@ -67,6 +67,7 @@ PRECOMPILED_HEADER = src/app-pch.h
 
 HEADERS += \
     src/app-pch.h \
+    src/framecommentdialog.h \
     src/importlayersdialog.h \
     src/importpositiondialog.h \
     src/layeropacitydialog.h \
@@ -113,6 +114,7 @@ HEADERS += \
     src/elidedlabel.h
 
 SOURCES += \
+    src/framecommentdialog.cpp \
     src/importlayersdialog.cpp \
     src/importpositiondialog.cpp \
     src/layeropacitydialog.cpp \
@@ -160,6 +162,7 @@ SOURCES += \
     src/elidedlabel.cpp
 
 FORMS += \
+    ui/framecommentdialog.ui \
     ui/importimageseqpreview.ui \
     ui/importlayersdialog.ui \
     ui/importpositiondialog.ui \

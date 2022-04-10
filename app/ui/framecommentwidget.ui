@@ -7,28 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>379</height>
+    <height>422</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Frame Comments</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="spacing">
-    <number>2</number>
-   </property>
-   <property name="leftMargin">
-    <number>4</number>
-   </property>
-   <property name="topMargin">
-    <number>4</number>
-   </property>
-   <property name="rightMargin">
-    <number>4</number>
-   </property>
-   <property name="bottomMargin">
-    <number>4</number>
-   </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
@@ -61,7 +46,11 @@
     </layout>
    </item>
    <item>
-    <widget class="QPlainTextEdit" name="textEditDialogue"/>
+    <widget class="QPlainTextEdit" name="textEditDialogue">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -95,7 +84,11 @@
     </layout>
    </item>
    <item>
-    <widget class="QPlainTextEdit" name="textEditAction"/>
+    <widget class="QPlainTextEdit" name="textEditAction">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -129,17 +122,14 @@
     </layout>
    </item>
    <item>
-    <widget class="QPlainTextEdit" name="textEditSlug"/>
+    <widget class="QPlainTextEdit" name="textEditSlug">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
-     <item>
-      <widget class="QPushButton" name="btnClearFields">
-       <property name="text">
-        <string>Clear fields</string>
-       </property>
-      </widget>
-     </item>
      <item>
       <spacer name="horizontalSpacer_4">
        <property name="orientation">
@@ -152,6 +142,13 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnEditComments">
+       <property name="text">
+        <string>Edit comments</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

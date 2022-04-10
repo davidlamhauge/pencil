@@ -7,6 +7,7 @@
 class Editor;
 class KeyFrame;
 class Layer;
+class FrameCommentDialog;
 
 namespace Ui {
     class FrameComment;
@@ -30,6 +31,8 @@ public:
 private:
     Ui::FrameComment *ui;
 
+    void openFrameCommentDialog();
+
     void dialogueTextChanged();
     void actionTextChanged();
     void slugTextChanged();
@@ -39,8 +42,6 @@ private:
 
     void currentFrameChanged(int frame);
     void currentLayerChanged(int index);
-
-    void clearFrameCommentsFields();
 
     void updateConnections();
 
@@ -54,6 +55,7 @@ private:
     bool mIsPlaying = false;
 
     Editor* mEditor = nullptr;
+    FrameCommentDialog* mFrameCommentDialog = nullptr;
 };
 
 #endif // FRAMECOMMENTWIDGET_H
