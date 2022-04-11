@@ -7,13 +7,44 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>422</height>
+    <height>588</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Frame Comments</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <widget class="QLabel" name="labLayer">
+       <property name="text">
+        <string>LAYER: </string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labLayerName">
+       <property name="text">
+        <string>name...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
@@ -48,7 +79,10 @@
    <item>
     <widget class="QPlainTextEdit" name="textEditDialogue">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -86,7 +120,10 @@
    <item>
     <widget class="QPlainTextEdit" name="textEditAction">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -124,7 +161,10 @@
    <item>
     <widget class="QPlainTextEdit" name="textEditSlug">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

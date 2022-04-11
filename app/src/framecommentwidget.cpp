@@ -28,6 +28,7 @@ void FrameCommentWidget::initUI()
 {
     connect(this, &FrameCommentWidget::visibilityChanged, this, &FrameCommentWidget::updateConnections);
     updateConnections();
+    ui->labLayerName->setText(mEditor->layers()->currentLayer()->name());
 }
 
 void FrameCommentWidget::updateUI()
@@ -41,34 +42,35 @@ void FrameCommentWidget::setCore(Editor *editor)
 
 void FrameCommentWidget::dialogueTextChanged()
 {
+    if (mKeyFrame == nullptr)
+        return;
+    mKeyFrame->setDialogueComment(mFrameCommentDialog->getCurrentKeyFrame()->getDialogueComment());
+    QSignalBlocker b(ui->textEditDialogue);
+    ui->textEditDialogue->setPlainText(mKeyFrame->getDialogueComment());
     int len = ui->textEditDialogue->toPlainText().length();
     ui->labelDialogueCounter->setText(tr("%1 chars").arg(QString::number(len)));
 }
 
 void FrameCommentWidget::actionTextChanged()
 {
+    if (!mKeyFrame)
+        return;
+    mKeyFrame->setActionComment(mFrameCommentDialog->getCurrentKeyFrame()->getActionComment());
+    QSignalBlocker b(ui->textEditAction);
+    ui->textEditAction->setPlainText(mKeyFrame->getActionComment());
     int len = ui->textEditAction->toPlainText().length();
     ui->labelActionCounter->setText(tr("%1 chars").arg(QString::number(len)));
 }
 
 void FrameCommentWidget::slugTextChanged()
 {
+    if (!mKeyFrame)
+        return;
+    mKeyFrame->setSlugComment(mFrameCommentDialog->getCurrentKeyFrame()->getSlugComment());
+    QSignalBlocker b(ui->textEditSlug);
+    ui->textEditSlug->setPlainText(mKeyFrame->getSlugComment());
     int len = ui->textEditSlug->toPlainText().length();
     ui->labelSlugCounter->setText(tr("%1 chars").arg(QString::number(len)));
-}
-
-void FrameCommentWidget::enableCommentFields()
-{
-    ui->textEditDialogue->setEnabled(true);
-    ui->textEditAction->setEnabled(true);
-    ui->textEditSlug->setEnabled(true);
-}
-
-void FrameCommentWidget::disableCommentFields()
-{
-    ui->textEditDialogue->setEnabled(false);
-    ui->textEditAction->setEnabled(false);
-    ui->textEditSlug->setEnabled(false);
 }
 
 void FrameCommentWidget::currentFrameChanged(int frame)
@@ -77,6 +79,7 @@ void FrameCommentWidget::currentFrameChanged(int frame)
     {
         if (frame >= mEditor->layers()->currentLayer()->firstKeyFramePosition())
         {
+            mKeyFrame = getKeyFrame();
             fillComments();
         }
     }
@@ -86,6 +89,7 @@ void FrameCommentWidget::currentLayerChanged(int index)
 {
     Q_UNUSED(index)
     currentFrameChanged(mEditor->currentFrame());
+    ui->labLayerName->setText(mEditor->layers()->currentLayer()->name());
 }
 
 void FrameCommentWidget::playStateChanged(bool isPlaying)
@@ -93,12 +97,12 @@ void FrameCommentWidget::playStateChanged(bool isPlaying)
     mIsPlaying = isPlaying;
     if (!mIsPlaying)
     {
-        enableCommentFields();
         currentFrameChanged(mEditor->currentFrame());
+        ui->btnEditComments->setEnabled(true);
     }
     else
     {
-        disableCommentFields();
+        ui->btnEditComments->setEnabled(false);
     }
 }
 
@@ -116,16 +120,15 @@ void FrameCommentWidget::updateConnections()
 
 void FrameCommentWidget::fillComments()
 {
-    KeyFrame* keyframe = getKeyFrame();
-    if (keyframe == nullptr) { return; }
+    if (mKeyFrame == nullptr) { return; }
 
     QSignalBlocker b(ui->textEditDialogue);
     QSignalBlocker b2(ui->textEditAction);
     QSignalBlocker b3(ui->textEditSlug);
 
-    ui->textEditDialogue->setPlainText(keyframe->getDialogueComment());
-    ui->textEditAction->setPlainText(keyframe->getActionComment());
-    ui->textEditSlug->setPlainText(keyframe->getSlugComment());
+    ui->textEditDialogue->setPlainText(mKeyFrame->getDialogueComment());
+    ui->textEditAction->setPlainText(mKeyFrame->getActionComment());
+    ui->textEditSlug->setPlainText(mKeyFrame->getSlugComment());
 }
 
 void FrameCommentWidget::openFrameCommentDialog()
@@ -140,25 +143,24 @@ void FrameCommentWidget::openFrameCommentDialog()
     mFrameCommentDialog->initUI();
     mFrameCommentDialog->setWindowFlags(mFrameCommentDialog->windowFlags() | Qt::WindowStaysOnTopHint);
     mFrameCommentDialog->show();
-    ui->btnEditComments->setEnabled(false);
+    connect(mFrameCommentDialog, &FrameCommentDialog::dialogueCommentChanged, this, &FrameCommentWidget::dialogueTextChanged);
+    connect(mFrameCommentDialog, &FrameCommentDialog::actionCommentChanged, this, &FrameCommentWidget::actionTextChanged);
+    connect(mFrameCommentDialog, &FrameCommentDialog::slugCommentChanged, this, &FrameCommentWidget::slugTextChanged);
+    connect(mFrameCommentDialog, &FrameCommentDialog::currentFrameChanged, this, &FrameCommentWidget::currentFrameChanged);
 
     connect(mFrameCommentDialog, &FrameCommentDialog::finished, [=]
     {
+        disconnect(mFrameCommentDialog, &FrameCommentDialog::dialogueCommentChanged, this, &FrameCommentWidget::dialogueTextChanged);
+        disconnect(mFrameCommentDialog, &FrameCommentDialog::actionCommentChanged, this, &FrameCommentWidget::actionTextChanged);
+        disconnect(mFrameCommentDialog, &FrameCommentDialog::slugCommentChanged, this, &FrameCommentWidget::slugTextChanged);
+        disconnect(mFrameCommentDialog, &FrameCommentDialog::currentFrameChanged, this, &FrameCommentWidget::currentFrameChanged);
         mFrameCommentDialog = nullptr;
-        ui->btnEditComments->setEnabled(true);
     });
 
-}
-
-void FrameCommentWidget::applyComments()
-{
-    KeyFrame* keyframe = getKeyFrame();
-    if (keyframe == nullptr) { return; }
-
-    keyframe->setDialogueComment(ui->textEditDialogue->toPlainText());
-    keyframe->setActionComment(ui->textEditAction->toPlainText());
-    keyframe->setSlugComment(ui->textEditSlug->toPlainText());
-    mEditor->layers()->currentLayer()->setModified(keyframe->pos(), true);
+    if (mEditor->layers()->currentLayer()->keyExists(mEditor->currentFrame()))
+    {
+        mKeyFrame = getKeyFrame();
+    }
 }
 
 KeyFrame* FrameCommentWidget::getKeyFrame()
@@ -177,35 +179,16 @@ void FrameCommentWidget::makeConnections()
 {
     connect(ui->btnEditComments, &QPushButton::clicked, this, &FrameCommentWidget::openFrameCommentDialog);
 
-    connect(ui->textEditDialogue, &QPlainTextEdit::textChanged, this, &FrameCommentWidget::dialogueTextChanged);
-    connect(ui->textEditAction, &QPlainTextEdit::textChanged, this, &FrameCommentWidget::actionTextChanged);
-    connect(ui->textEditSlug, &QPlainTextEdit::textChanged, this, &FrameCommentWidget::slugTextChanged);
-
-    connect(ui->textEditSlug, &QPlainTextEdit::textChanged, this, &FrameCommentWidget::applyComments);
-    connect(ui->textEditAction, &QPlainTextEdit::textChanged, this, &FrameCommentWidget::applyComments);
-    connect(ui->textEditDialogue, &QPlainTextEdit::textChanged, this, &FrameCommentWidget::applyComments);
-
-    connect(mEditor, &Editor::scrubbed, this, &FrameCommentWidget::currentFrameChanged);
     connect(mEditor->layers(), &LayerManager::currentLayerChanged, this, &FrameCommentWidget::currentLayerChanged);
     connect(mEditor, &Editor::objectLoaded, this, &FrameCommentWidget::fillComments);
     connect(mEditor->playback(), &PlaybackManager::playStateChanged, this, &FrameCommentWidget::playStateChanged);
 
-    connect(ui->btnEditComments, &QPushButton::clicked, this, &FrameCommentWidget::getKeyFrame);
 }
 
 void FrameCommentWidget::disconnectNotifiers()
 {
     disconnect(ui->btnEditComments, &QPushButton::clicked, this, &FrameCommentWidget::openFrameCommentDialog);
 
-    disconnect(ui->textEditDialogue, &QPlainTextEdit::textChanged, this, &FrameCommentWidget::dialogueTextChanged);
-    disconnect(ui->textEditAction, &QPlainTextEdit::textChanged, this, &FrameCommentWidget::actionTextChanged);
-    disconnect(ui->textEditSlug, &QPlainTextEdit::textChanged, this, &FrameCommentWidget::slugTextChanged);
-
-    disconnect(ui->textEditSlug, &QPlainTextEdit::textChanged, this, &FrameCommentWidget::applyComments);
-    disconnect(ui->textEditAction, &QPlainTextEdit::textChanged, this, &FrameCommentWidget::applyComments);
-    disconnect(ui->textEditDialogue, &QPlainTextEdit::textChanged, this, &FrameCommentWidget::applyComments);
-
-    disconnect(mEditor, &Editor::scrubbed, this, &FrameCommentWidget::currentFrameChanged);
     disconnect(mEditor->layers(), &LayerManager::currentLayerChanged, this, &FrameCommentWidget::currentLayerChanged);
     disconnect(mEditor, &Editor::objectLoaded, this, &FrameCommentWidget::fillComments);
     disconnect(mEditor->playback(), &PlaybackManager::playStateChanged, this, &FrameCommentWidget::playStateChanged);

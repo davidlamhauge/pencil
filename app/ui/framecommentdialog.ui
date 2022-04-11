@@ -36,13 +36,6 @@
        </property>
       </spacer>
      </item>
-     <item>
-      <widget class="QLabel" name="labelDialogueCounter">
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item>
@@ -70,13 +63,6 @@
        </property>
       </spacer>
      </item>
-     <item>
-      <widget class="QLabel" name="labelActionCounter">
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item>
@@ -103,13 +89,6 @@
         </size>
        </property>
       </spacer>
-     </item>
-     <item>
-      <widget class="QLabel" name="labelSlugCounter">
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
      </item>
     </layout>
    </item>

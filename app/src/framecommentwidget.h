@@ -25,7 +25,6 @@ public:
     void updateUI() override;
     void setCore(Editor* editor);
 
-    void applyComments();
     void fillComments();
 
 private:
@@ -36,9 +35,6 @@ private:
     void dialogueTextChanged();
     void actionTextChanged();
     void slugTextChanged();
-
-    void enableCommentFields();
-    void disableCommentFields();
 
     void currentFrameChanged(int frame);
     void currentLayerChanged(int index);
@@ -56,6 +52,7 @@ private:
 
     Editor* mEditor = nullptr;
     FrameCommentDialog* mFrameCommentDialog = nullptr;
+    KeyFrame* mKeyFrame = nullptr;
 };
 
 #endif // FRAMECOMMENTWIDGET_H

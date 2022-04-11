@@ -23,8 +23,10 @@ public:
     void setCore(Editor* editor);
     void initUI();
     void updateUI();
+    KeyFrame *getCurrentKeyFrame();
 
 signals:
+    void currentFrameChanged(int frame);
     void dialogueCommentChanged();
     void actionCommentChanged();
     void slugCommentChanged();
@@ -37,6 +39,7 @@ private:
     void scrubToPreviousFrame();
     void scrubToNextFrame();
     void scrubToLastFrame();
+    void layerChanged(int index);
 
     // Update Dialogue, Action and Slug
     void updateDialogue();
