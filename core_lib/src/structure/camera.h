@@ -45,7 +45,6 @@ public:
     qreal rotation() const { return mRotate; }
 
     void scale(qreal scaleValue);
-    void scaleWithOffset(qreal scaleValue, QPointF offset); // for zooming at the mouse position
     qreal scaling() const { return mScale; }
 
     bool operator==(const Camera& rhs) const;
@@ -55,8 +54,6 @@ public:
 
     void setPathMidPoint(QPointF point) { mPathMidPoint = point; }
     QPointF getPathMidPoint() const { return mPathMidPoint; }
-    void setIsMidPointSet(bool b) { mMidPointSet = b; }
-    bool getIsMidPointSet() const { return mMidPointSet; }
 
 
 private:
@@ -68,7 +65,6 @@ private:
 
     CameraEasingType mEasingType = CameraEasingType::LINEAR;
     QPointF mPathMidPoint = QPointF();
-    bool mMidPointSet = false;
 };
 
 #endif // CAMERA_H

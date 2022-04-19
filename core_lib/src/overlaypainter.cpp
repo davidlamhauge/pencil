@@ -6,6 +6,11 @@
 
 #include "pencildef.h"
 
+Q_CONSTEXPR static qreal LINELENGTHFACTOR = 2.0;
+Q_CONSTEXPR static int LEFTANGLEOFFSET = 90;
+Q_CONSTEXPR static int RIGHTANGLEOFFSET = -90;
+Q_CONSTEXPR static int HANDLE_WIDTH = 12;
+
 OverlayPainter::OverlayPainter()
 {
 }
@@ -76,12 +81,12 @@ void OverlayPainter::paint(QPainter &painter)
     if (mOptions.bPerspective2)
     {
         painter.setWorldTransform(mViewTransform);
-        paintOverlayPerspectiveTwoPoints(painter, camTransform, cameraRect);
+        paintOverlayPerspectiveTwoPoints(painter, camera, camTransform, cameraRect);
     }
     if (mOptions.bPerspective3)
     {
         painter.setWorldTransform(mViewTransform);
-        paintOverlayPerspectiveThreePoints(painter, camTransform, cameraRect);
+        paintOverlayPerspectiveThreePoints(painter, camera, camTransform, cameraRect);
     }
 
     if (mOptions.bGrid)
@@ -297,7 +302,7 @@ void OverlayPainter::paintOverlayPerspectiveOnePoint(QPainter& painter, QTransfo
 
 }
 
-void OverlayPainter::paintOverlayPerspectiveTwoPoints(QPainter& painter, QTransform& camTransform, QRect& camRect) const
+void OverlayPainter::paintOverlayPerspectiveTwoPoints(QPainter& painter, const Camera* camera, QTransform& camTransform, QRect& camRect) const
 {
     painter.save();
     painter.setRenderHint(QPainter::Antialiasing, true);
@@ -318,25 +323,23 @@ void OverlayPainter::paintOverlayPerspectiveTwoPoints(QPainter& painter, QTransf
         rightPoint += QPointF(0.1, 0.1);
     }
 
-    QLineF angleLine;
-    angleLine.setAngle(LEFTANGLEOFFSET);
-    angleLine.setP1(leftPoint);
+    QLineF angleLineLeft;
+    QLineF angleLineRight;
+    angleLineLeft.setAngle(LEFTANGLEOFFSET);
+    angleLineLeft.setP1(leftPoint);
+    angleLineLeft.setLength(camRect.width() * LINELENGTHFACTOR);
+    angleLineRight.setAngle(RIGHTANGLEOFFSET);
+    angleLineRight.setP1(rightPoint);
+    angleLineRight.setLength(camRect.width() * LINELENGTHFACTOR);
     QVector<QLineF> lines;
     for (int i = 0; i <= repeats; i++)
     {
-        angleLine.setAngle(LEFTANGLEOFFSET - i * degrees);
-        angleLine.setLength(camRect.width() * LINELENGTHFACTOR);
-        lines.append(angleLine);
+        angleLineLeft.setAngle((LEFTANGLEOFFSET - i * degrees) + camera->rotation());
+        angleLineRight.setAngle((RIGHTANGLEOFFSET - i * degrees) + camera->rotation());
+        lines.append(angleLineRight);
+        lines.append(angleLineLeft);
     }
 
-    angleLine.setAngle(RIGHTANGLEOFFSET);
-    angleLine.setP1(rightPoint);
-    for (int i = 0; i <= repeats; i++)
-    {
-        angleLine.setAngle(RIGHTANGLEOFFSET - i * degrees);
-        angleLine.setLength(camRect.width() * LINELENGTHFACTOR);
-        lines.append(angleLine);
-    }
     painter.drawLines(lines);
 
     painter.setWorldMatrixEnabled(false);
@@ -355,10 +358,10 @@ void OverlayPainter::paintOverlayPerspectiveTwoPoints(QPainter& painter, QTransf
     painter.restore();
 }
 
-void OverlayPainter::paintOverlayPerspectiveThreePoints(QPainter& painter, QTransform& camTransform, QRect& camRect) const
+void OverlayPainter::paintOverlayPerspectiveThreePoints(QPainter& painter, const Camera* camera, QTransform& camTransform, QRect& camRect) const
 {
     if (!mOptions.bPerspective2)
-        paintOverlayPerspectiveTwoPoints(painter, camTransform, camRect);
+        paintOverlayPerspectiveTwoPoints(painter, camera, camTransform, camRect);
 
     painter.save();
     painter.setRenderHint(QPainter::Antialiasing, true);
@@ -381,7 +384,7 @@ void OverlayPainter::paintOverlayPerspectiveThreePoints(QPainter& painter, QTran
     QVector<QLineF> lines;
     for (int i = 0; i <= repeats; i++)
     {
-        angleLine.setAngle(middleAngleOffset - i * degrees);
+        angleLine.setAngle((middleAngleOffset - i * degrees) + camera->rotation());
         angleLine.setLength(camRect.width() * LINELENGTHFACTOR);
         lines.append(angleLine);
     }

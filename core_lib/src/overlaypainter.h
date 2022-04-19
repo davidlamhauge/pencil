@@ -58,8 +58,8 @@ private:
     void paintOverlayGolden(QPainter& painter, QTransform& camTransform, QRect& camRect) const;
     void paintOverlaySafeAreas(QPainter& painter, QTransform& camTransform, QRect& camRect, Camera* camera) const;
     void paintOverlayPerspectiveOnePoint(QPainter& painter, QTransform& camTransform, QRect& camRect) const;
-    void paintOverlayPerspectiveTwoPoints(QPainter& painter, QTransform& camTransform, QRect& camRect) const;
-    void paintOverlayPerspectiveThreePoints(QPainter& painter, QTransform& camTransform, QRect& camRect) const;
+    void paintOverlayPerspectiveTwoPoints(QPainter& painter, const Camera* camera, QTransform& camTransform, QRect& camRect) const;
+    void paintOverlayPerspectiveThreePoints(QPainter& painter, const Camera* camera, QTransform& camTransform, QRect& camRect) const;
 
     int round100(double f, int gridSize) const;
 
@@ -69,11 +69,6 @@ private:
 
     LayerCamera* mCameraLayer = nullptr;
     QPalette mPalette;
-
-    Q_CONSTEXPR static qreal LINELENGTHFACTOR = 2.0;
-    Q_CONSTEXPR static int LEFTANGLEOFFSET = 90;
-    Q_CONSTEXPR static int RIGHTANGLEOFFSET = -90;
-    Q_CONSTEXPR static int HANDLE_WIDTH = 12;
 };
 
 #endif // OVERLAYPAINTER_H

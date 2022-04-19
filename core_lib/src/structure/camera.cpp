@@ -44,7 +44,6 @@ Camera::Camera(const Camera& c2) : KeyFrame(c2)
     mTranslate = c2.mTranslate;
     mRotate = c2.mRotate;
     mScale = c2.mScale;
-    mMidPointSet = c2.mMidPointSet;
     mPathMidPoint = c2.mPathMidPoint;
     mEasingType = c2.mEasingType;
     mNeedUpdateView = true;
@@ -64,7 +63,6 @@ void Camera::assign(const Camera& rhs)
     mTranslate = rhs.mTranslate;
     mRotate = rhs.mRotate;
     mScale = rhs.mScale;
-    mMidPointSet = rhs.mMidPointSet;
     mPathMidPoint = rhs.mPathMidPoint;
     mEasingType = rhs.mEasingType;
 
@@ -144,12 +142,6 @@ void Camera::scale(qreal scaleValue)
 
     mNeedUpdateView = true;
     modification();
-}
-
-void Camera::scaleWithOffset(qreal scaleValue, QPointF offset)
-{
-    mTranslate = (mTranslate + offset) * mScale / scaleValue - offset;
-    scale(scaleValue);
 }
 
 bool Camera::operator==(const Camera& rhs) const

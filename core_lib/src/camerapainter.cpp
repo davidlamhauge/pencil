@@ -20,7 +20,7 @@ GNU General Public License for more details.
 #include <QPainter>
 #include <QPixmap>
 #include <QPalette>
-
+#include <QDebug>
 #include "object.h"
 #include "layercamera.h"
 #include "camera.h"
@@ -111,6 +111,9 @@ void CameraPainter::paintVisuals(QPainter& painter) const
     if (isCameraMode) {
 
         Camera* cam = cameraLayer->getLastCameraAtFrame(mFrameIndex, 0);
+        int frame = cameraLayer->getPreviousKeyFramePosition(mFrameIndex);
+        if (mFrameIndex < frame)
+            cam = cameraLayer->getLastCameraAtFrame(frame, 0);
 
         Q_ASSERT(cam);
 
@@ -150,7 +153,7 @@ void CameraPainter::paintBorder(QPainter& painter, const QTransform& camTransfor
     painter.drawRect(boundingRect);
 
     // paint top triangle
-    QPolygon cameraViewPoly = camTransform.inverted().mapToPolygon(camRect);
+    QPolygon cameraViewPoly = camTransform.inverted().map(QPolygon(camRect));
     QPointF cameraMidPoint = camTransform.inverted().map(camRect.center());
 
     QPen trianglePen(Qt::black);
@@ -182,7 +185,7 @@ void CameraPainter::paintHandles(QPainter& painter, const QTransform& camTransfo
     {
         painter.setPen(QColor(0, 0, 0, 255));
     }
-    QPolygonF camPolygon = mViewTransform.map(camTransform.inverted().mapToPolygon(cameraRect));
+    QPolygonF camPolygon = mViewTransform.map(camTransform.inverted().map(QPolygon(cameraRect)));
     painter.drawPolygon(camPolygon);
 
 
@@ -193,7 +196,7 @@ void CameraPainter::paintHandles(QPainter& painter, const QTransform& camTransfo
     scaleT.rotate(rotation);
     scaleT.scale(1, 1);
 
-    QPolygon nonScaledCamPoly = mViewTransform.map(scaleT.inverted().mapToPolygon(cameraRect));
+    QPolygon nonScaledCamPoly = mViewTransform.map(scaleT.inverted().map(QPolygon(cameraRect)));
     painter.drawPolygon(nonScaledCamPoly);
     painter.drawText(nonScaledCamPoly[0]-QPoint(0, 2), "100%");
 

@@ -43,8 +43,7 @@ public:
     MoveMode getMoveModeForCamera(int frameNumber, QPointF point, qreal tolerance);
     MoveMode getMoveModeForCameraPath(int frameNumber, QPointF point, qreal tolerance);
 
-    void transformCameraView(MoveMode mode, QPointF point, int frameNumber);
-    void setOffsetPoint(QPointF offset) { mOffsetPoint = offset; }
+    void transformCameraView(MoveMode mode, QPointF point, QPointF offset, qreal angle, int frameNumber);
 
     QRect getViewRect() const;
     QSize getViewSize() const;
@@ -65,6 +64,7 @@ public:
     bool hasSameTranslation(int first, int last) const;
     QList<QPointF> getBezierPoints(int frame) const;
     void centerMidPoint(int frame);
+    QPointF getNewMidPoint(int frame);
     void updatePathAtFrame(QPointF point, int frame);
 
     void updateOnDeleteFrame(int frame);
@@ -77,11 +77,8 @@ protected:
 private:
     void linearInterpolateTransform(Camera*);
     qreal getInterpolationPercent(CameraEasingType type, qreal percent) const;
-    CameraEasingType getCameraEasingType(int type);
     QPointF getBezierPoint(QPointF first, QPointF last, QPointF midpoint, qreal percent) const;
     qreal getRealLineAngle(QLineF line);
-
-    QPointF mOffsetPoint = QPointF();
 
     int mFieldW = 800;
     int mFieldH = 600;

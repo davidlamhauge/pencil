@@ -165,25 +165,23 @@ MoveMode LayerCamera::getMoveModeForCameraPath(int frameNumber, QPointF point, q
     return MoveMode::NONE;
 }
 
-void LayerCamera::transformCameraView(MoveMode mode, QPointF point, int frameNumber)
+void LayerCamera::transformCameraView(MoveMode mode, QPointF point, QPointF offset, qreal angle, int frameNumber)
 {
     QPolygon curPoly = getViewAtFrame(frameNumber).inverted().mapToPolygon(viewRect);
     QPoint curCenter = QLineF(curPoly.at(0), curPoly.at(2)).pointAt(0.5).toPoint();
     QLineF lineOld(curCenter, point);
     QLineF lineNew(curCenter, point);
-    qreal degree;
     Camera* curCam = getCameraAtFrame(frameNumber);
     QPointF mid = curCam->getPathMidPoint();
 
     switch (mode)
     {
     case MoveMode::CENTER: {
-        curCam->translate(curCam->translation() - (point - mOffsetPoint));
+        curCam->translate(curCam->translation() - (point - offset));
 
         int prevFrame = getPreviousKeyFramePosition(frameNumber);
-        if (!static_cast<Camera*>(getKeyFrameAt(prevFrame))->getIsMidPointSet()) {
-            centerMidPoint(frameNumber - 1);
-        }
+        curCam = getCameraAtFrame(prevFrame);
+        curCam->setPathMidPoint(getNewMidPoint(prevFrame));
         break;
     }
     case MoveMode::TOPLEFT:
@@ -204,11 +202,7 @@ void LayerCamera::transformCameraView(MoveMode mode, QPointF point, int frameNum
         break;
     case MoveMode::ROTATIONRIGHT:
     case MoveMode::ROTATIONLEFT: {
-        qreal angle = mode == MoveMode::ROTATIONLEFT ? MathUtils::getDifferenceAngle(point, curCenter) : MathUtils::getDifferenceAngle(curCenter, point);
-        degree = -qRadiansToDegrees(angle);
-        curCam->translate(curCenter);
-        curCam->rotate(curCam->rotation() + (degree - curCam->rotation()));
-        curCam->translate(-curCenter);
+        curCam->rotate(angle);
         // since rotations can move midpoint slightly
         curCam->setPathMidPoint(mid);
         break;
@@ -216,7 +210,6 @@ void LayerCamera::transformCameraView(MoveMode mode, QPointF point, int frameNum
     default:
         break;
     }
-    setOffsetPoint(point);
     curCam->updateViewTransform();
     curCam->modification();
 }
@@ -337,6 +330,8 @@ QPointF LayerCamera::getBezierPoint(QPointF first, QPointF last, QPointF midpoin
 void LayerCamera::updateOnDeleteFrame(int frame)
 {
     int prev = getPreviousKeyFramePosition(frame);
+    if (prev > frame)
+        return;
     if (prev < frame)
         centerMidPoint(prev);
     else
@@ -443,10 +438,16 @@ void LayerCamera::setCameraReset(CameraFieldOption type, int frame)
         QPointF translation = camera->translation();
         qreal rotation = camera->rotation();
         qreal scaling = camera->scaling();
+        camera->setPathMidPoint(-translation);
         camera = getLastCameraAtFrame(nextFrame, 0);
         camera->translate(translation);
         camera->scale(scaling);
         camera->rotate(rotation);
+        camera->setPathMidPoint(-translation);
+        // is there a camera after the hold end-frame?
+        int thirdFrame = getNextKeyFramePosition(nextFrame);
+        if (thirdFrame > nextFrame)
+            camera->setPathMidPoint(getNewMidPoint(nextFrame));
         break;
     }
     default:
@@ -582,15 +583,23 @@ void LayerCamera::centerMidPoint(int frame)
     cam1->modification();
 }
 
+QPointF LayerCamera::getNewMidPoint(int frame)
+{
+    if (!keyExists(frame))
+        frame = getPreviousKeyFramePosition(frame);
+    int nextFrame = getNextKeyFramePosition(frame);
+    Camera* cam1 = getCameraAtFrame(frame);
+    Camera* cam2 = getCameraAtFrame(nextFrame);
+    return QLineF(-cam1->translation(), -cam2->translation()).pointAt(0.5);
+}
+
 void LayerCamera::updatePathAtFrame(QPointF point, int frame)
 {
     Camera* camera = getCameraAtFrame(getPreviousKeyFramePosition(frame));
     Q_ASSERT(camera);
 
     camera->setPathMidPoint(point);
-    camera->setIsMidPointSet(true);
     camera->modification();
-    setOffsetPoint(point);
 }
 
 void LayerCamera::loadImageAtFrame(int frameNumber, qreal dx, qreal dy, qreal rotate, qreal scale, CameraEasingType easing, QPointF midPoint)
@@ -604,14 +613,6 @@ void LayerCamera::loadImageAtFrame(int frameNumber, qreal dx, qreal dy, qreal ro
     camera->setEasingType(easing);
     camera->setPathMidPoint(midPoint);
     loadKey(camera);
-    int nextFrame = getNextKeyFramePosition(frameNumber);
-    if (frameNumber < nextFrame)
-    {
-        Camera* nextCam = getCameraAtFrame(nextFrame);
-        QPointF mid2 = QLineF(camera->translation(), nextCam->translation()).pointAt(0.5);
-        if (mid2 != midPoint)
-            camera->setIsMidPointSet(true);
-    }
 }
 
 Status LayerCamera::saveKeyFrameFile(KeyFrame*, QString)
@@ -625,6 +626,7 @@ KeyFrame* LayerCamera::createKeyFrame(int position, Object*)
     c->setPos(position);
     c->setEasingType(CameraEasingType::LINEAR);
     linearInterpolateTransform(c);
+    c->setPathMidPoint(c->translation());
     return c;
 }
 
