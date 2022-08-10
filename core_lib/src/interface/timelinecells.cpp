@@ -22,8 +22,9 @@ GNU General Public License for more details.
 #include <QInputDialog>
 #include <QPainter>
 #include <QSettings>
-
+#include <QDebug>
 #include "camerapropertiesdialog.h"
+#include "layerpropertiesdialog.h"
 #include "editor.h"
 #include "keyframe.h"
 #include "layermanager.h"
@@ -951,19 +952,26 @@ void TimeLineCells::editLayerProperties(LayerCamera *layer) const
 
 void TimeLineCells::editLayerName(Layer* layer) const
 {
-    QRegExp regex("([\\xFFEF-\\xFFFF])+");
-
-    bool ok;
-    QString name = QInputDialog::getText(nullptr, tr("Layer Properties"),
-                                         tr("Layer name:"), QLineEdit::Normal,
-                                         layer->name(), &ok);
-    name.replace(regex, "");
-    if (!ok || name.isEmpty())
+    if (layer->type() == Layer::BITMAP || layer->type() == Layer::VECTOR)
     {
-        return;
-    }
+        QRegExp regex("([\\xFFEF-\\xFFFF])+");
 
-    mEditor->layers()->renameLayer(layer, name);
+        LayerPropertiesDialog dialog(layer->name(), layer->getDistance());
+        if (dialog.exec() != QDialog::Accepted)
+        {
+            return;
+        }
+
+        QString name = dialog.getName().replace(regex, "");
+
+        name.replace(regex, "");
+        if (!name.isEmpty())
+        {
+            mEditor->layers()->renameLayer(layer, name);
+        }
+        layer->setDistance(dialog.getDistance());
+        qDebug() << layer->name() << " dist: " << layer->getDistance();
+    }
 }
 
 void TimeLineCells::hScrollChange(int x)

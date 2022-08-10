@@ -142,7 +142,7 @@ private:
     bool       mVisible = true;
     QString    mName;
 
-    // values needed for Depth OfFocus and blur calculations
+    // values needed for Depth Of Focus and blur calculations
     qreal      mDistance = 10.f;        // Distance from camera to layer
     qreal      mDistNear = 5.f;         // Nearest distance of acceptable focus
     qreal      mDistFar = 20.f;         // Farthest distance of acceptable focus
