@@ -67,10 +67,8 @@ public:
     Editor* editor() const { return mEditor; }
 
     void deleteSelection();
-    void applySelectionChanges();
     void displaySelectionProperties();
 
-    void paintTransformedSelection();
     void applyTransformedSelection();
     void cancelTransformedSelection();
 
@@ -110,10 +108,6 @@ public:
     /** Frame modified, invalidate cache for frame if any */
     void onFrameModified(int frameNumber);
 
-    /** Current frame modified, invalidate current frame cache if any.
-     * Convenient function that does the same as onFrameModified */
-    void onCurrentFrameModified();
-
     /** Layer changed, invalidate relevant cache */
     void onLayerChanged();
 
@@ -130,11 +124,12 @@ public:
     /** Tool property updated, invalidate cache and frame if needed */
     void onToolPropertyUpdated(ToolType, ToolPropertyType);
 
+    /** Tool changed, invalidate cache and frame if needed */
+    void onToolChanged(ToolType);
+
     /** Set frame on layer to modified and invalidate current frame cache */
     void setModified(int layerNumber, int frameNumber);
     void setModified(const Layer* layer, int frameNumber);
-    void renderOverlays();
-    void prepOverlays();
 
     void flipSelection(bool flipVertical);
 
@@ -154,6 +149,7 @@ public:
 signals:
     void multiLayerOnionSkinChanged(bool);
     void refreshPreview();
+    void selectionUpdated();
 
 public slots:
     void clearImage();
@@ -168,7 +164,6 @@ public slots:
     void paletteColorChanged(QColor);
 
     void showLayerNotVisibleWarning();
-
 
 protected:
     bool event(QEvent *event) override;
@@ -218,11 +213,11 @@ public:
 
 private:
 
-    /** Invalidate the layer pixmap cache.
+    /** Invalidate the layer pixmap and camera painter caches.
      * Call this in most situations where the layer rendering order is affected.
      * Peviously known as setAllDirty.
     */
-    void invalidateLayerPixmapCache();
+    void invalidateCaches();
 
     /** Invalidate cache for the given frame */
     void invalidateCacheForFrame(int frameNumber);
@@ -237,6 +232,7 @@ private:
     /** invalidate onion skin cache around frame */
     void invalidateOnionSkinsCacheAround(int frame);
 
+    void prepOverlays(int frame);
     void prepCameraPainter(int frame);
     void prepCanvas(int frame, QRect rect);
     void drawCanvas(int frame, QRect rect);
@@ -291,6 +287,8 @@ private:
     OverlayPainter mOverlayPainter;
     SelectionPainter mSelectionPainter;
     CameraPainter mCameraPainter;
+
+    QPolygonF mOriginalPolygonF = QPolygonF();
 
     // Pixmap Cache keys
     QMap<unsigned int, QPixmapCache::Key> mPixmapCacheKeys;

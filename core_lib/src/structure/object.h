@@ -105,7 +105,7 @@ public:
 
     int  getLayerCount() const;
     Layer* getLayer(int i) const;
-    Layer* getFirstVisibleLayer(int i, Layer::LAYER_TYPE) const;
+    Layer* getLayerBelow(int i, Layer::LAYER_TYPE type) const;
     Layer* findLayerByName(const QString& strName, Layer::LAYER_TYPE type = Layer::UNDEFINED) const;
     Layer* findLayerById(int layerId) const;
     Layer* takeLayer(int layerId); // Note: transfer ownership of the layer
@@ -142,7 +142,7 @@ public:
 
     ObjectData* data() { return &mData; }
     const ObjectData* data() const { return &mData; }
-    void setData(const ObjectData*);
+    void setData(const ObjectData&);
 
     int totalKeyFrameCount() const;
     void updateActiveFrames(int frame) const;

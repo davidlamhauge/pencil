@@ -20,7 +20,6 @@ GNU General Public License for more details.
 #include <QRect>
 #include <QColor>
 #include "layer.h"
-#include "movemode.h"
 #include "camerafieldoption.h"
 #include "cameraeasingtype.h"
 
@@ -32,43 +31,42 @@ public:
     explicit LayerCamera(Object* object);
     ~LayerCamera() override;
 
-    void loadImageAtFrame(int frame, qreal dx, qreal dy, qreal rotate, qreal scale, CameraEasingType easing, QPointF midPoint);
+    void loadImageAtFrame(int frame, qreal dx, qreal dy, qreal rotate, qreal scale, CameraEasingType easing, const QPointF& pathPoint, bool pathMoved);
 
     QDomElement createDomElement(QDomDocument& doc) const override;
     void loadDomElement(const QDomElement& element, QString dataDirPath, ProgressCallback progressStep) override;
 
+    bool addKeyFrame(int position, KeyFrame* pKeyFrame) override;
+    bool removeKeyFrame(int position) override;
+
     Camera* getCameraAtFrame(int frameNumber) const;
     Camera* getLastCameraAtFrame(int frameNumber, int increment) const;
     QTransform getViewAtFrame(int frameNumber) const;
-    MoveMode getMoveModeForCamera(int frameNumber, QPointF point, qreal tolerance);
-    MoveMode getMoveModeForCameraPath(int frameNumber, QPointF point, qreal tolerance);
-
-    void transformCameraView(MoveMode mode, QPointF point, QPointF offset, qreal angle, int frameNumber);
 
     QRect getViewRect() const;
     QSize getViewSize() const;
     void setViewRect(QRect newViewRect);
 
     // Functions for camera path
-    void showContextMenu(QPoint point);
     void setShowCameraPath(bool show) { mShowPath = show; }
-    bool getShowCameraPath() { return mShowPath; }
-    void setCameraEasing(CameraEasingType type, int frame);
-    void setCameraReset(CameraFieldOption type, int frame);
+    bool getShowCameraPath() const { return mShowPath; }
+    void setCameraEasingAtFrame(CameraEasingType type, int frame) const;
+    void resetCameraAtFrame(CameraFieldOption type, int frame) const;
     void setDotColorType(DotColorType color);
     QColor getDotColor() const { return mDotColor; }
     DotColorType getDotColorType() const { return mDotColorType; }
 
-    QString getInterpolationText(int frame) const;
-    QPointF getPathMidPoint(int frame) const;
-    bool hasSameTranslation(int first, int last) const;
-    QList<QPointF> getBezierPoints(int frame) const;
-    void centerMidPoint(int frame);
-    QPointF getNewMidPoint(int frame);
-    void updatePathAtFrame(QPointF point, int frame);
+    QString getInterpolationTextAtFrame(int frame) const;
+    QPointF getPathControlPointAtFrame(int frame) const;
+    bool hasSameTranslation(int frame1, int frame2) const;
+    QList<QPointF> getBezierPointsAtFrame(int frame) const;
+    void centerPathControlPointAtFrame(int frame) const;
+    QPointF getNewPathControlPointAtFrame(int frame) const;
+    void updatePathControlPointAtFrame(const QPointF& point, int frame) const;
+    void setPathMovedAtFrame(int frame, bool moved) const;
 
-    void updateOnDeleteFrame(int frame);
-    void updateOnAddFrame(int frame);
+    void updateControlPointOnDeleteFrame(int frame) const;
+    void updateControlPointsOnAddFrame(int frame) const;
 
 protected:
     Status saveKeyFrameFile(KeyFrame*, QString path) override;
@@ -77,8 +75,7 @@ protected:
 private:
     void linearInterpolateTransform(Camera*);
     qreal getInterpolationPercent(CameraEasingType type, qreal percent) const;
-    QPointF getBezierPoint(QPointF first, QPointF last, QPointF midpoint, qreal percent) const;
-    qreal getRealLineAngle(QLineF line);
+    QPointF getBezierPoint(const QPointF& first, const QPointF& last, const QPointF& pathPoint, qreal percent) const;
 
     int mFieldW = 800;
     int mFieldH = 600;

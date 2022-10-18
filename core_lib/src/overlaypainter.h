@@ -5,6 +5,10 @@
 #include <QPainter>
 #include <QPalette>
 
+class LayerCamera;
+class Camera;
+class Layer;
+
 struct OverlayPainterOptions
 {
     int   nFrameIndex = 1;
@@ -21,7 +25,7 @@ struct OverlayPainterOptions
     bool  bPerspective3 = false;
     int   nOverlayAngle = 15; // for perspective overlays
     bool  bShowSafeAreaHelperText = true;
-    bool  bIsCamera = false;
+    bool  bShowHandle = false;
     bool  bGrid = false;
     int   nGridSizeW = 50; /* This is the grid Width IN PIXELS. The grid will scale with the image, though */
     int   nGridSizeH = 50; /* This is the grid Height IN PIXELS. The grid will scale with the image, though */
@@ -33,10 +37,6 @@ struct OverlayPainterOptions
     QPainter::CompositionMode cmBufferBlendMode = QPainter::CompositionMode_SourceOver;
 };
 
-class LayerCamera;
-class Camera;
-class Layer;
-
 class OverlayPainter
 {
     Q_DECLARE_TR_FUNCTIONS(OverlayPainter)
@@ -46,20 +46,20 @@ public:
     void setViewTransform(const QTransform view);
     void setOptions(const OverlayPainterOptions& p) { mOptions = p; }
 
-    void initializePainter(QPainter& painter);
-    void preparePainter(Layer* cameraLayer, QPalette palette);
+    void preparePainter(const Layer* cameraLayer, const QPalette& palette);
 
     void paint(QPainter& painter);
 private:
+    void initializePainter(QPainter& painter);
 
     void paintGrid(QPainter& painter) const;
-    void paintOverlayCenter(QPainter& painter, QTransform& camTransform, QRect& camRect) const;
-    void paintOverlayThirds(QPainter& painter, QTransform& camTransform, QRect& camRect) const;
-    void paintOverlayGolden(QPainter& painter, QTransform& camTransform, QRect& camRect) const;
-    void paintOverlaySafeAreas(QPainter& painter, QTransform& camTransform, QRect& camRect, Camera* camera) const;
-    void paintOverlayPerspectiveOnePoint(QPainter& painter, QTransform& camTransform, QRect& camRect) const;
-    void paintOverlayPerspectiveTwoPoints(QPainter& painter, const Camera* camera, QTransform& camTransform, QRect& camRect) const;
-    void paintOverlayPerspectiveThreePoints(QPainter& painter, const Camera* camera, QTransform& camTransform, QRect& camRect) const;
+    void paintOverlayCenter(QPainter& painter, const QTransform& camTransform, const QRect& camRect) const;
+    void paintOverlayThirds(QPainter& painter, const QTransform& camTransform, const QRect& camRect) const;
+    void paintOverlayGolden(QPainter& painter, const QTransform& camTransform, const QRect& camRect) const;
+    void paintOverlaySafeAreas(QPainter& painter, const Camera& camera, const QTransform& camTransform, const QRect& camRect) const;
+    void paintOverlayPerspectiveOnePoint(QPainter& painter, const QTransform& camTransform, const QRect& camRect) const;
+    void paintOverlayPerspectiveTwoPoints(QPainter& painter, const Camera& camera, const QTransform& camTransform, const QRect& camRect) const;
+    void paintOverlayPerspectiveThreePoints(QPainter& painter, const Camera& camera, const QTransform& camTransform, const QRect& camRect) const;
 
     int round100(double f, int gridSize) const;
 
@@ -67,7 +67,7 @@ private:
 
     QTransform mViewTransform;
 
-    LayerCamera* mCameraLayer = nullptr;
+    const LayerCamera* mCameraLayer = nullptr;
     QPalette mPalette;
 };
 

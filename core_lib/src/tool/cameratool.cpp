@@ -21,13 +21,12 @@ GNU General Public License for more details.
 #include "editor.h"
 #include "pointerevent.h"
 #include "layermanager.h"
-#include "toolmanager.h"
 #include "selectionmanager.h"
 #include "viewmanager.h"
-#include "camera.h"
 #include "layercamera.h"
-#include "movemode.h"
 #include "mathutils.h"
+#include "layercamera.h"
+#include "camera.h"
 
 #include "scribblearea.h"
 
@@ -50,8 +49,6 @@ void CameraTool::loadSettings()
     connect(mEditor->layers(), &LayerManager::currentLayerChanged, this, &CameraTool::onDidChangeLayer);
     connect(mEditor, &Editor::objectLoaded, this, &CameraTool::onDidLoadObject);
 
-    QSettings settings(PENCIL2D, PENCIL2D);
-
     mRotationIncrement = mEditor->preference()->getInt(SETTING::ROTATION_INCREMENT);
 
     connect(mEditor->preference(), &PreferenceManager::optionChanged, this, &CameraTool::updateSettings);
@@ -59,21 +56,16 @@ void CameraTool::loadSettings()
 
 void CameraTool::onDidLoadObject()
 {
-    Layer* layer = mEditor->layers()->getLayer(mEditor->currentLayerIndex());
-    if (!layer || layer->type() != Layer::CAMERA) { return ; }
-
-    LayerCamera* layerCam = static_cast<LayerCamera*>(layer);
-    properties.cameraPathDotColorType = static_cast<int>(layerCam->getDotColorType());
-    properties.cameraShowPath = layerCam->getShowCameraPath();
+    onDidChangeLayer(mEditor->currentLayerIndex());
 }
 
 void CameraTool::onDidChangeLayer(int index)
 {
     Layer* layer = mEditor->layers()->getLayer(index);
-    if (layer->type() != Layer::CAMERA) { return ; }
+    if (!layer || layer->type() != Layer::CAMERA) { return; }
 
     LayerCamera* layerCam = static_cast<LayerCamera*>(layer);
-    properties.cameraPathDotColorType = static_cast<int>(layerCam->getDotColorType());
+    properties.cameraPathDotColorType = layerCam->getDotColorType();
     properties.cameraShowPath = layerCam->getShowCameraPath();
 }
 
@@ -94,79 +86,76 @@ void CameraTool::updateSettings(const SETTING setting)
 
 QCursor CameraTool::cursor()
 {
-    QPixmap cursorPixmap = QPixmap(24, 24);
-    if (!cursorPixmap.isNull())
-    {
-        cursorPixmap.fill(QColor(255, 255, 255, 0));
-        QPainter cursorPainter(&cursorPixmap);
-        cursorPainter.setRenderHint(QPainter::HighQualityAntialiasing);
+    // When pointer is in use, we can't change state, so keep the last image.
+    if (mScribbleArea->isPointerInUse()) { return cursorCache; }
 
-        switch(cursorForMoveMode())
-        {
-        case MoveMode::PERSP_LEFT:
-        case MoveMode::PERSP_RIGHT:
-        case MoveMode::PERSP_MIDDLE:
-        case MoveMode::PERSP_SINGLE:
-        {
-            cursorPainter.drawImage(QPoint(6,6),QImage("://icons/new/arrow-selectmove.png"));
-            break;
-        }
-        case MoveMode::TOPLEFT:
-        case MoveMode::BOTTOMRIGHT:
-        {
-            cursorPainter.drawImage(QPoint(6,6),QImage("://icons/new/arrow-diagonalleft.png"));
-            break;
-        }
-        case MoveMode::TOPRIGHT:
-        case MoveMode::BOTTOMLEFT:
-        {
-            cursorPainter.drawImage(QPoint(6,6),QImage("://icons/new/arrow-diagonalright.png"));
-            break;
-        }
-        case MoveMode::ROTATIONLEFT:
-        case MoveMode::ROTATIONRIGHT:
-        case MoveMode::ROTATION:
-        {
-            cursorPainter.drawImage(QPoint(6,6),QImage("://icons/new/arrow-rotate.png"));
-            break;
-        }
-        case MoveMode::MIDDLE:
-        case MoveMode::CENTER:
-        {
-            cursorPainter.drawImage(QPoint(6,6),QImage("://icons/new/arrow-selectmove.png"));
-            break;
-        }
-        default:
-            return Qt::ArrowCursor;
-        }
-        cursorPainter.end();
+    QPixmap cursorPixmap = QPixmap(24, 24);
+    cursorPixmap.fill(QColor(255, 255, 255, 0));
+    QPainter cursorPainter(&cursorPixmap);
+    cursorPainter.setRenderHint(QPainter::HighQualityAntialiasing);
+
+    switch(moveMode())
+    {
+    case CameraMoveType::TOPLEFT:
+    case CameraMoveType::BOTTOMRIGHT:
+    {
+        cursorPainter.drawImage(QPoint(6,6),QImage("://icons/new/arrow-diagonalleft.png"));
+        break;
     }
-    return QCursor(cursorPixmap);
+    case CameraMoveType::TOPRIGHT:
+    case CameraMoveType::BOTTOMLEFT:
+    {
+        cursorPainter.drawImage(QPoint(6,6),QImage("://icons/new/arrow-diagonalright.png"));
+        break;
+    }
+    case CameraMoveType::ROTATIONLEFT:
+    case CameraMoveType::ROTATIONRIGHT:
+    {
+        cursorPainter.drawImage(QPoint(6,6),QImage("://icons/new/arrow-rotate.png"));
+        break;
+    }
+    case CameraMoveType::PATH:
+    case CameraMoveType::CENTER:
+    {
+        cursorPainter.drawImage(QPoint(6,6),QImage("://icons/new/arrow-selectmove.png"));
+        break;
+    }
+    default:
+        return Qt::ArrowCursor;
+    }
+    cursorPainter.end();
+
+    cursorCache = QCursor(cursorPixmap);
+
+    return cursorCache;
 }
 
-MoveMode CameraTool::cursorForMoveMode()
+CameraMoveType CameraTool::moveMode()
 {
     Layer* layer = mEditor->layers()->currentLayer();
-    MoveMode mode = MoveMode::NONE;
+    CameraMoveType mode = CameraMoveType::NONE;
     qreal selectionTolerance = mEditor->select()->selectionTolerance();
     QPointF currentPoint = getCurrentPoint();
 
+    Q_ASSERT(layer->type() == Layer::CAMERA);
     LayerCamera* cam = static_cast<LayerCamera*>(layer);
     if (layer->keyExists(mEditor->currentFrame()))
     {
-        mode = cam->getMoveModeForCamera(mEditor->currentFrame(),
-                                         currentPoint,
-                                         selectionTolerance);
+        mode = getCameraMoveMode(cam,
+                           mEditor->currentFrame(),
+                           currentPoint,
+                           selectionTolerance);
         mCamMoveMode = mode;
     } else {
         int keyPos = cam->firstKeyFramePosition();
         while (keyPos <= cam->getMaxKeyFramePosition())
         {
-            mode = cam->getMoveModeForCameraPath(keyPos,
-                                                 currentPoint,
-                                                 selectionTolerance);
+            mode = getPathMoveMode(cam,
+                                   keyPos,
+                                   currentPoint,
+                                   selectionTolerance);
             mCamPathMoveMode = mode;
-            if (mode != MoveMode::NONE && !cam->hasSameTranslation(keyPos, cam->getPreviousKeyFramePosition(keyPos)))
+            if (mode != CameraMoveType::NONE && !cam->hasSameTranslation(keyPos, cam->getPreviousKeyFramePosition(keyPos)))
             {
                 mDragPathFrame = keyPos;
                 break;
@@ -192,13 +181,12 @@ void CameraTool::setShowCameraPath(const bool showCameraPath)
     properties.cameraShowPath = showCameraPath;
 }
 
-void CameraTool::setPathDotColorType(const int pathDotColor)
+void CameraTool::setPathDotColorType(const DotColorType pathDotColor)
 {
     LayerCamera* layer = static_cast<LayerCamera*>(editor()->layers()->currentLayer());
     Q_ASSERT(layer->type() == Layer::CAMERA);
 
-    DotColorType color = static_cast<DotColorType>(pathDotColor);
-    layer->setDotColorType(color);
+    layer->setDotColorType(pathDotColor);
 }
 
 void CameraTool::resetCameraPath()
@@ -206,7 +194,8 @@ void CameraTool::resetCameraPath()
     LayerCamera* layer = static_cast<LayerCamera*>(editor()->layers()->currentLayer());
     Q_ASSERT(layer->type() == Layer::CAMERA);
 
-    layer->centerMidPoint(mEditor->currentFrame());
+    layer->centerPathControlPointAtFrame(mEditor->currentFrame());
+    layer->setPathMovedAtFrame(mEditor->currentFrame(), false);
 }
 
 void CameraTool::resetTransform(CameraFieldOption option)
@@ -214,33 +203,34 @@ void CameraTool::resetTransform(CameraFieldOption option)
     LayerCamera* layer = static_cast<LayerCamera*>(editor()->layers()->currentLayer());
     Q_ASSERT(layer->type() == Layer::CAMERA);
 
-    layer->setCameraReset(option, mEditor->currentFrame());
-    mEditor->frameModified(mEditor->currentFrame());
+    layer->resetCameraAtFrame(option, mEditor->currentFrame());
+    emit mEditor->frameModified(mEditor->currentFrame());
 }
 
 void CameraTool::transformCamera(Qt::KeyboardModifiers keyMod)
 {
+    Q_ASSERT(editor()->layers()->currentLayer()->type() == Layer::CAMERA);
     LayerCamera* layer = static_cast<LayerCamera*>(editor()->layers()->currentLayer());
 
     QRectF viewRect = layer->getViewAtFrame(mEditor->currentFrame()).inverted().mapRect(layer->getViewRect());
-    qreal angleRad = mCamMoveMode == MoveMode::ROTATIONLEFT ? MathUtils::getDifferenceAngle(getCurrentPoint(),viewRect.center()) : MathUtils::getDifferenceAngle(viewRect.center(), getCurrentPoint());
+    qreal angleRad = mCamMoveMode == CameraMoveType::ROTATIONLEFT ? MathUtils::getDifferenceAngle(getCurrentPoint(),viewRect.center()) : MathUtils::getDifferenceAngle(viewRect.center(), getCurrentPoint());
     qreal angle = qRadiansToDegrees(angleRad);
-    if (keyMod == Qt::ShiftModifier && (mCamMoveMode == MoveMode::ROTATIONLEFT || mCamMoveMode == MoveMode::ROTATIONRIGHT)) {
+    if (keyMod == Qt::ShiftModifier && (mCamMoveMode == CameraMoveType::ROTATIONLEFT || mCamMoveMode == CameraMoveType::ROTATIONRIGHT)) {
         angle = constrainedRotation(angle, mRotationIncrement);
     }
 
-    layer->transformCameraView(mCamMoveMode, getCurrentPoint(), mTransformOffset, -angle, mEditor->currentFrame());
+    transformView(layer, mCamMoveMode, getCurrentPoint(), mTransformOffset, -angle, mEditor->currentFrame());
 
-    mEditor->frameModified(mEditor->currentFrame());
+    emit mEditor->frameModified(mEditor->currentFrame());
     mTransformOffset = getCurrentPoint();
 }
 
 void CameraTool::transformCameraPath()
 {
+    Q_ASSERT(editor()->layers()->currentLayer()->type() == Layer::CAMERA);
     LayerCamera* layer = static_cast<LayerCamera*>(editor()->layers()->currentLayer());
-    layer->updatePathAtFrame(getCurrentPoint(), mDragPathFrame);
-
-    mEditor->frameModified(mEditor->currentFrame());
+    layer->updatePathControlPointAtFrame(getCurrentPoint(), mDragPathFrame);
+    emit mEditor->frameModified(mEditor->currentFrame());
 }
 
 int CameraTool::constrainedRotation(const qreal rotatedAngle, const int rotationIncrement) const
@@ -262,15 +252,15 @@ void CameraTool::pointerPressEvent(PointerEvent*)
 
 void CameraTool::pointerMoveEvent(PointerEvent* event)
 {
+    Q_ASSERT(editor()->layers()->currentLayer()->type() == Layer::CAMERA);
     LayerCamera* layer = static_cast<LayerCamera*>(editor()->layers()->currentLayer());
-    if (layer == nullptr) return;
 
     if (mScribbleArea->isPointerInUse())   // the user is also pressing the mouse (dragging)
     {
         if (layer->keyExists(mEditor->currentFrame())) {
             transformCamera(event->modifiers());
         }
-        else if (mCamPathMoveMode == MoveMode::MIDDLE)
+        else if (mCamPathMoveMode == CameraMoveType::PATH)
         {
             transformCameraPath();
         }
@@ -294,9 +284,115 @@ void CameraTool::pointerReleaseEvent(PointerEvent* event)
         transformCamera(event->modifiers());
         mEditor->view()->forceUpdateViewTransform();
         mEditor->updateCurrentFrame();
-    } else if (mCamPathMoveMode == MoveMode::MIDDLE) {
+    } else if (mCamPathMoveMode == CameraMoveType::CENTER) {
         transformCameraPath();
+        layer->setPathMovedAtFrame(mEditor->currentFrame(), true);
         mEditor->view()->forceUpdateViewTransform();
         mEditor->updateCurrentFrame();
     }
 }
+
+CameraMoveType CameraTool::getCameraMoveMode(const LayerCamera* layerCamera, int frameNumber, const QPointF& point, qreal tolerance) const
+{
+    QTransform curCam = layerCamera->getViewAtFrame(frameNumber);
+    QPolygon camPoly = curCam.inverted().mapToPolygon(layerCamera->getViewRect());
+    if (QLineF(point, camPoly.at(0)).length() < tolerance)
+    {
+        return CameraMoveType::TOPLEFT;
+    }
+    else if (QLineF(point, camPoly.at(1)).length() < tolerance)
+    {
+        return CameraMoveType::TOPRIGHT;
+    }
+    else if (QLineF(point, camPoly.at(2)).length() < tolerance)
+    {
+        return CameraMoveType::BOTTOMRIGHT;
+    }
+    else if (QLineF(point, camPoly.at(3)).length() < tolerance)
+    {
+        return CameraMoveType::BOTTOMLEFT;
+    }
+    else if (QLineF(point, QPoint(camPoly.at(1) + (camPoly.at(2) - camPoly.at(1)) / 2)).length() < tolerance)
+    {
+        return CameraMoveType::ROTATIONRIGHT;
+    }
+    else if (QLineF(point, QPoint(camPoly.at(0) + (camPoly.at(3) - camPoly.at(0)) / 2)).length() < tolerance)
+    {
+        return CameraMoveType::ROTATIONLEFT;
+    }
+    else if (camPoly.containsPoint(point.toPoint(), Qt::FillRule::OddEvenFill))
+    {
+        return CameraMoveType::CENTER;
+    }
+    return CameraMoveType::NONE;
+}
+
+CameraMoveType CameraTool::getPathMoveMode(const LayerCamera* layerCamera, int frameNumber, const QPointF& point, qreal tolerance) const
+{
+    int prev = layerCamera->getPreviousKeyFramePosition(frameNumber);
+    int next = layerCamera->getNextKeyFramePosition(frameNumber);
+    if (layerCamera->hasSameTranslation(prev, next))
+        return CameraMoveType::NONE;
+
+    Camera* camera = layerCamera->getCameraAtFrame(prev);
+    Q_ASSERT(camera);
+
+    if (QLineF(camera->getPathControlPoint(), point).length() < tolerance) {
+        return CameraMoveType::PATH;
+    }
+    return CameraMoveType::NONE;
+}
+
+void CameraTool::transformView(LayerCamera* layerCamera, CameraMoveType mode, const QPointF& point, const QPointF& offset, qreal angle, int frameNumber) const
+{
+    QPolygon curPoly = layerCamera->getViewAtFrame(frameNumber).inverted().mapToPolygon(layerCamera->getViewRect());
+    QPoint curCenter = QLineF(curPoly.at(0), curPoly.at(2)).pointAt(0.5).toPoint();
+    QLineF lineOld(curCenter, point);
+    QLineF lineNew(curCenter, point);
+    Camera* curCam = layerCamera->getCameraAtFrame(frameNumber);
+
+    switch (mode)
+    {
+    case CameraMoveType::CENTER: {
+        curCam->translate(curCam->translation() - (point - offset));
+
+        int prevFrame = layerCamera->getPreviousKeyFramePosition(frameNumber);
+        Camera* prevCam = layerCamera->getCameraAtFrame(prevFrame);
+
+        // Only center a control points if it hasn't been moved
+        if (!curCam->pathControlPointMoved()) {
+            curCam->setPathControlPoint(layerCamera->getNewPathControlPointAtFrame(frameNumber));
+        }
+        if (!prevCam->pathControlPointMoved()) {
+            prevCam->setPathControlPoint(layerCamera->getNewPathControlPointAtFrame(prevFrame));
+        }
+        break;
+    }
+    case CameraMoveType::TOPLEFT:
+        lineOld.setP2(curPoly.at(0));
+        curCam->scale(curCam->scaling() * (lineOld.length() / lineNew.length()));
+        break;
+    case CameraMoveType::TOPRIGHT:
+        lineOld.setP2(curPoly.at(1));
+        curCam->scale(curCam->scaling() * (lineOld.length() / lineNew.length()));
+        break;
+    case CameraMoveType::BOTTOMRIGHT:
+        lineOld.setP2(curPoly.at(2));
+        curCam->scale(curCam->scaling() * (lineOld.length() / lineNew.length()));
+        break;
+    case CameraMoveType::BOTTOMLEFT:
+        lineOld.setP2(curPoly.at(3));
+        curCam->scale(curCam->scaling() * (lineOld.length() / lineNew.length()));
+        break;
+    case CameraMoveType::ROTATIONRIGHT:
+    case CameraMoveType::ROTATIONLEFT: {
+        curCam->rotate(angle);
+        break;
+    }
+    default:
+        break;
+    }
+    curCam->updateViewTransform();
+    curCam->modification();
+}
+

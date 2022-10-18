@@ -27,7 +27,6 @@ GNU General Public License for more details.
 #include "util.h"
 #include "layer.h"
 #include "layermanager.h"
-#include "layercamera.h"
 #include "toolmanager.h"
 
 ToolOptionWidget::ToolOptionWidget(QWidget* parent) : BaseDockWidget(parent)
@@ -47,9 +46,9 @@ ToolOptionWidget::~ToolOptionWidget()
 
 void ToolOptionWidget::initUI()
 {
-	mBucketOptionsWidget = new BucketOptionsWidget(editor(), this);
+    mBucketOptionsWidget = new BucketOptionsWidget(editor(), this);
     mCameraOptionsWidget = new CameraOptionsWidget(editor(), this);
-	ui->horizontalLayout_2->addWidget(mBucketOptionsWidget);
+    ui->horizontalLayout_2->addWidget(mBucketOptionsWidget);
     ui->horizontalLayout_2->addWidget(mCameraOptionsWidget);
 
     QSettings settings(PENCIL2D, PENCIL2D);
@@ -68,8 +67,6 @@ void ToolOptionWidget::updateUI()
     BaseTool* currentTool = editor()->tools()->currentTool();
     Q_ASSERT(currentTool);
 
-    disableAllOptions();
-
     setVisibility(currentTool);
 
     const Properties& p = currentTool->properties;
@@ -84,6 +81,7 @@ void ToolOptionWidget::updateUI()
     setAA(p.useAA);
     setStabilizerLevel(p.stabilizerLevel);
     setFillContour(p.useFillContour);
+    setShowSelectionInfo(p.showSelectionInfo);
 }
 
 void ToolOptionWidget::createUI()
@@ -116,6 +114,8 @@ void ToolOptionWidget::makeConnectionToEditor(Editor* editor)
 
     connect(ui->fillContourBox, &QCheckBox::clicked, toolManager, &ToolManager::setUseFillContour);
 
+    connect(ui->showInfoBox, &QCheckBox::clicked, toolManager, &ToolManager::setShowSelectionInfo);
+
     connect(toolManager, &ToolManager::toolChanged, this, &ToolOptionWidget::onToolChanged);
     connect(toolManager, &ToolManager::toolPropertyChanged, this, &ToolOptionWidget::onToolPropertyChanged);
 }
@@ -136,6 +136,7 @@ void ToolOptionWidget::onToolPropertyChanged(ToolType, ToolPropertyType ePropert
     case ANTI_ALIASING: setAA(p.useAA); break;
     case STABILIZATION: setStabilizerLevel(p.stabilizerLevel); break;
     case FILLCONTOUR: setFillContour(p.useFillContour); break;
+    case SHOWSELECTIONINFO: setShowSelectionInfo(p.showSelectionInfo); break;
     case BEZIER: setBezier(p.bezier_state); break;
     case CAMERAPATH: { break; }
     case TOLERANCE: break;
@@ -154,15 +155,17 @@ void ToolOptionWidget::onToolPropertyChanged(ToolType, ToolPropertyType ePropert
 void ToolOptionWidget::setVisibility(BaseTool* tool)
 {
     Q_ASSERT(mBucketOptionsWidget);
+    Q_ASSERT(mCameraOptionsWidget);
+
+    disableAllOptions();
+
     if (tool->type() == BUCKET)
     {
-        disableAllOptions();
         mBucketOptionsWidget->setHidden(false);
         return;
     }
     else if (tool->type() == CAMERA)
     {
-        disableAllOptions();
         mCameraOptionsWidget->setHidden(false);
     }
     else
@@ -184,6 +187,7 @@ void ToolOptionWidget::setVisibility(BaseTool* tool)
     ui->stabilizerLabel->setVisible(tool->isPropertyEnabled(STABILIZATION));
     ui->inpolLevelsCombo->setVisible(tool->isPropertyEnabled(STABILIZATION));
     ui->fillContourBox->setVisible(tool->isPropertyEnabled(FILLCONTOUR));
+    ui->showInfoBox->setVisible(tool->isPropertyEnabled(SHOWSELECTIONINFO));
 
     auto currentLayerType = editor()->layers()->currentLayer()->type();
     auto propertyType = editor()->tools()->currentTool()->type();
@@ -221,6 +225,15 @@ void ToolOptionWidget::setVisibility(BaseTool* tool)
         case BUCKET:
             ui->brushSpinBox->setVisible(false);
             ui->sizeSlider->setVisible(false);
+            break;
+        case SELECT:
+        case MOVE:
+            ui->sizeSlider->setVisible(false);
+            ui->brushSpinBox->setVisible(false);
+            ui->usePressureBox->setVisible(false);
+            ui->featherSlider->setVisible(false);
+            ui->featherSpinBox->setVisible(false);
+            ui->useFeatherBox->setVisible(false);
             break;
         default:
             ui->makeInvisibleBox->setVisible(false);
@@ -332,6 +345,12 @@ void ToolOptionWidget::setBezier(bool useBezier)
     ui->useBezierBox->setChecked(useBezier);
 }
 
+void ToolOptionWidget::setShowSelectionInfo(bool showSelectionInfo)
+{
+    QSignalBlocker b(ui->showInfoBox);
+    ui->showInfoBox->setChecked(showSelectionInfo);
+}
+
 void ToolOptionWidget::disableAllOptions()
 {
     ui->sizeSlider->hide();
@@ -347,5 +366,6 @@ void ToolOptionWidget::disableAllOptions()
     ui->useAABox->hide();
     ui->inpolLevelsCombo->hide();
     ui->fillContourBox->hide();
+    ui->showInfoBox->hide();
     ui->stabilizerLabel->hide();
 }

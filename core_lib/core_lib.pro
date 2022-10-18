@@ -41,6 +41,7 @@ HEADERS +=  \
     src/graphics/vector/vectorselection.h \
     src/graphics/vector/vertexref.h \
     src/interface/backupelement.h \
+    src/interface/cameracontextmenu.h \
     src/interface/camerapropertiesdialog.h \
     src/interface/editor.h \
     src/interface/flowlayout.h \
@@ -103,6 +104,7 @@ HEADERS +=  \
     src/util/mathutils.h \
     src/util/onionskinpainteroptions.h \
     src/util/onionskinpaintstate.h \
+    src/util/painterutils.h \
     src/util/pencildef.h \
     src/util/pencilerror.h \
     src/util/pencilsettings.h \
@@ -129,6 +131,7 @@ SOURCES +=  src/graphics/bitmap/bitmapimage.cpp \
     src/graphics/vector/vectorselection.cpp \
     src/graphics/vector/vertexref.cpp \
     src/interface/backupelement.cpp \
+    src/interface/cameracontextmenu.cpp \
     src/interface/camerapropertiesdialog.cpp \
     src/interface/editor.cpp \
     src/interface/flowlayout.cpp \
@@ -179,6 +182,7 @@ SOURCES +=  src/graphics/bitmap/bitmapimage.cpp \
     src/tool/strokemanager.cpp \
     src/tool/stroketool.cpp \
     src/util/blitrect.cpp \
+    src/util/cameraeasingtype.cpp \
     src/util/fileformat.cpp \
     src/util/pencilerror.cpp \
     src/util/pencilsettings.cpp \

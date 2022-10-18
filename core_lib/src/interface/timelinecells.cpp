@@ -37,6 +37,8 @@ GNU General Public License for more details.
 #include "timeline.h"
 #include "toolmanager.h"
 
+#include "cameracontextmenu.h"
+
 TimeLineCells::TimeLineCells(TimeLine* parent, Editor* editor, TIMELINE_CELL_TYPE type) : QWidget(parent)
 {
     mTimeLine = parent;
@@ -178,94 +180,31 @@ bool TimeLineCells::didDetachLayer() const {
 void TimeLineCells::showCameraMenu(QPoint pos)
 {
     int frameNumber = getFrameNumber(pos.x());
-    pos = this->mapToGlobal(pos);
 
     Layer* curLayer = mEditor->layers()->currentLayer();
     Q_ASSERT(curLayer);
+
     // only show menu if on camera layer and key exists
     if (curLayer->type() != Layer::CAMERA || !curLayer->keyExists(frameNumber))
     {
         return;
     }
 
-    LayerCamera* layer = static_cast<LayerCamera*>(curLayer);
-    int nextFrame = curLayer->getNextKeyFramePosition(frameNumber);
+    mHighlightFrameEnabled = true;
+    mHighlightedFrame = frameNumber;
 
-    QMenu* cameraMenu = new QMenu();
+    CameraContextMenu menu(frameNumber, mapToGlobal(pos), curLayer);
 
-    QMenu* cameraInterpolationMenu = cameraMenu->addMenu(tr("Camera interpolation frame %1 to %2").arg( QString::number(frameNumber), QString::number(nextFrame)));
+    menu.connect(&menu, &CameraContextMenu::aboutToClose, [=] {
+        mHighlightFrameEnabled = false;
+        mHighlightedFrame = -1;
+        update();
+    });
 
-    QMenu* subSine  = cameraInterpolationMenu->addMenu(tr("Slow"));
-    QMenu* subQuad  = cameraInterpolationMenu->addMenu(tr("Normal"));
-    QMenu* subCubic = cameraInterpolationMenu->addMenu(tr("Quick"));
-    QMenu* subQuart = cameraInterpolationMenu->addMenu(tr("Fast"));
-    QMenu* subQuint = cameraInterpolationMenu->addMenu(tr("Faster"));
-    QMenu* subExpo  = cameraInterpolationMenu->addMenu(tr("Fastest"));
-    cameraInterpolationMenu->addSeparator();
-    QMenu* subCirc  = cameraInterpolationMenu->addMenu(tr("Circle-based"));
-    QMenu* subBack  = cameraInterpolationMenu->addMenu(tr("Overshoot"));
-    QMenu* subElast  = cameraInterpolationMenu->addMenu(tr("Elastic"));
-    QMenu* subBounc  = cameraInterpolationMenu->addMenu(tr("Bounce"));
-    cameraInterpolationMenu->addSeparator();
-    QMenu* subOther = cameraInterpolationMenu->addMenu(tr("Other"));
+    // Update needs to happen before executing menu, otherwise paint event might be postponed
+    update();
 
-    subSine->addAction(tr("Slow Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::INSINE, frameNumber); });
-    subSine->addAction(tr("Slow  Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::OUTSINE, frameNumber); });
-    subSine->addAction(tr("Slow  Ease-in - Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::INOUTSINE, frameNumber); });
-    subSine->addAction(tr("Slow  Ease-out - Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::OUTINSINE, frameNumber); });
-    subQuad->addAction(tr("Normal Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::INQUAD, frameNumber); });
-    subQuad->addAction(tr("Normal Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::OUTQUAD, frameNumber); });
-    subQuad->addAction(tr("Normal Ease-in - Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::INOUTQUAD, frameNumber); });
-    subQuad->addAction(tr("Normal Ease-out - Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::OUTINQUAD, frameNumber); });
-    subCubic->addAction(tr("Quick Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::INCUBIC, frameNumber); });
-    subCubic->addAction(tr("Quick Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::OUTCUBIC, frameNumber); });
-    subCubic->addAction(tr("Quick Ease-in - Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::INOUTCUBIC, frameNumber); });
-    subCubic->addAction(tr("Quick Ease-out - Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::OUTINCUBIC, frameNumber); });
-    subQuart->addAction(tr("Fast Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::INQUART, frameNumber); });
-    subQuart->addAction(tr("Fast Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::OUTQUART, frameNumber); });
-    subQuart->addAction(tr("Fast Ease-in - Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::INOUTQUART, frameNumber); });
-    subQuart->addAction(tr("Fast Ease-out - Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::OUTINQUART, frameNumber); });
-    subQuint->addAction(tr("Faster Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::INQUINT, frameNumber); });
-    subQuint->addAction(tr("Faster Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::OUTQUINT, frameNumber); });
-    subQuint->addAction(tr("Faster Ease-in - Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::INOUTQUINT, frameNumber); });
-    subQuint->addAction(tr("Faster Ease-out - Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::OUTINQUINT, frameNumber); });
-    subExpo->addAction(tr("Fastest Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::INEXPO, frameNumber); });
-    subExpo->addAction(tr("Fastest Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::OUTEXPO, frameNumber); });
-    subExpo->addAction(tr("Fastest Ease-in - Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::INOUTEXPO, frameNumber); });
-    subExpo->addAction(tr("Fastest Ease-out - Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::OUTINEXPO, frameNumber); });
-    subCirc->addAction(tr("Circle-based Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::INCIRC, frameNumber); });
-    subCirc->addAction(tr("Circle-based Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::OUTCIRC, frameNumber); });
-    subCirc->addAction(tr("Circle-based Ease-in - Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::INOUTCIRC, frameNumber); });
-    subCirc->addAction(tr("Circle-based Ease-out - Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::OUTINCIRC, frameNumber); });
-    subBack->addAction(tr("Overshoot Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::INBACK, frameNumber); });
-    subBack->addAction(tr("Overshoot Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::OUTBACK, frameNumber); });
-    subBack->addAction(tr("Overshoot Ease-in - Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::INOUTBACK, frameNumber); });
-    subBack->addAction(tr("Overshoot Ease-out - Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::OUTINBACK, frameNumber); });
-    subElast->addAction(tr("Elastic Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::INELASTIC, frameNumber); });
-    subElast->addAction(tr("Elastic Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::OUTELASTIC, frameNumber); });
-    subElast->addAction(tr("Elastic Ease-in - Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::INOUTELASTIC, frameNumber); });
-    subElast->addAction(tr("Elastic Ease-out - Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::OUTINELASTIC, frameNumber); });
-    subBounc->addAction(tr("Bounce Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::INBOUNCE, frameNumber); });
-    subBounc->addAction(tr("Bounce Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::OUTBOUNCE, frameNumber); });
-    subBounc->addAction(tr("Bounce Ease-in - Ease-out"), [=] { layer->setCameraEasing(CameraEasingType::INOUTBOUNCE, frameNumber); });
-    subBounc->addAction(tr("Bounce Ease-out - Ease-in"), [=] { layer->setCameraEasing(CameraEasingType::OUTINBOUNCE, frameNumber); });
-    subOther->addAction(tr("Linear interpolation"), [=] { layer->setCameraEasing(CameraEasingType::LINEAR, frameNumber); });
-
-    QMenu* cameraFieldMenu = cameraMenu->addMenu(tr("Camera field"));
-    cameraFieldMenu->addAction(tr("Reset camera field to default"), [=] { layer->setCameraReset(CameraFieldOption::RESET_FIELD, frameNumber); });
-    cameraFieldMenu->addSeparator();
-    cameraFieldMenu->addAction(tr("Reset camera position to center (0,0)"), [=] { layer->setCameraReset(CameraFieldOption::RESET_TRANSLATION, frameNumber); });
-    cameraFieldMenu->addAction(tr("Reset camera scaling to 1:1"), [=] { layer->setCameraReset(CameraFieldOption::RESET_SCALING, frameNumber); });
-    cameraFieldMenu->addAction(tr("Reset camera rotation to 0"), [=] { layer->setCameraReset(CameraFieldOption::RESET_ROTATION, frameNumber); });
-    cameraFieldMenu->addSeparator();
-    cameraFieldMenu->addAction(tr("Align keyframe %1 horizontally").arg(QString::number(nextFrame)), [=] { layer->setCameraReset(CameraFieldOption::ALIGN_HORIZONTAL, frameNumber); });
-    cameraFieldMenu->addAction(tr("Align keyframe %1 vertically").arg(QString::number(nextFrame)), [=] { layer->setCameraReset(CameraFieldOption::ALIGN_VERTICAL, frameNumber); });
-    cameraFieldMenu->addSeparator();
-    cameraFieldMenu->addAction(tr("Hold to keyframe %1").arg(QString::number(nextFrame)), [=] { layer->setCameraReset(CameraFieldOption::HOLD_FRAME, frameNumber); });
-
-    cameraMenu->exec(pos);
-    mEditor->scrubTo(mEditor->currentFrame());
-    updateContent();
+    menu.exec();
 }
 
 void TimeLineCells::drawContent()
@@ -412,6 +351,16 @@ void TimeLineCells::drawContent()
         for (int i = 0; i < object->getLayerCount(); i++) {
             paintSelectedFrames(painter, object->getLayer(i), i);
         }
+
+        if (mHighlightFrameEnabled && !mMovingFrames && mLayerPosMoveY == mEditor->currentLayerIndex()) {
+
+            // This is terrible but well...
+            int recTop = getLayerY(mLayerPosMoveY) + 1;
+            int standardWidth = mFrameSize - 2;
+            int recHeight = layerHeight - 4;
+
+            paintHighlightedFrame(painter, mHighlightedFrame, recTop, standardWidth, recHeight);
+        }
     }
 }
 
@@ -507,6 +456,7 @@ void TimeLineCells::paintFrames(QPainter& painter, QColor trackCol, const Layer*
     int standardWidth = frameSize - 2;
 
     int recHeight = height - 4;
+
     layer->foreachKeyFrame([&](KeyFrame* key)
     {
         int framePos = key->pos();
@@ -562,6 +512,20 @@ void TimeLineCells::paintFrameCursorOnCurrentLayer(QPainter &painter, int recTop
     penColor.setAlpha(127);
     painter.setPen(penColor);
     painter.drawRect(recLeft, recTop, recWidth, recHeight);
+    painter.restore();
+}
+
+void TimeLineCells::paintHighlightedFrame(QPainter& painter, int framePos, int recTop, int recWidth, int recHeight) const
+{
+    int recLeft = getFrameX(framePos) - recWidth;
+
+    painter.save();
+    const QPalette palette = QApplication::palette();
+    painter.setBrush(palette.color(QPalette::Window));
+    painter.setPen(palette.color(QPalette::WindowText));
+
+    // Draw a rect slighly smaller than the frame
+    painter.drawRect(recLeft+1, recTop+1, recWidth-2, recHeight-2);
     painter.restore();
 }
 
@@ -868,9 +832,6 @@ void TimeLineCells::mousePressEvent(QMouseEvent* event)
 
     primaryButton = event->button();
 
-    bool switchLayer = mEditor->tools()->currentTool()->onWillChangeLayer();
-    if (!switchLayer) { return; }
-
     switch (mType)
     {
     case TIMELINE_CELL_TYPE::Layers:
@@ -952,18 +913,19 @@ void TimeLineCells::mousePressEvent(QMouseEvent* event)
                             {
                                 // Add/remove from already selected
                                 currentLayer->toggleFrameSelected(frameNumber, true);
-                                mEditor->selectedFramesChanged();
+                                emit mEditor->selectedFramesChanged();
                             }
                             else if (event->modifiers() == Qt::ShiftModifier)
                             {
                                 // Select a range from the last selected
                                 currentLayer->extendSelectionTo(frameNumber);
-                                mEditor->selectedFramesChanged();
+                                emit mEditor->selectedFramesChanged();
                             }
-                            else if (event->button() == Qt::LeftButton)
+                            else
                             {
                                 // Only select if left button clicked
                                 currentLayer->toggleFrameSelected(frameNumber, false);
+                                emit mEditor->selectedFramesChanged();
                             }
                         }
 

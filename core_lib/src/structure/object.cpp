@@ -33,7 +33,6 @@ GNU General Public License for more details.
 #include "layercamera.h"
 
 #include "util.h"
-#include "editor.h"
 #include "bitmapimage.h"
 #include "vectorimage.h"
 #include "fileformat.h"
@@ -42,7 +41,6 @@ GNU General Public License for more details.
 
 Object::Object()
 {
-    setData(new ObjectData());
     mActiveFramePool.reset(new ActiveFramePool);
 }
 
@@ -236,25 +234,18 @@ Layer* Object::getLayer(int i) const
     return mLayers.at(i);
 }
 
-Layer* Object::getFirstVisibleLayer(int i, Layer::LAYER_TYPE type) const
+Layer* Object::getLayerBelow(int i, Layer::LAYER_TYPE type) const
 {
-    Layer* layer = getLayer(i);
-
-    if (layer && layer->type() == type && layer->visible())
+    for (; i >= 0; --i)
     {
-        return layer;
-    }
-    else
-    {
-        for (int i = 0; i < getLayerCount(); ++i)
+        Layer* layerCheck = getLayer(i);
+        Q_ASSERT(layerCheck);
+        if (layerCheck->type() == type)
         {
-            Layer* layerCheck = getLayer(i);
-            if (layerCheck && layerCheck->type() == type && layerCheck->visible())
-            {
-                return layerCheck;
-            }
+            return layerCheck;
         }
     }
+
     return nullptr;
 }
 
@@ -875,10 +866,9 @@ int Object::getLayerCount() const
     return mLayers.size();
 }
 
-void Object::setData(const ObjectData* d)
+void Object::setData(const ObjectData& d)
 {
-    Q_ASSERT(d != nullptr);
-    mData = *d;
+    mData = d;
 }
 
 int Object::totalKeyFrameCount() const
@@ -901,10 +891,13 @@ void Object::updateActiveFrames(int frame) const
 
     for (Layer* layer : mLayers)
     {
-        for (int k = beginFrame; k < endFrame; ++k)
+        if (layer->visible())
         {
-            KeyFrame* key = layer->getKeyFrameAt(k);
-            mActiveFramePool->put(key);
+            for (int k = beginFrame; k < endFrame; ++k)
+            {
+                KeyFrame* key = layer->getKeyFrameAt(k);
+                mActiveFramePool->put(key);
+            }
         }
     }
 }

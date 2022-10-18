@@ -65,6 +65,7 @@ BaseTool::BaseTool(QObject* parent) : QObject(parent)
     mPropertyEnabled.insert(ANTI_ALIASING, false);
     mPropertyEnabled.insert(FILL_MODE, false);
     mPropertyEnabled.insert(STABILIZATION, false);
+    mPropertyEnabled.insert(CAMERAPATH, false);
 }
 
 QCursor BaseTool::cursor()
@@ -296,7 +297,7 @@ void BaseTool::adjustCursor(Qt::KeyboardModifiers modifiers)
     newValue = qPow(newValue, 2) / 100;
     if (mAdjustmentStep > 0)
     {
-        int tempValue = (int)(newValue / mAdjustmentStep); // + 0.5 ?
+        int tempValue = static_cast<int>(newValue / mAdjustmentStep); // + 0.5 ?
         newValue = tempValue * mAdjustmentStep;
     }
 
@@ -315,7 +316,7 @@ void BaseTool::adjustCursor(Qt::KeyboardModifiers modifiers)
         qDebug() << "Unhandled quick sizing property for tool" << typeName();
         Q_ASSERT(false);
         break;
-    };
+    }
 }
 
 QPointF BaseTool::getCurrentPressPixel()
@@ -448,12 +449,17 @@ void BaseTool::setUseFillContour(const bool useFillContour)
     properties.useFillContour = useFillContour;
 }
 
+void BaseTool::setShowSelectionInfo(const bool b)
+{
+    properties.showSelectionInfo = b;
+}
+
 void BaseTool::setShowCameraPath(const bool showCameraPath)
 {
     properties.cameraShowPath = showCameraPath;
 }
 
-void BaseTool::setPathDotColorType(const int dotColorType)
+void BaseTool::setPathDotColorType(const DotColorType dotColorType)
 {
     properties.cameraPathDotColorType = dotColorType;
 }

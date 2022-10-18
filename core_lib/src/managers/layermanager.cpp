@@ -25,6 +25,7 @@ GNU General Public License for more details.
 #include "layervector.h"
 #include "layercamera.h"
 
+#include <QDebug>
 
 LayerManager::LayerManager(Editor* editor) : BaseManager(editor, __FUNCTION__)
 {
@@ -53,9 +54,9 @@ Status LayerManager::save(Object* o)
     return Status::OK;
 }
 
-Layer* LayerManager::getFirstVisibleLayer(int layerIndex, Layer::LAYER_TYPE type)
+LayerCamera* LayerManager::getCameraLayerBelow(int layerIndex) const
 {
-    return object()->getFirstVisibleLayer(layerIndex, type);
+    return static_cast<LayerCamera*>(object()->getLayerBelow(layerIndex, Layer::CAMERA));
 }
 
 Layer* LayerManager::getLastCameraLayer()
@@ -107,31 +108,22 @@ int LayerManager::currentLayerIndex()
 void LayerManager::setCurrentLayer(int layerIndex)
 {
     Q_ASSERT(layerIndex >= 0);
-
-    Object* o = object();
-    if (layerIndex >= o->getLayerCount())
-    {
-        Q_ASSERT(false);
-        return;
-    }
+    Q_ASSERT(layerIndex < object()->getLayerCount());
 
     // Deselect frames of previous layer.
-    Layer* previousLayer = object()->getLayer(editor()->currentLayerIndex());
-    if (previousLayer != nullptr) {
-        previousLayer->deselectAll();
-    }
+    Layer* previousLayer = currentLayer();
+    previousLayer->deselectAll();
+
+    emit currentLayerWillChange(layerIndex);
 
     // Do not check if layer index has changed
     // because the current layer may have changed either way
     editor()->setCurrentLayerIndex(layerIndex);
     emit currentLayerChanged(layerIndex);
 
-    if (object())
+    if (object()->getLayer(layerIndex)->type() == Layer::CAMERA)
     {
-        if (object()->getLayer(layerIndex)->type() == Layer::CAMERA)
-        {
-            mLastCameraLayerIdx = layerIndex;
-        }
+        mLastCameraLayerIdx = layerIndex;
     }
 }
 
@@ -185,6 +177,34 @@ QString LayerManager::nameSuggestLayer(const QString& name)
             .arg(name).arg(QString::number(newIndex++));
     } while (sLayers.contains(newName));
     return newName;
+}
+
+Layer* LayerManager::createLayer(Layer::LAYER_TYPE type, const QString& strLayerName)
+{
+    Layer* layer = nullptr;
+    switch (type) {
+    case Layer::BITMAP:
+        layer = object()->addNewBitmapLayer();
+        break;
+    case Layer::VECTOR:
+        layer = object()->addNewVectorLayer();
+        break;
+    case Layer::SOUND:
+        layer = object()->addNewSoundLayer();
+        break;
+    case Layer::CAMERA:
+        layer = object()->addNewCameraLayer();
+        break;
+    default:
+        Q_ASSERT(true);
+        return nullptr;
+    }
+
+    layer->setName(strLayerName);
+    emit layerCountChanged(count());
+    setCurrentLayer(getLastLayerIndex());
+
+    return layer;
 }
 
 LayerBitmap* LayerManager::createBitmapLayer(const QString& strLayerName)
@@ -297,15 +317,15 @@ Status LayerManager::deleteLayer(int index)
         if (camLayers.size() == 1)
             return Status::ERROR_NEED_AT_LEAST_ONE_CAMERA_LAYER;
     }
-
-    object()->deleteLayer(layer);
+    Q_ASSERT(object()->getLayerCount() >= 2);
 
     // current layer is the last layer && we are deleting it
-    if (index == object()->getLayerCount() &&
+    if (index == object()->getLayerCount() - 1 &&
         index == currentLayerIndex())
     {
         setCurrentLayer(currentLayerIndex() - 1);
     }
+    object()->deleteLayer(layer);
     if (index >= currentLayerIndex())
     {
         // current layer has changed, so trigger updates

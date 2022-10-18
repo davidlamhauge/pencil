@@ -99,8 +99,8 @@ public:
     bool insertExposureAt(int position);
 
     bool addNewKeyFrameAt(int position);
-    bool addKeyFrame(int position, KeyFrame*);
-    bool removeKeyFrame(int position);
+    virtual bool addKeyFrame(int position, KeyFrame*);
+    virtual bool removeKeyFrame(int position);
     bool swapKeyFrames(int position1, int position2);
     bool moveKeyFrame(int position, int offset);
     bool loadKey(KeyFrame*);
@@ -108,7 +108,6 @@ public:
     KeyFrame* getLastKeyFrameAtPosition(int position) const;
     bool keyExistsWhichCovers(int frameNumber);
     KeyFrame *getKeyFrameWhichCovers(int frameNumber) const;
-    bool getVisibility() const { return mVisible; }
 
     void foreachKeyFrame(std::function<void(KeyFrame*)>) const;
 
@@ -145,7 +144,7 @@ public:
     void deselectAll();
 
     bool moveSelectedFrames(int offset);
-    QList<int> getListOfSelectedFrames() { return mSelectedFrames_byPosition; }
+    QList<int> getSelectedFramesByPos() const { return mSelectedFrames_byPosition; }
 
     /** Predetermines whether the frames can be moved to a new position depending on the offset
      *
@@ -153,8 +152,6 @@ public:
      * @return true if selected frames can be moved otherwise false
      */
     bool canMoveSelectedFramesToOffset(int offset) const;
-
-    QList<int> getSelectedFramesByPos() const { return mSelectedFrames_byPosition; }
 
     Status save(const QString& sDataFolder, QStringList& attachedFiles, ProgressCallback progressStep);
     virtual Status presave(const QString& sDataFolder) { Q_UNUSED(sDataFolder); return Status::SAFE; }
@@ -171,10 +168,7 @@ public:
     /** Clear the list of dirty keyframes */
     void clearDirtyFrames() { mDirtyFrames.clear(); }
 
-    QList<int> getSelectedFrameList() { return mSelectedFrames_byPosition; }
-
 signals:
-    void selectedFramesChanged();
     void keyframeDeleted(int frame);
     void keyframeAdded(int frame);
 

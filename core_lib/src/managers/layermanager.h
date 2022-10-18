@@ -42,7 +42,7 @@ public:
     Layer* currentLayer();
     Layer* currentLayer(int offset);
     Layer* getLayer(int index);
-    Layer* getFirstVisibleLayer(int layerIndex, Layer::LAYER_TYPE type);
+    LayerCamera* getCameraLayerBelow(int layerIndex) const;
     Layer* findLayerByName(QString sName, Layer::LAYER_TYPE type = Layer::UNDEFINED);
     Layer* getLastCameraLayer();
     int    currentLayerIndex();
@@ -57,6 +57,8 @@ public:
     void gotoNextLayer();
     void gotoPreviouslayer();
 
+    /** Returns a new Layer with the given LAYER_TYPE */
+    Layer* createLayer(Layer::LAYER_TYPE type, const QString& strLayerName);
     LayerBitmap* createBitmapLayer(const QString& strLayerName);
     LayerVector* createVectorLayer(const QString& strLayerName);
     LayerCamera* createCameraLayer(const QString& strLayerName);
@@ -76,6 +78,7 @@ public:
     int getLastLayerIndex() { return count() - 1; }
 
 signals:
+    void currentLayerWillChange(int index);
     void currentLayerChanged(int index);
     void layerCountChanged(int count);
     void animationLengthChanged(int length);

@@ -19,11 +19,10 @@ GNU General Public License for more details.
 #include "layercamera.h"
 #include "camera.h"
 #include "object.h"
-#include "util.h"
+#include "cameratool.h"
 
 #include "filemanager.h"
 
-#include <QDebug>
 #include <QTemporaryDir>
 
 SCENARIO("Create camera keyframe with linear easing")
@@ -39,11 +38,11 @@ SCENARIO("Create camera keyframe with linear easing")
         {
             REQUIRE(layer->addNewKeyFrameAt(1) == true);
 
-            Camera* camera = static_cast<Camera*>(camLayer->getKeyFrameAt(1));
-            THEN("Camera easing is set to linear and path midpoint is set to the center of the current frame")
+            Camera* camera = camLayer->getCameraAtFrame(1);
+            THEN("Camera easing is set to linear and path point is set to the center of the current frame")
             {
                 REQUIRE(camera->getEasingType() == CameraEasingType::LINEAR);
-                REQUIRE(camera->getPathMidPoint() == camera->translation());
+                REQUIRE(camera->getPathControlPoint() == camera->translation());
             }
         }
     }
@@ -51,7 +50,7 @@ SCENARIO("Create camera keyframe with linear easing")
     delete object;
 }
 
-SCENARIO("Add a second keyframe and see that the midpoint of the first keyframe is updated")
+SCENARIO("Add a second keyframe and see that the path point of the first keyframe is updated")
 {
     Object* object = new Object;
 
@@ -63,15 +62,17 @@ SCENARIO("Add a second keyframe and see that the midpoint of the first keyframe 
         layer->addNewKeyFrameAt(1);
         layer->addNewKeyFrameAt(5);
 
+        CameraTool tool(nullptr);
+
         WHEN("Transforming the second keyframe")
         {
-            Camera* camera = static_cast<Camera*>(camLayer->getKeyFrameAt(1));
-            camLayer->transformCameraView(MoveMode::CENTER, camera->translation(), QPoint(300,300), 0, 5);
+            Camera* camera = camLayer->getCameraAtFrame(1);
+            tool.transformView(camLayer, CameraMoveType::CENTER, camera->translation(), QPoint(300,300), 0, 5);
             THEN("The camera path mid point of the previous frame is updated to the center of the the path between the two keyframes")
             {
-                Camera* camera2 = static_cast<Camera*>(camLayer->getKeyFrameAt(5));
+                Camera* camera2 = camLayer->getCameraAtFrame(5);
                 QLineF line(camera->translation(), camera2->translation());
-                REQUIRE(-camera->getPathMidPoint() == line.pointAt(0.5));
+                REQUIRE(-camera->getPathControlPoint() == line.pointAt(0.5));
             }
         }
     }
@@ -88,17 +89,18 @@ SCENARIO("Add keyframe after having interpolated the previous keyframe and see t
         Layer* layer = new LayerCamera(object);
         LayerCamera* camLayer = static_cast<LayerCamera*>(layer);
 
+        CameraTool tool(nullptr);
+
         layer->addNewKeyFrameAt(1);
 
-        Camera* camera = static_cast<Camera*>(camLayer->getKeyFrameAt(1));
-        camLayer->transformCameraView(MoveMode::CENTER, camera->translation(), QPoint(300,300), 0, 1);
+        Camera* camera = camLayer->getCameraAtFrame(1);
+        tool.transformView(camLayer, CameraMoveType::CENTER, camera->translation(), QPoint(300,300), 0, 1);
         WHEN("Adding a new keyframe after the previous frame was interpolated")
         {
             layer->addNewKeyFrameAt(5);
             THEN("The camera is placed at the interpolated position, not at 0,0")
             {
-                Camera* camera2 = static_cast<Camera*>(camLayer->getKeyFrameAt(5));
-                QLineF line(camera->translation(), camera2->translation());
+                Camera* camera2 = camLayer->getCameraAtFrame(5);
                 REQUIRE(camera2->translation() == QPoint(300, 300));
             }
         }
@@ -116,19 +118,21 @@ SCENARIO("Remove a camera keyframe and see that the path is properly reset")
         Layer* layer = new LayerCamera(object);
         LayerCamera* camLayer = static_cast<LayerCamera*>(layer);
 
+        CameraTool tool(nullptr);
+
         layer->addNewKeyFrameAt(1);
         layer->addNewKeyFrameAt(5);
 
-        Camera* camera = static_cast<Camera*>(camLayer->getKeyFrameAt(1));
-        camLayer->transformCameraView(MoveMode::CENTER, camera->translation(), QPoint(300,300), 0, 5);
-        REQUIRE(camera->translation() != camera->getPathMidPoint());
+        Camera* camera = camLayer->getCameraAtFrame(1);
+        tool.transformView(camLayer, CameraMoveType::CENTER, camera->translation(), QPoint(300,300), 0, 5);
+        REQUIRE(camera->translation() != camera->getPathControlPoint());
 
         WHEN("Removing the last keyframe with transformation applied")
         {
             REQUIRE(layer->removeKeyFrame(5) == true);
             THEN("The path of the previous keyframe is reset to the center of the camera")
             {
-                REQUIRE(camera->translation() == camera->getPathMidPoint());
+                REQUIRE(camera->translation() == camera->getPathControlPoint());
             }
         }
     }
@@ -145,28 +149,30 @@ SCENARIO("Loading a project and see that all camera properties are set")
     QFile::copy(":/" + name, path);
 
     Object* object = fileMan.load(path);
-    GIVEN("A Camera layer with 2 keyframe")
+    GIVEN("A Camera layer with 2 keyframes")
     {
-        Layer* cameraLayer = static_cast<LayerCamera*>(object->getLayer(0));
+        LayerCamera* cameraLayer = static_cast<LayerCamera*>(object->getLayer(0));
         WHEN("The project has loaded")
         {
             THEN("The keyframe(s) has been loaded properly")
             {
-                // <camera r="0" easing="9" midx="887" frame="1" dx="0" s="1" dy="0" midy="-281.5"/>
-                Camera* cam = static_cast<Camera*>(cameraLayer->getKeyFrameAt(1));
+                // <camera s="1" r="0" pathCPY="-1317.8543267067691" frame="1" pathCPM="1" dx="0" pathCPX="91.250978402496912" dy="0" easing="9"/>
+                Camera* cam = cameraLayer->getCameraAtFrame(1);
                 REQUIRE(cam->translation() == QPointF(0, 0));
                 REQUIRE(cam->rotation() == 0);
                 REQUIRE(cam->scaling() == 1);
                 REQUIRE(cam->getEasingType() == static_cast<CameraEasingType>(9));
-                REQUIRE(cam->getPathMidPoint() == QPointF(887, -281.5));
+                REQUIRE(cam->getPathControlPoint() == QPointF(91.250978402496912, -1317.8543267067691));
+                REQUIRE(cam->pathControlPointMoved() == true);
 
-                // <camera r="-89.931555642192322" easing="29" midx="0" frame="20" dx="-1774" s="1.7482683523433076" dy="563" midy="0"/>
-                Camera* cam2 = static_cast<Camera*>(cameraLayer->getKeyFrameAt(20));
-                REQUIRE(cam2->translation() == QPointF(-1774, 563));
+                // <camera s="1.7482683523433076" r="-89.931555642192322" pathCPY="-306.81323380187314" frame="20" pathCPM="0" dx="-1723.3735323962537" pathCPX="861.68676619812686" dy="613.62646760374628" easing="29"/>
+                Camera* cam2 = cameraLayer->getCameraAtFrame(20);
+                REQUIRE(cam2->translation() == QPointF(-1723.3735323962537, 613.62646760374628));
                 REQUIRE(cam2->rotation() == -89.931555642192322);
                 REQUIRE(cam2->scaling() == 1.7482683523433076);
                 REQUIRE(cam2->getEasingType() == static_cast<CameraEasingType>(29));
-                REQUIRE(cam2->getPathMidPoint() == QPointF(0, 0));
+                REQUIRE(cam2->getPathControlPoint() == QPointF(861.68676619812686, -306.81323380187314));
+                REQUIRE(cam2->pathControlPointMoved() == false);
 
             }
         }

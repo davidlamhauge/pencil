@@ -31,12 +31,8 @@ Camera::Camera(QPointF translation, qreal rotation, qreal scaling)
 
 Camera::Camera(QPointF translation, qreal rotation, qreal scaling, CameraEasingType type)
 {
-    Q_ASSERT(scaling > 0);
-    mTranslate = translation;
-    mRotate = rotation;
-    mScale = scaling;
     mEasingType = type;
-    updateViewTransform();
+    Camera(translation, rotation, scaling);
 }
 
 Camera::Camera(const Camera& c2) : KeyFrame(c2)
@@ -44,7 +40,7 @@ Camera::Camera(const Camera& c2) : KeyFrame(c2)
     mTranslate = c2.mTranslate;
     mRotate = c2.mRotate;
     mScale = c2.mScale;
-    mPathMidPoint = c2.mPathMidPoint;
+    mPathControlPoint = c2.mPathControlPoint;
     mEasingType = c2.mEasingType;
     mNeedUpdateView = true;
 }
@@ -63,7 +59,7 @@ void Camera::assign(const Camera& rhs)
     mTranslate = rhs.mTranslate;
     mRotate = rhs.mRotate;
     mScale = rhs.mScale;
-    mPathMidPoint = rhs.mPathMidPoint;
+    mPathControlPoint = rhs.mPathControlPoint;
     mEasingType = rhs.mEasingType;
 
     mNeedUpdateView = true;
@@ -78,7 +74,7 @@ QTransform Camera::getView()
     return mView;
 }
 
-void Camera::reset()
+void Camera::resetTransform()
 {
     mTranslate = QPointF(0, 0);
     mRotate = 0.;
@@ -141,6 +137,24 @@ void Camera::scale(qreal scaleValue)
     mScale = scaleValue;
 
     mNeedUpdateView = true;
+    modification();
+}
+
+void Camera::setEasingType(CameraEasingType type)
+{
+    mEasingType = type;
+    modification();
+}
+
+void Camera::setPathControlPoint(QPointF point)
+{
+    mPathControlPoint = point;
+    modification();
+}
+
+void Camera::setPathControlPointMoved(bool moved)
+{
+    mPathControlPointMoved = moved;
     modification();
 }
 

@@ -63,6 +63,7 @@ bool ToolManager::init()
 
 Status ToolManager::load(Object*)
 {
+    setDefaultTool();
     return Status::OK;
 }
 
@@ -268,6 +269,11 @@ void ToolManager::setUseFillContour(bool useFillContour)
     emit toolPropertyChanged(currentTool()->type(), FILLCONTOUR);
 }
 
+void ToolManager::setShowSelectionInfo(bool b)
+{
+    currentTool()->setShowSelectionInfo(b);
+}
+
 void ToolManager::setShowCameraPath(bool enabled)
 {
     currentTool()->setShowCameraPath(enabled);
@@ -288,7 +294,7 @@ void ToolManager::resetCameraTransform(CameraFieldOption option)
 
 void ToolManager::setCameraPathDotColor(int dotColorNum)
 {
-    currentTool()->setPathDotColorType(dotColorNum);
+    currentTool()->setPathDotColorType(static_cast<DotColorType>(dotColorNum));
     emit toolPropertyChanged(currentTool()->type(), CAMERAPATH);
 }
 

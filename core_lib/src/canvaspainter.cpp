@@ -25,8 +25,8 @@ GNU General Public License for more details.
 #include "bitmapimage.h"
 #include "layercamera.h"
 #include "vectorimage.h"
-#include "util.h"
-#include "camera.h"
+
+#include "painterutils.h"
 
 CanvasPainter::CanvasPainter()
 {
@@ -200,20 +200,20 @@ void CanvasPainter::paintOnionSkin(QPainter& painter)
 {
     Layer* layer = mObject->getLayer(mCurrentLayerIndex);
 
-    mOnionSkinSubPainter.paint(painter, layer, mOnionSkinPaintOptions, mFrameNumber, [&] (OnionSkinPaintState state, int onionFrameNumber) {
+    mOnionSkinSubPainter.paint(painter, layer, mOnionSkinPainterOptions, mFrameNumber, [&] (OnionSkinPaintState state, int onionFrameNumber) {
         if (state == OnionSkinPaintState::PREV) {
             switch (layer->type())
             {
-            case Layer::BITMAP: { paintBitmapFrame(painter, layer, onionFrameNumber, mOnionSkinPaintOptions.colorizePrevFrames, false, false); break; }
-            case Layer::VECTOR: { paintVectorFrame(painter, layer, onionFrameNumber, mOnionSkinPaintOptions.colorizePrevFrames, false, false); break; }
+            case Layer::BITMAP: { paintBitmapFrame(painter, layer, onionFrameNumber, mOnionSkinPainterOptions.colorizePrevFrames, false, false); break; }
+            case Layer::VECTOR: { paintVectorFrame(painter, layer, onionFrameNumber, mOnionSkinPainterOptions.colorizePrevFrames, false, false); break; }
             default: break;
             }
         }
         if (state == OnionSkinPaintState::NEXT) {
             switch (layer->type())
             {
-            case Layer::BITMAP: { paintBitmapFrame(painter, layer, onionFrameNumber, mOnionSkinPaintOptions.colorizeNextFrames, false, false); break; }
-            case Layer::VECTOR: { paintVectorFrame(painter, layer, onionFrameNumber, mOnionSkinPaintOptions.colorizeNextFrames, false, false); break; }
+            case Layer::BITMAP: { paintBitmapFrame(painter, layer, onionFrameNumber, mOnionSkinPainterOptions.colorizeNextFrames, false, false); break; }
+            case Layer::VECTOR: { paintVectorFrame(painter, layer, onionFrameNumber, mOnionSkinPainterOptions.colorizeNextFrames, false, false); break; }
             default: break;
             }
         }
@@ -258,7 +258,7 @@ void CanvasPainter::paintBitmapFrame(QPainter& painter,
         return;
     }
 
-    BitmapImage paintToImage;
+    BitmapImage paintToImage = BitmapImage(paintedImage->bounds(), Qt::transparent);
     paintToImage.paste(paintedImage);
 
     painter.setOpacity(paintedImage->getOpacity() - (1.0-painter.opacity()));
@@ -363,6 +363,11 @@ void CanvasPainter::paintVectorFrame(QPainter& painter,
     }
 
     QImage* strokeImage = new QImage(mCanvas->size(), QImage::Format_ARGB32_Premultiplied);
+
+    if (mRenderTransform) {
+        vectorImage->setSelectionTransformation(mSelectionTransform);
+    }
+
     vectorImage->outputImage(strokeImage, mViewTransform, mOptions.bOutlines, mOptions.bThinLines, mOptions.bAntiAlias);
 
     // Go through a Bitmap image to paint the onion skin colour
@@ -444,7 +449,7 @@ void CanvasPainter::paintCurrentFrame(QPainter& painter, int startLayer, int end
 
         if (mOptions.eLayerVisibility == LayerVisibility::RELATED && !isCameraLayer)
         {
-            painter.setOpacity(calculateRelativeOpacityForLayer(i));
+            painter.setOpacity(calculateRelativeOpacityForLayer(mCurrentLayerIndex, i, mOptions.fLayerVisibilityThreshold));
         }
 
         CANVASPAINTER_LOG("  Render Layer[%d] %s", i, layer->name());
@@ -455,16 +460,4 @@ void CanvasPainter::paintCurrentFrame(QPainter& painter, int startLayer, int end
         default: break;
         }
     }
-}
-
-qreal CanvasPainter::calculateRelativeOpacityForLayer(int layerIndex) const
-{
-    int layerOffset = mCurrentLayerIndex - layerIndex;
-    int absoluteOffset = qAbs(layerOffset);
-    qreal newOpacity = 1.0;
-    if (absoluteOffset != 0)
-    {
-        newOpacity = qPow(static_cast<qreal>(mOptions.fLayerVisibilityThreshold), absoluteOffset);
-    }
-    return newOpacity;
 }
