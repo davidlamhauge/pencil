@@ -70,6 +70,7 @@ HEADERS +=  \
     src/structure/camera.h \
     src/structure/keyframe.h \
     src/structure/layer.h \
+    src/structure/layerbg.h \
     src/structure/layerbitmap.h \
     src/structure/layercamera.h \
     src/structure/layersound.h \
@@ -156,6 +157,7 @@ SOURCES +=  src/graphics/bitmap/bitmapimage.cpp \
     src/structure/camera.cpp \
     src/structure/keyframe.cpp \
     src/structure/layer.cpp \
+    src/structure/layerbg.cpp \
     src/structure/layerbitmap.cpp \
     src/structure/layercamera.cpp \
     src/structure/layersound.cpp \
