@@ -24,6 +24,7 @@ GNU General Public License for more details.
 #include "layerbitmap.h"
 #include "layervector.h"
 #include "layercamera.h"
+#include "layerbg.h"
 
 #include <QDebug>
 
@@ -243,6 +244,17 @@ LayerCamera* LayerManager::createCameraLayer(const QString& strLayerName)
 LayerSound* LayerManager::createSoundLayer(const QString& strLayerName)
 {
     LayerSound* layer = object()->addNewSoundLayer();
+    layer->setName(strLayerName);
+
+    emit layerCountChanged(count());
+    setCurrentLayer(getLastLayerIndex());
+
+    return layer;
+}
+
+LayerBG *LayerManager::createBGlayer(const QString &strLayerName)
+{
+    LayerBG* layer = object()->addNewBGlayer();
     layer->setName(strLayerName);
 
     emit layerCountChanged(count());

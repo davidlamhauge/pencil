@@ -19,6 +19,9 @@ GNU General Public License for more details.
 
 #include "layer.h"
 
+class BitmapImage;
+class QDir;
+
 class LayerBG : public Layer
 {
     Q_OBJECT
@@ -27,6 +30,19 @@ public:
     LayerBG(Object* object);
     ~LayerBG() override;
 
+    QDomElement createDomElement(QDomDocument& doc) const override;
+    void loadDomElement(const QDomElement& element, QString dataDirPath, ProgressCallback progressStep) override;
+    Status presave(const QString& sDataFolder) override;
+
+protected:
+    Status saveKeyFrameFile(KeyFrame*, QString strPath) override;
+    KeyFrame* createKeyFrame(int position, Object*) override;
+
+private:
+    void loadImageAtFrame(QString strFilePath, QPoint topLeft, int frameNumber, qreal opacity);
+    QString filePath(KeyFrame* key, const QDir& dataFolder) const;
+    QString fileName(KeyFrame* key) const;
+    bool needSaveFrame(KeyFrame* key, const QString& savePath);
 
 };
 

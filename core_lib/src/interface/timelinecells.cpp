@@ -16,7 +16,7 @@ GNU General Public License for more details.
 */
 
 #include "timelinecells.h"
-
+#include <QDebug>
 #include <QApplication>
 #include <QResizeEvent>
 #include <QInputDialog>
@@ -25,6 +25,7 @@ GNU General Public License for more details.
 #include <QMenu>
 
 #include "camerapropertiesdialog.h"
+#include "bg_layerpropertiesdialog.h"
 #include "editor.h"
 #include "keyframe.h"
 #include "layermanager.h"
@@ -414,6 +415,7 @@ void TimeLineCells::paintTrack(QPainter& painter, const Layer* layer,
     if (layer->type() == Layer::VECTOR) col = QColor(70, 205, 123);
     if (layer->type() == Layer::SOUND) col = QColor(255, 141, 112);
     if (layer->type() == Layer::CAMERA) col = QColor(253, 202, 92);
+    if (layer->type() == Layer::BG_LAYER) col = QColor(200, 200, 200);
     // Dim invisible layers
     if (!layer->visible()) col.setAlpha(64);
 
@@ -1124,12 +1126,19 @@ void TimeLineCells::mouseDoubleClickEvent(QMouseEvent* event)
     {
         if (mType == TIMELINE_CELL_TYPE::Tracks && (layerNumber != -1) && (frameNumber > 0) && layerNumber < mEditor->object()->getLayerCount())
         {
-            mEditor->scrubTo(frameNumber);
-            emit insertNewKeyFrame();
+            if (layer->type() == Layer::BG_LAYER)
+            {
+                editBG_LayerProperties(static_cast<LayerBG*>(layer));
+            }
+            else
+            {
+                mEditor->scrubTo(frameNumber);
+                emit insertNewKeyFrame();
 
-            // The release event will toggle the frame on again, so we make sure it gets
-            // deselected now instead.
-            layer->setFrameSelected(frameNumber, true);
+                // The release event will toggle the frame on again, so we make sure it gets
+                // deselected now instead.
+                layer->setFrameSelected(frameNumber, true);
+            }
         }
         else if (mType == TIMELINE_CELL_TYPE::Layers && event->pos().x() >= 15)
         {
@@ -1150,6 +1159,16 @@ void TimeLineCells::editLayerProperties(Layer *layer) const
     auto cameraLayer = dynamic_cast<LayerCamera*>(layer);
     Q_ASSERT(cameraLayer);
     editLayerProperties(cameraLayer);
+}
+
+void TimeLineCells::editBG_LayerProperties(LayerBG* layerBg) const
+{
+    qDebug() << "bg props";
+    BG_LayerPropertiesDialog dialog("BG lag", 5, 189, 2, 3000);
+    if (dialog.exec() != QDialog::Accepted)
+    {
+        return;
+    }
 }
 
 void TimeLineCells::editLayerProperties(LayerCamera* cameraLayer) const

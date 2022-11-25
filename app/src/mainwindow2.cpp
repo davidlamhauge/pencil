@@ -1484,6 +1484,7 @@ void MainWindow2::makeConnections(Editor* pEditor, TimeLine* pTimeline)
     connect(pTimeline, &TimeLine::newBitmapLayer, mCommands, &ActionCommands::addNewBitmapLayer);
     connect(pTimeline, &TimeLine::newVectorLayer, mCommands, &ActionCommands::addNewVectorLayer);
     connect(pTimeline, &TimeLine::newSoundLayer, mCommands, &ActionCommands::addNewSoundLayer);
+    connect(pTimeline, &TimeLine::newBGLayer, mCommands, &ActionCommands::addNewBG_layer);
     connect(pTimeline, &TimeLine::newCameraLayer, mCommands, &ActionCommands::addNewCameraLayer);
     connect(mTimeLine, &TimeLine::playButtonTriggered, mCommands, &ActionCommands::PlayStop);
     connect(pTimeline, &TimeLine::deleteCurrentLayerClick, mCommands, &ActionCommands::deleteCurrentLayer);

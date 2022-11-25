@@ -81,6 +81,7 @@ public:
     Status addNewVectorLayer();
     Status addNewCameraLayer();
     Status addNewSoundLayer();
+    Status addNewBG_layer();
     Status deleteCurrentLayer();
     void changeKeyframeLineColor();
     void changeallKeyframeLineColor();

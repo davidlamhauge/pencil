@@ -25,6 +25,7 @@ class LayerBitmap;
 class LayerVector;
 class LayerCamera;
 class LayerSound;
+class LayerBG;
 
 
 class LayerManager : public BaseManager
@@ -64,6 +65,7 @@ public:
     LayerVector* createVectorLayer(const QString& strLayerName);
     LayerCamera* createCameraLayer(const QString& strLayerName);
     LayerSound*  createSoundLayer(const QString& strLayerName);
+    LayerBG* createBGlayer(const QString& strLayerName);
 
     // KeyFrame Management
     int lastFrameAtFrame(int frameIndex);

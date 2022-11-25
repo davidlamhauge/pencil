@@ -21,6 +21,7 @@ GNU General Public License for more details.
 #include <QString>
 #include <QWidget>
 #include "layercamera.h"
+#include "layerbg.h"
 
 class Layer;
 enum class LayerVisibility;
@@ -112,6 +113,7 @@ private:
     void paintHighlightedFrame(QPainter& painter, int framePos, int recTop, int recWidth, int recHeight) const;
 
     void editLayerProperties(Layer* layer) const;
+    void editBG_LayerProperties(LayerBG* layerBg) const;
     void editLayerProperties(LayerCamera *layer) const;
     void editLayerName(Layer* layer) const;
 

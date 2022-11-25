@@ -1273,6 +1273,8 @@ bool Editor::canCopy() const
         return canCopyBitmapImage(static_cast<BitmapImage*>(keyframe)) || canCopyFrames(layer);
     case Layer::VECTOR:
         return canCopyVectorImage(static_cast<VectorImage*>(keyframe)) || canCopyFrames(layer);
+    case Layer::BG_LAYER:
+        return false;
     default:
         Q_UNREACHABLE();
     }

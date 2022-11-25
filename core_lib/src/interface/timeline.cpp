@@ -100,12 +100,14 @@ void TimeLine::initUI()
     QAction* newBitmapLayerAct = new QAction(QIcon(":icons/layer-bitmap.png"), tr("New Bitmap Layer"), this);
     QAction* newVectorLayerAct = new QAction(QIcon(":icons/layer-vector.png"), tr("New Vector Layer"), this);
     QAction* newSoundLayerAct = new QAction(QIcon(":icons/layer-sound.png"), tr("New Sound Layer"), this);
+    QAction* newBGLayerAct = new QAction(QIcon(":icons/layer-bitmap.png"), tr("New BG Layer"), this);
     QAction* newCameraLayerAct = new QAction(QIcon(":icons/layer-camera.png"), tr("New Camera Layer"), this);
 
     QMenu* layerMenu = new QMenu(tr("&Layer", "Timeline add-layer menu"), this);
     layerMenu->addAction(newBitmapLayerAct);
     layerMenu->addAction(newVectorLayerAct);
     layerMenu->addAction(newSoundLayerAct);
+    layerMenu->addAction(newBGLayerAct);
     layerMenu->addAction(newCameraLayerAct);
     addLayerButton->setMenu(layerMenu);
     addLayerButton->setPopupMode(QToolButton::InstantPopup);
@@ -221,6 +223,7 @@ void TimeLine::initUI()
     connect(newBitmapLayerAct, &QAction::triggered, this, &TimeLine::newBitmapLayer);
     connect(newVectorLayerAct, &QAction::triggered, this, &TimeLine::newVectorLayer);
     connect(newSoundLayerAct, &QAction::triggered, this, &TimeLine::newSoundLayer);
+    connect(newBGLayerAct, &QAction::triggered, this, &TimeLine::newBGLayer);
     connect(newCameraLayerAct, &QAction::triggered, this, &TimeLine::newCameraLayer);
     connect(mLayerDeleteButton, &QPushButton::clicked, this, &TimeLine::deleteCurrentLayerClick);
 

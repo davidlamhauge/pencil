@@ -24,8 +24,6 @@ GNU General Public License for more details.
 #include <QColor>
 #include "layer.h"
 #include "colorref.h"
-#include "pencilerror.h"
-#include "pencildef.h"
 #include "objectdata.h"
 
 class QProgressDialog;
@@ -34,6 +32,7 @@ class LayerBitmap;
 class LayerVector;
 class LayerCamera;
 class LayerSound;
+class LayerBG;
 class ObjectData;
 class ActiveFramePool;
 
@@ -102,6 +101,7 @@ public:
     LayerVector* addNewVectorLayer();
     LayerSound* addNewSoundLayer();
     LayerCamera* addNewCameraLayer();
+    LayerBG* addNewBGlayer();
 
     int  getLayerCount() const;
     Layer* getLayer(int i) const;

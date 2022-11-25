@@ -27,6 +27,7 @@ GNU General Public License for more details.
 #include <QDateTime>
 
 #include "layer.h"
+#include "layerbg.h"
 #include "layerbitmap.h"
 #include "layervector.h"
 #include "layersound.h"
@@ -104,6 +105,9 @@ bool Object::loadXML(const QDomElement& docElem, ProgressCallback progressForwar
         case Layer::SOUND:
             newLayer = new LayerSound(this);
             break;
+        case Layer::BG_LAYER:
+            newLayer = new LayerBG(this);
+            break;
         case Layer::CAMERA:
             newLayer = new LayerCamera(this);
             break;
@@ -154,6 +158,16 @@ LayerCamera* Object::addNewCameraLayer()
     layerCamera->addNewKeyFrameAt(1);
 
     return layerCamera;
+}
+
+LayerBG *Object::addNewBGlayer()
+{
+    LayerBG* layerBG = new LayerBG(this);
+    mLayers.append(layerBG);
+
+    layerBG->addNewKeyFrameAt(1);
+
+    return layerBG;
 }
 
 void Object::createWorkingDir()

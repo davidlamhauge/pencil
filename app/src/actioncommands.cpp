@@ -837,6 +837,19 @@ Status ActionCommands::addNewSoundLayer()
     return Status::OK;
 }
 
+Status ActionCommands::addNewBG_layer()
+{
+    bool ok;
+    QString text = QInputDialog::getText(nullptr, tr("Layer Properties"),
+                                         tr("Layer name:"), QLineEdit::Normal,
+                                         mEditor->layers()->nameSuggestLayer(tr("BG Layer")), &ok);
+    if (ok && !text.isEmpty())
+    {
+        mEditor->layers()->createBGlayer(text);
+    }
+    return Status::OK;
+}
+
 Status ActionCommands::deleteCurrentLayer()
 {
     LayerManager* layerMgr = mEditor->layers();
