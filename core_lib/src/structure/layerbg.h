@@ -34,15 +34,20 @@ public:
     void loadDomElement(const QDomElement& element, QString dataDirPath, ProgressCallback progressStep) override;
     Status presave(const QString& sDataFolder) override;
 
+    QString getLayerName() { return mLayerName; }
+
 protected:
     Status saveKeyFrameFile(KeyFrame*, QString strPath) override;
     KeyFrame* createKeyFrame(int position, Object*) override;
 
 private:
-    void loadImageAtFrame(QString strFilePath, QPoint topLeft, int frameNumber, qreal opacity);
+    void loadImageAtFrame(QString strFilePath, QPoint topLeft, int frameNumber, int startFrame,
+                          int endFrame, int direction, int pixels, qreal opacity);
     QString filePath(KeyFrame* key, const QDir& dataFolder) const;
     QString fileName(KeyFrame* key) const;
     bool needSaveFrame(KeyFrame* key, const QString& savePath);
+
+    QString mLayerName = "";
 
 };
 

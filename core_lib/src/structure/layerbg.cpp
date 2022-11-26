@@ -76,7 +76,11 @@ void LayerBG::loadDomElement(const QDomElement &element, QString dataDirPath, st
                     opacity = imageElement.attribute("opacity").toDouble();
                 }
                 // TODO add startframe, direction, endframe, pixels
-                loadImageAtFrame(path, QPoint(x, y), position, opacity);
+                int startFrame = imageElement.attribute("startFrame").toInt();
+                int endFrame = imageElement.attribute("endFrame").toInt();
+                int direction = imageElement.attribute("direction").toInt();
+                int pixels = imageElement.attribute("pixels").toInt();
+                loadImageAtFrame(path, QPoint(x, y), position, startFrame, endFrame, direction, pixels, opacity);
 
                 progressStep();
             }
@@ -169,12 +173,16 @@ KeyFrame *LayerBG::createKeyFrame(int position, Object *)
     return b;
 }
 
-void LayerBG::loadImageAtFrame(QString path, QPoint topLeft, int frameNumber, qreal opacity)
+void LayerBG::loadImageAtFrame(QString path, QPoint topLeft, int frameNumber, int startFrame, int endFrame, int direction, int pixels, qreal opacity)
 {
     BitmapImage* pKeyFrame = new BitmapImage(topLeft, path);
     pKeyFrame->enableAutoCrop(true);
     pKeyFrame->setPos(frameNumber);
     pKeyFrame->setOpacity(opacity);
+    pKeyFrame->setStartFrame(startFrame);
+    pKeyFrame->setEndFrame(endFrame);
+    pKeyFrame->setDirection(direction);
+    pKeyFrame->setPixels(pixels);
     loadKey(pKeyFrame);
 }
 

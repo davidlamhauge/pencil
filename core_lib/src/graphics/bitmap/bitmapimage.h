@@ -115,10 +115,21 @@ public:
      */
     bool isMinimallyBounded() const { return mMinBound; }
     void enableAutoCrop(bool b) { mEnableAutoCrop = b; }
+
+    Status writeFile(const QString& filename);
+
     void setOpacity(qreal opacity) { mOpacity = opacity; }
     qreal getOpacity() const { return mOpacity; }
 
-    Status writeFile(const QString& filename);
+    // for BG_Layers
+    int getStartFrame() { return mStartFrame; }
+    void setStartFrame(int frame) { mStartFrame = frame; }
+    int getEndFrame() { return mEndFrame; }
+    void setEndFrame(int frame) { mEndFrame = frame; }
+    int getDirection() { return mDirection; }
+    void setDirection(int direction) { mDirection = direction; }
+    int getPixels() { return mPixels; }
+    void setPixels(int pixels) { mPixels = pixels; }
 
 protected:
     void updateBounds(QRect rectangle);
@@ -136,6 +147,12 @@ private:
     bool mMinBound = true;
     bool mEnableAutoCrop = false;
     qreal mOpacity = 1.0;
+
+    // for BG_Layers
+    int mStartFrame;
+    int mEndFrame;
+    int mDirection;
+    int mPixels;
 };
 
 #endif
