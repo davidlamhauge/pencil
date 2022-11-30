@@ -124,6 +124,8 @@ public:
     // for BG_Layers
     int getStartFrame() { return mStartFrame; }
     void setStartFrame(int frame) { mStartFrame = frame; }
+    int getRepeatLength() { return mRepeatLength; }
+    void setRepeatLength(int length) { mRepeatLength = length; }
     int getEndFrame() { return mEndFrame; }
     void setEndFrame(int frame) { mEndFrame = frame; }
     int getDirection() { return mDirection; }
@@ -149,10 +151,11 @@ private:
     qreal mOpacity = 1.0;
 
     // for BG_Layers
-    int mStartFrame;
-    int mEndFrame;
-    int mDirection;
-    int mPixels;
+    int mStartFrame = 1;
+    int mRepeatLength = 50;
+    int mEndFrame = 100;
+    int mDirection = 0;
+    int mPixels = 1000;
 };
 
 #endif

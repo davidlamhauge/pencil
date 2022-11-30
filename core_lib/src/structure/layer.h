@@ -23,7 +23,6 @@ GNU General Public License for more details.
 #include <QString>
 #include <QDomElement>
 #include "pencilerror.h"
-#include "pencildef.h"
 
 class QMouseEvent;
 class QPainter;

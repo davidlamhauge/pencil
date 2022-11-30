@@ -44,7 +44,11 @@ QDomElement LayerBG::createDomElement(QDomDocument &doc) const
         imageTag.setAttribute("topLeftX", pImg->topLeft().x());
         imageTag.setAttribute("topLeftY", pImg->topLeft().y());
         imageTag.setAttribute("opacity", pImg->getOpacity());
-        // TODO add startframe, direction, endframe, pixels
+        imageTag.setAttribute("startFrame", pImg->getStartFrame());
+        imageTag.setAttribute("repeatLength", pImg->getRepeatLength());
+        imageTag.setAttribute("endFrame", pImg->getEndFrame());
+        imageTag.setAttribute("direction", pImg->getDirection());
+        imageTag.setAttribute("pixels", pImg->getPixels());
         layerElem.appendChild(imageTag);
 
         Q_ASSERT(QFileInfo(pKeyFrame->fileName()).fileName() == fileName(pKeyFrame));
@@ -75,12 +79,12 @@ void LayerBG::loadDomElement(const QDomElement &element, QString dataDirPath, st
                 if (imageElement.hasAttribute("opacity")) {
                     opacity = imageElement.attribute("opacity").toDouble();
                 }
-                // TODO add startframe, direction, endframe, pixels
                 int startFrame = imageElement.attribute("startFrame").toInt();
+                int repeatLength = imageElement.attribute("repeatLength").toInt();
                 int endFrame = imageElement.attribute("endFrame").toInt();
                 int direction = imageElement.attribute("direction").toInt();
                 int pixels = imageElement.attribute("pixels").toInt();
-                loadImageAtFrame(path, QPoint(x, y), position, startFrame, endFrame, direction, pixels, opacity);
+                loadImageAtFrame(path, QPoint(x, y), position, startFrame, repeatLength, endFrame, direction, pixels, opacity);
 
                 progressStep();
             }
@@ -173,13 +177,14 @@ KeyFrame *LayerBG::createKeyFrame(int position, Object *)
     return b;
 }
 
-void LayerBG::loadImageAtFrame(QString path, QPoint topLeft, int frameNumber, int startFrame, int endFrame, int direction, int pixels, qreal opacity)
+void LayerBG::loadImageAtFrame(QString path, QPoint topLeft, int frameNumber, int startFrame, int repeatLength, int endFrame, int direction, int pixels, qreal opacity)
 {
     BitmapImage* pKeyFrame = new BitmapImage(topLeft, path);
     pKeyFrame->enableAutoCrop(true);
     pKeyFrame->setPos(frameNumber);
     pKeyFrame->setOpacity(opacity);
     pKeyFrame->setStartFrame(startFrame);
+    pKeyFrame->setRepeatLength(repeatLength);
     pKeyFrame->setEndFrame(endFrame);
     pKeyFrame->setDirection(direction);
     pKeyFrame->setPixels(pixels);

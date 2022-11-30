@@ -22,6 +22,12 @@ GNU General Public License for more details.
 class BitmapImage;
 class QDir;
 
+enum class LayerState
+{
+    STANDARD,   // Focused on making a parallax-effect
+    REPEAT,     // Focused on forever panning backgrounds etc.
+};
+
 class LayerBG : public Layer
 {
     Q_OBJECT
@@ -34,7 +40,8 @@ public:
     void loadDomElement(const QDomElement& element, QString dataDirPath, ProgressCallback progressStep) override;
     Status presave(const QString& sDataFolder) override;
 
-    QString getLayerName() { return mLayerName; }
+    LayerState getLayerState() { return mState; }
+    void setLayerState(LayerState state) { mState = state; }
 
 protected:
     Status saveKeyFrameFile(KeyFrame*, QString strPath) override;
@@ -42,12 +49,12 @@ protected:
 
 private:
     void loadImageAtFrame(QString strFilePath, QPoint topLeft, int frameNumber, int startFrame,
-                          int endFrame, int direction, int pixels, qreal opacity);
+                          int repeatLength, int endFrame, int direction, int pixels, qreal opacity);
     QString filePath(KeyFrame* key, const QDir& dataFolder) const;
     QString fileName(KeyFrame* key) const;
     bool needSaveFrame(KeyFrame* key, const QString& savePath);
 
-    QString mLayerName = "";
+    LayerState mState = LayerState::STANDARD;
 
 };
 
