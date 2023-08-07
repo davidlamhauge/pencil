@@ -21,8 +21,6 @@ GNU General Public License for more details.
 #include <QPixmap>
 #include "object.h"
 #include "layercamera.h"
-#include "camera.h"
-#include "keyframe.h"
 
 #include "transform.h"
 
