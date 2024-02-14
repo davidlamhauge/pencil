@@ -63,11 +63,17 @@ public:
     bool visible() const { return mVisible; }
     void setVisible(bool b) { mVisible = b; }
 
+    void setHasColorLayer(bool b) { mHasColorLayer = b; }
+    bool getHasColorLayer() { return mHasColorLayer; }
+    void setIsColorLayer(bool b) { mIsColorLayer = b; }
+    bool getIsColorLayer() { return mIsColorLayer; }
+
     /** Get selected keyframe positions sorted by position */
     QList<int> selectedKeyFramesPositions() const { return mSelectedFrames_byPosition; }
 
     /** Get selected keyframe positions based on the order they were selected */
     QList<int> selectedKeyFramesByLast() const { return mSelectedFrames_byLast; }
+
 
     virtual Status saveKeyFrameFile(KeyFrame*, QString dataPath) = 0;
     virtual void loadDomElement(const QDomElement& element, QString dataDirPath, ProgressCallback progressForward) = 0;
@@ -107,6 +113,7 @@ public:
 
     void foreachKeyFrame(std::function<void(KeyFrame*)>) const;
 
+    void copyFrame(Layer *fromLayer, Layer *toLayer, int frame);
     void setModified(int position, bool isModified) const;
 
     // Handle selection
@@ -175,6 +182,8 @@ private:
     int        mId = 0;
     bool       mVisible = true;
     QString    mName;
+    bool       mHasColorLayer = false;
+    bool       mIsColorLayer = false;
 
     std::map<int, KeyFrame*, std::greater<int>> mKeyFrames;
 

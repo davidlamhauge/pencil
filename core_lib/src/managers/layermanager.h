@@ -65,6 +65,9 @@ public:
     LayerCamera* createCameraLayer(const QString& strLayerName);
     LayerSound*  createSoundLayer(const QString& strLayerName);
 
+    // color layer
+    Status copyLayer(Layer* fromLayer, Layer* toLayer);
+
     // KeyFrame Management
     int lastFrameAtFrame(int frameIndex);
     int firstKeyFrameIndex();
