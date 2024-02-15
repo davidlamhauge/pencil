@@ -63,6 +63,11 @@ public:
     bool visible() const { return mVisible; }
     void setVisible(bool b) { mVisible = b; }
 
+    void setHasColorLayer(bool b) { mHasColorLayer = b; }
+    bool getHasColorLayer() { return mHasColorLayer; }
+    void setIsColorLayer(bool b) { mIsColorLayer = b; }
+    bool getIsColorLayer() { return mIsColorLayer; }
+
     /** Get selected keyframe positions sorted by position */
     QList<int> selectedKeyFramesPositions() const { return mSelectedFrames_byPosition; }
 
@@ -175,6 +180,8 @@ private:
     int        mId = 0;
     bool       mVisible = true;
     QString    mName;
+    bool       mHasColorLayer = false;
+    bool       mIsColorLayer = false;
 
     std::map<int, KeyFrame*, std::greater<int>> mKeyFrames;
 
