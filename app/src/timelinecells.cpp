@@ -1173,6 +1173,8 @@ void TimeLineCells::editLayerProperties(LayerCamera* cameraLayer) const
     QSettings settings(PENCIL2D, PENCIL2D);
     settings.setValue(SETTING_FIELD_W, dialog.getWidth());
     settings.setValue(SETTING_FIELD_H, dialog.getHeight());
+    settings.setValue(SETTING_CAM_DISTANCE, dialog.getDistance());
+    settings.setValue(SETTING_APERTURE, dialog.getAperture());
     cameraLayer->setViewRect(QRect(-dialog.getWidth() / 2, -dialog.getHeight() / 2, dialog.getWidth(), dialog.getHeight()));
     mEditor->view()->forceUpdateViewTransform();
 }

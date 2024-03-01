@@ -171,7 +171,10 @@ public:
     qreal getNearDistance() { return mNearDistance; }
     void setFarDistance(qreal dist) { mFarDistance = dist; }
     qreal getFarDistance() { return mFarDistance; }
-    void updateFarNearDistance(qreal near, qreal far);
+
+public slots:
+
+    void updateFarNearDistance(qreal distance, qreal aperture);
 
 protected:
     virtual KeyFrame* createKeyFrame(int position) = 0;

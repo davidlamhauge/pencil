@@ -36,6 +36,10 @@ public:
     void setWidth(int);
     int getHeight();
     void setHeight(int);
+    qreal getDistance();
+    void setDistance(qreal dist);
+    qreal getAperture();
+    void setAperture(qreal aperture);
 
 private:
     Ui::CameraPropertiesDialog* ui = nullptr;

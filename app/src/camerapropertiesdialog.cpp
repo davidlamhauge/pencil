@@ -63,3 +63,23 @@ void CameraPropertiesDialog::setHeight(int height)
 {
     ui->heightBox->setValue(height);
 }
+
+qreal CameraPropertiesDialog::getDistance()
+{
+    return ui->distanceSpinBox->value();
+}
+
+void CameraPropertiesDialog::setDistance(qreal dist)
+{
+    ui->distanceSpinBox->setValue(dist);
+}
+
+qreal CameraPropertiesDialog::getAperture()
+{
+    return ui->apertureBox->itemData(ui->apertureBox->currentIndex()).toDouble();
+}
+
+void CameraPropertiesDialog::setAperture(qreal aperture)
+{
+    ui->apertureBox->setCurrentText(QString::number(aperture));
+}

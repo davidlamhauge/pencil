@@ -679,6 +679,7 @@ bool Layer::isPaintable() const
 
 void Layer::updateFarNearDistance(qreal distance, qreal aperture)
 {
+//    qreal focalLength = 50.0f;
     qreal hyperFocalDist = getHyperfocalDistance(50, aperture);
     mNearDistance = getDistanceNear(hyperFocalDist, distance, 50);
     mFarDistance = getDistanceFar(hyperFocalDist, distance, 50);
