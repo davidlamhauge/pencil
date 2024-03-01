@@ -22,6 +22,7 @@ GNU General Public License for more details.
 #include <QPainter>
 #include <QDomElement>
 #include "keyframe.h"
+#include "blurutils.h"
 
 // Used to sort the selected frames list
 bool sortAsc(int left, int right)
@@ -674,6 +675,13 @@ bool Layer::moveSelectedFrames(int offset)
 bool Layer::isPaintable() const
 {
     return (type() == BITMAP || type() == VECTOR);
+}
+
+void Layer::updateFarNearDistance(qreal distance, qreal aperture)
+{
+    qreal hyperFocalDist = getHyperfocalDistance(50, aperture);
+    mNearDistance = getDistanceNear(hyperFocalDist, distance, 50);
+    mFarDistance = getDistanceFar(hyperFocalDist, distance, 50);
 }
 
 bool Layer::keyExistsWhichCovers(int frameNumber)

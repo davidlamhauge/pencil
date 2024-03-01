@@ -164,6 +164,15 @@ public:
     /** Clear the list of dirty keyframes */
     void clearDirtyFrames() { mDirtyFrames.clear(); }
 
+    // for depth of field
+    void setDistance(qreal dist) { mDistance = dist; }
+    qreal getDistance() { return mDistance; }
+    void setNearDistance(qreal dist) { mNearDistance = dist; }
+    qreal getNearDistance() { return mNearDistance; }
+    void setFarDistance(qreal dist) { mFarDistance = dist; }
+    qreal getFarDistance() { return mFarDistance; }
+    void updateFarNearDistance(qreal near, qreal far);
+
 protected:
     virtual KeyFrame* createKeyFrame(int position) = 0;
     bool loadKey(KeyFrame*);
@@ -175,6 +184,11 @@ private:
     int        mId = 0;
     bool       mVisible = true;
     QString    mName;
+
+    // vars for depth of field
+    qreal mDistance = 10.0f; // standard distance from camera to layer
+    qreal mNearDistance = 10.0f; // nearest distance, where the object will be i "acceptable" focus
+    qreal mFarDistance = 10.0f; // farthest distance, where the object will be i "acceptable" focus
 
     std::map<int, KeyFrame*, std::greater<int>> mKeyFrames;
 

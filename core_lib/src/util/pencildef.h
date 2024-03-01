@@ -241,6 +241,8 @@ const static float RotationHandleOffset = 50;
 #define SETTING_FPS                 "Fps"
 #define SETTING_FIELD_W             "FieldW"
 #define SETTING_FIELD_H             "FieldH"
+#define SETTING_APERTURE            "Aperture"
+#define SETTING_CAM_DISTANCE        "CamDistance"
 #define SETTING_FRAME_SIZE          "FrameSize"
 #define SETTING_TIMELINE_SIZE       "TimelineSize"
 #define SETTING_LABEL_FONT_SIZE     "LabelFontSize"

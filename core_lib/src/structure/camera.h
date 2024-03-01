@@ -58,7 +58,21 @@ public:
     void setPathControlPointMoved(bool pathMoved);
     bool pathControlPointMoved() const { return mPathControlPointMoved; }
 
+    void setDistance(qreal dist) { mDistance = dist; }
+    qreal getDistance() { return mDistance; }
+    void setAperture(qreal aperture) { mAperture = aperture; }
+    qreal getAperture() { return mAperture; }
+
+signals:
+
+    void settingsChanged(qreal mDistance, qreal mAperture);
+
 private:
+
+    // values used for depth of field
+    qreal mDistance = 10.0f; // standard distance setting on camera
+    qreal mAperture = 8.0f;  // standard aperture setting on camera
+
     QTransform mView;
     QPointF mTranslate;
     qreal mRotate = 0.;

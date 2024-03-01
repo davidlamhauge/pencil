@@ -40,6 +40,8 @@ public:
     void repositionFrame(QPoint point, int frame);
     QRect getFrameBounds(int frame);
 
+    void updateDistanceNearFar();
+
 protected:
     Status saveKeyFrameFile(KeyFrame*, QString strPath) override;
     KeyFrame* createKeyFrame(int position) override;
