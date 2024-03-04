@@ -554,6 +554,8 @@ QDomElement LayerCamera::createDomElement(QDomDocument& doc) const
     QDomElement layerElem = createBaseDomElement(doc);
     layerElem.setAttribute("width", viewRect.width());
     layerElem.setAttribute("height", viewRect.height());
+    layerElem.setAttribute("aperture", mAperture);
+    layerElem.setAttribute("distance", mDistance);
 
     if (mShowPath) {
         layerElem.setAttribute("showPath", mShowPath);
@@ -596,6 +598,10 @@ void LayerCamera::loadDomElement(const QDomElement& element, QString dataDirPath
 
     int width = element.attribute("width").toInt();
     int height = element.attribute("height").toInt();
+    qreal aperture = element.attribute("aperture", "8").toDouble();
+    setAperture(aperture);
+    qreal distance = element.attribute("distance", "10").toDouble();
+    setDistance(distance);
     mShowPath = element.attribute("showPath").toInt();
     updateDotColor(static_cast<DotColorType>(element.attribute("pathColorType").toInt()));
     viewRect = QRect(-width / 2, -height / 2, width, height);

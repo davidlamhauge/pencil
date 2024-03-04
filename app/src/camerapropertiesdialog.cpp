@@ -18,7 +18,7 @@ GNU General Public License for more details.
 #include "camerapropertiesdialog.h"
 #include "ui_camerapropertiesdialog.h"
 
-CameraPropertiesDialog::CameraPropertiesDialog(const QString& name, int width, int height) :
+CameraPropertiesDialog::CameraPropertiesDialog(const QString &name, int width, int height, qreal aperture, qreal distance) :
     QDialog(),
     ui(new Ui::CameraPropertiesDialog)
 {
@@ -27,6 +27,10 @@ CameraPropertiesDialog::CameraPropertiesDialog(const QString& name, int width, i
     ui->nameBox->setText(name);
     ui->widthBox->setValue(width);
     ui->heightBox->setValue(height);
+    ui->apertureBox->setCurrentText(QString::number(aperture));
+    ui->distanceSpinBox->setValue(distance);
+
+    connect(ui->btnResetSettings, &QPushButton::clicked, this, &CameraPropertiesDialog::resetDialog);
 }
 
 CameraPropertiesDialog::~CameraPropertiesDialog()
@@ -76,10 +80,16 @@ void CameraPropertiesDialog::setDistance(qreal dist)
 
 qreal CameraPropertiesDialog::getAperture()
 {
-    return ui->apertureBox->itemData(ui->apertureBox->currentIndex()).toDouble();
+    return ui->apertureBox->itemText(ui->apertureBox->currentIndex()).toDouble();
 }
 
 void CameraPropertiesDialog::setAperture(qreal aperture)
 {
     ui->apertureBox->setCurrentText(QString::number(aperture));
+}
+
+void CameraPropertiesDialog::resetDialog()
+{
+    ui->apertureBox->setCurrentText(QString::number(8.0f));
+    ui->distanceSpinBox->setValue(10.0f);
 }

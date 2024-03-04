@@ -28,7 +28,7 @@ class CameraPropertiesDialog : public QDialog
 {
     Q_OBJECT
 public:
-    CameraPropertiesDialog(const QString& name, int width, int height);
+    CameraPropertiesDialog(const QString& name, int width, int height, qreal aperture, qreal distance);
     ~CameraPropertiesDialog() override;
     QString getName();
     void setName(const QString& name);
@@ -40,6 +40,10 @@ public:
     void setDistance(qreal dist);
     qreal getAperture();
     void setAperture(qreal aperture);
+    void resetDialog();
+
+signals:
+    void propertiesChanged();
 
 private:
     Ui::CameraPropertiesDialog* ui = nullptr;

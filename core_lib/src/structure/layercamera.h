@@ -17,6 +17,7 @@ GNU General Public License for more details.
 #ifndef LAYERCAMERA_H
 #define LAYERCAMERA_H
 
+#include <QDebug>
 #include <QRect>
 #include <QColor>
 #include "layer.h"
@@ -68,6 +69,11 @@ public:
     void splitControlPointIfNeeded(int frame) const;
     void mergeControlPointIfNeeded(int frame) const;
 
+    void setAperture(qreal aper) { mAperture = aper; }
+    qreal getAperture() { return mAperture; }
+    void setDistance(qreal dist) { mDistance = dist; }
+    qreal getDistance() { return mDistance; }
+
 protected:
     Status saveKeyFrameFile(KeyFrame*, QString path) override;
     KeyFrame* createKeyFrame(int position) override;
@@ -76,6 +82,10 @@ private:
     void linearInterpolateTransform(Camera*);
     qreal getInterpolationPercent(CameraEasingType type, qreal percent) const;
     QPointF getBezierPoint(const QPointF& first, const QPointF& last, const QPointF& pathPoint, qreal percent) const;
+
+    // values specific for camera depth of field
+    qreal mAperture = 8.0f;
+    qreal mDistance = 10.0f;
 
     int mFieldW = 800;
     int mFieldH = 600;

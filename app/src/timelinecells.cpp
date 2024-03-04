@@ -1158,8 +1158,11 @@ void TimeLineCells::editLayerProperties(LayerCamera* cameraLayer) const
 {
     QRegularExpression regex("([\\x{FFEF}-\\x{FFFF}])+");
 
-    CameraPropertiesDialog dialog(cameraLayer->name(), cameraLayer->getViewRect().width(),
-                                  cameraLayer->getViewRect().height());
+    CameraPropertiesDialog dialog(cameraLayer->name(),
+                                  cameraLayer->getViewRect().width(),
+                                  cameraLayer->getViewRect().height(),
+                                  cameraLayer->getAperture(),
+                                  cameraLayer->getDistance());
     if (dialog.exec() != QDialog::Accepted)
     {
         return;
@@ -1173,9 +1176,9 @@ void TimeLineCells::editLayerProperties(LayerCamera* cameraLayer) const
     QSettings settings(PENCIL2D, PENCIL2D);
     settings.setValue(SETTING_FIELD_W, dialog.getWidth());
     settings.setValue(SETTING_FIELD_H, dialog.getHeight());
-    settings.setValue(SETTING_CAM_DISTANCE, dialog.getDistance());
-    settings.setValue(SETTING_APERTURE, dialog.getAperture());
     cameraLayer->setViewRect(QRect(-dialog.getWidth() / 2, -dialog.getHeight() / 2, dialog.getWidth(), dialog.getHeight()));
+    cameraLayer->setAperture(dialog.getAperture());
+    cameraLayer->setDistance(dialog.getDistance());
     mEditor->view()->forceUpdateViewTransform();
 }
 
