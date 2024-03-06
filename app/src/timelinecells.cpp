@@ -25,6 +25,7 @@ GNU General Public License for more details.
 #include <QSettings>
 
 #include "camerapropertiesdialog.h"
+#include "layerpropertiesdialog.h"
 #include "editor.h"
 #include "keyframe.h"
 #include "layermanager.h"
@@ -33,6 +34,8 @@ GNU General Public License for more details.
 #include "playbackmanager.h"
 #include "preferencemanager.h"
 #include "timeline.h"
+#include "layerbitmap.h"
+#include "layervector.h"
 
 #include "cameracontextmenu.h"
 
@@ -1145,16 +1148,19 @@ void TimeLineCells::editLayerProperties(Layer *layer) const
 {
     if (layer->type() != Layer::CAMERA)
     {
-        editLayerName(layer);
+        if (layer->type() == Layer::SOUND)
+            editLayerName(layer);       // soundlayer can only change name
+        else
+            editLayerSettings(layer);   // bitmap and vector layers can also change distance
         return;
     }
 
     auto cameraLayer = dynamic_cast<LayerCamera*>(layer);
     Q_ASSERT(cameraLayer);
-    editLayerProperties(cameraLayer);
+    editCameraLayerProperties(cameraLayer);
 }
 
-void TimeLineCells::editLayerProperties(LayerCamera* cameraLayer) const
+void TimeLineCells::editCameraLayerProperties(LayerCamera* cameraLayer) const
 {
     QRegularExpression regex("([\\x{FFEF}-\\x{FFFF}])+");
 
@@ -1197,6 +1203,29 @@ void TimeLineCells::editLayerName(Layer* layer) const
     }
 
     mEditor->layers()->renameLayer(layer, name);
+}
+
+void TimeLineCells::editLayerSettings(Layer *layer) const
+{
+    auto artLayer = dynamic_cast<LayerBitmap*>(layer);
+    Q_ASSERT(artLayer);
+    if (layer->type() == Layer::VECTOR)
+    {
+        auto artLayer = dynamic_cast<LayerVector*>(layer);
+        Q_ASSERT(artLayer);
+    }
+    QRegularExpression regex("([\\x{FFEF}-\\x{FFFF}])+");
+
+    layerPropertiesDialog dialog(artLayer->name(),
+                                  artLayer->getDistance());
+    if (dialog.exec() != QDialog::Accepted)
+    {
+        return;
+    }
+    QString name = dialog.updateName().replace(regex, "");
+    artLayer->setName(name);
+    artLayer->setDistance(dialog.updateDistance());
+
 }
 
 void TimeLineCells::hScrollChange(int x)

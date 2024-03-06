@@ -108,12 +108,14 @@ HEADERS += \
     src/commandlineexporter.h \
     src/statusbar.h \
     src/elidedlabel.h \
-    src/cameraoptionswidget.h
+    src/cameraoptionswidget.h \
+    src/layerpropertiesdialog.h
 
 SOURCES += \
     src/importlayersdialog.cpp \
     src/importpositiondialog.cpp \
     src/layeropacitydialog.cpp \
+    src/layerpropertiesdialog.cpp \
     src/main.cpp \
     src/mainwindow2.cpp \
     src/onionskinwidget.cpp \
@@ -169,6 +171,7 @@ FORMS += \
     ui/importlayersdialog.ui \
     ui/importpositiondialog.ui \
     ui/layeropacitydialog.ui \
+    ui/layerpropertiesdialog.ui \
     ui/mainwindow2.ui \
     ui/onionskin.ui \
     ui/pegbaralignmentdialog.ui \

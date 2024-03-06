@@ -165,8 +165,8 @@ public:
     void clearDirtyFrames() { mDirtyFrames.clear(); }
 
     // for depth of field
-    void setDistance(qreal dist) { mDistance = dist; }
-    qreal getDistance() { return mDistance; }
+    void setDistance(qreal dist) const { mDistance = dist; }
+    qreal getDistance() const { return mDistance; }
     void setNearDistance(qreal dist) { mNearDistance = dist; }
     qreal getNearDistance() { return mNearDistance; }
     void setFarDistance(qreal dist) { mFarDistance = dist; }
@@ -189,7 +189,7 @@ private:
     QString    mName;
 
     // vars for depth of field
-    qreal mDistance = 10.0f; // standard distance from camera to layer
+    mutable qreal mDistance = 10.0f; // standard distance from camera to layer
     qreal mNearDistance = 10.0f; // nearest distance, where the object will be i "acceptable" focus
     qreal mFarDistance = 10.0f; // farthest distance, where the object will be i "acceptable" focus
 

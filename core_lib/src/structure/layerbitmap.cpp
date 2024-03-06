@@ -180,6 +180,7 @@ bool LayerBitmap::needSaveFrame(KeyFrame* key, const QString& savePath)
 QDomElement LayerBitmap::createDomElement(QDomDocument& doc) const
 {
     QDomElement layerElem = createBaseDomElement(doc);
+    layerElem.setAttribute("distance", getDistance());
 
     foreachKeyFrame([&](KeyFrame* pKeyFrame)
     {
@@ -195,13 +196,19 @@ QDomElement LayerBitmap::createDomElement(QDomDocument& doc) const
 
         Q_ASSERT(QFileInfo(pKeyFrame->fileName()).fileName() == fileName(pKeyFrame));
     });
-
+/*
+    // Here we append a new element to the end of the document
+    QDomElement distance = doc.createElement("dist");
+    distance.setAttribute("dist", getDistance());
+    layerElem.appendChild(distance);
+*/
     return layerElem;
 }
 
 void LayerBitmap::loadDomElement(const QDomElement& element, QString dataDirPath, ProgressCallback progressStep)
 {
     this->loadBaseDomElement(element);
+    setDistance(element.attribute("distance").toDouble());
 
     QDomNode imageTag = element.firstChild();
     while (!imageTag.isNull())

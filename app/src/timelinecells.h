@@ -21,6 +21,9 @@ GNU General Public License for more details.
 #include <QString>
 #include <QWidget>
 #include "layercamera.h"
+#include "layerbitmap.h"
+#include "layervector.h"
+#include "layersound.h"
 
 class Layer;
 enum class LayerVisibility;
@@ -113,8 +116,9 @@ private:
     void paintHighlightedFrame(QPainter& painter, int framePos, int recTop, int recWidth, int recHeight) const;
 
     void editLayerProperties(Layer* layer) const;
-    void editLayerProperties(LayerCamera *layer) const;
+    void editCameraLayerProperties(LayerCamera *layer) const;
     void editLayerName(Layer* layer) const;
+    void editLayerSettings(Layer* layer) const;
 
     TimeLine* mTimeLine;
     Editor* mEditor; // the editor for which this timeLine operates
