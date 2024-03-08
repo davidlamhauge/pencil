@@ -67,6 +67,7 @@ HEADERS += \
     src/onionskinwidget.h \
     src/predefinedsetmodel.h \
     src/pegbaralignmentdialog.h \
+    src/previewframesdialog.h \
     src/shortcutfilter.h \
     src/actioncommands.h \
     src/preferencesdialog.h \
@@ -121,6 +122,7 @@ SOURCES += \
     src/onionskinwidget.cpp \
     src/predefinedsetmodel.cpp \
     src/pegbaralignmentdialog.cpp \
+    src/previewframesdialog.cpp \
     src/shortcutfilter.cpp \
     src/actioncommands.cpp \
     src/preferencesdialog.cpp \
@@ -165,6 +167,7 @@ SOURCES += \
     src/cameraoptionswidget.cpp
 
 FORMS += \
+    ui/previewframesdialog.ui \
     ui/cameraoptionswidget.ui \
     ui/camerapropertiesdialog.ui \
     ui/importimageseqpreview.ui \

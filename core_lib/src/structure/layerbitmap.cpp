@@ -15,6 +15,7 @@ GNU General Public License for more details.
 
 */
 #include "layerbitmap.h"
+#include "blurutils.h"
 
 #include <QDebug>
 #include <QDir>
@@ -60,7 +61,8 @@ QRect LayerBitmap::getFrameBounds(int frame)
 
 void LayerBitmap::updateDistanceNearFar()
 {
-
+    qreal distance = getDistance();
+    qreal hyperFocalDist = getHyperfocalDistance(50.0f, 2.8f);
 }
 
 void LayerBitmap::loadImageAtFrame(QString path, QPoint topLeft, int frameNumber, qreal opacity)

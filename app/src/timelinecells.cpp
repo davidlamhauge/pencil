@@ -1185,6 +1185,7 @@ void TimeLineCells::editCameraLayerProperties(LayerCamera* cameraLayer) const
     cameraLayer->setViewRect(QRect(-dialog.getWidth() / 2, -dialog.getHeight() / 2, dialog.getWidth(), dialog.getHeight()));
     cameraLayer->setAperture(dialog.getAperture());
     cameraLayer->setDistance(dialog.getDistance());
+    emit cameraLayer->settingsChanged(cameraLayer->getDistance(), cameraLayer->getAperture());
     mEditor->view()->forceUpdateViewTransform();
 }
 
@@ -1225,7 +1226,6 @@ void TimeLineCells::editLayerSettings(Layer *layer) const
     QString name = dialog.updateName().replace(regex, "");
     artLayer->setName(name);
     artLayer->setDistance(dialog.updateDistance());
-
 }
 
 void TimeLineCells::hScrollChange(int x)

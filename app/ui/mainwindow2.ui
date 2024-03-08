@@ -49,7 +49,7 @@
      <x>0</x>
      <y>0</y>
      <width>831</width>
-     <height>24</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -213,6 +213,7 @@
     <addaction name="actionShowOutlinesOnly"/>
     <addaction name="separator"/>
     <addaction name="actionPreview"/>
+    <addaction name="actionPreview_frames"/>
    </widget>
    <widget class="QMenu" name="menuAnimation">
     <property name="title">
@@ -1283,6 +1284,11 @@
    </property>
    <property name="text">
     <string>30°</string>
+   </property>
+  </action>
+  <action name="actionPreview_frames">
+   <property name="text">
+    <string>Preview frames</string>
    </property>
   </action>
  </widget>

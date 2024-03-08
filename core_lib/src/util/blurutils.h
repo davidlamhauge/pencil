@@ -32,9 +32,9 @@ inline qreal getDistanceFar(qreal h, qreal s, qreal fLength)
     return (s*(h-fLength))/(h-s);
 }
 
-/** Get hyperfocal distance using coc, focal length and f-number.
+/** Get hyperfocal distance using coc, focal length and f-number/aperture.
  *
- * Hyperfoacal distance is a distance beyond which,
+ * Hyperfocal distance is a distance beyond which,
  * all objects can be brought into an "acceptable" focus.
  * coc is Circle of confusion (=0.03)
  * \param fLength in the cameras focal length, can vary from 30-300 mm (standard is 50 mm)
