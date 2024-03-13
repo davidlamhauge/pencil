@@ -4,27 +4,33 @@
 #include <QDialog>
 
 namespace Ui {
-class previewFramesDialog;
+class PreviewFramesDialog;
 }
 
-class previewFramesDialog : public QDialog
+class PreviewFramesDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit previewFramesDialog(int maxFrame, int currentFrame);
-    ~previewFramesDialog();
+    explicit PreviewFramesDialog(int maxFrame, int currentFrame);
+    ~PreviewFramesDialog();
 
     void gotoFrame();
     void frameChanged(int frame);
 
     void setMaxFrame(int max) { mMaxFrame = max; }
     int  getMaxFrame() { return mMaxFrame; }
+    void setCurrentFrame(int curr) { mCurrentFrame = curr; }
+    int getCurrentFrame() { return mCurrentFrame; }
+
+signals:
+    void currentFrameChanged(int);
 
 private:
     int mMinFrame = 1;
     int mMaxFrame = 100;
-    Ui::previewFramesDialog *ui;
+    int mCurrentFrame = 1;
+    Ui::PreviewFramesDialog *ui;
 };
 
 #endif // PREVIEWFRAMESDIALOG_H

@@ -17,6 +17,7 @@ GNU General Public License for more details.
 */
 
 #include "mainwindow2.h"
+#include "previewframesdialog.h"
 #include "ui_mainwindow2.h"
 
 // Qt headers
@@ -323,6 +324,7 @@ void MainWindow2::createMenus()
     connect(ui->actionHorizontal_Flip, &QAction::triggered, mEditor->view(), &ViewManager::flipHorizontal);
     connect(ui->actionVertical_Flip, &QAction::triggered, mEditor->view(), &ViewManager::flipVertical);
     connect(mEditor->view(), &ViewManager::viewFlipped, this, &MainWindow2::viewFlipped);
+    connect(ui->actionPreview_frames, &QAction::triggered, this , &MainWindow2::previewFrames);
 
     PreferenceManager* prefs = mEditor->preference();
     connect(ui->actionStatusBar, &QAction::triggered, ui->statusBar, &QStatusBar::setVisible);
@@ -957,6 +959,18 @@ void MainWindow2::importAnimatedImage()
     mCommands->importAnimatedImage();
 
     mSuppressAutoSaveDialog = false;
+}
+
+void MainWindow2::previewFrames()
+{
+    int currFrame = mEditor->currentFrame();
+    auto layer = mEditor->layers()->currentLayer();
+    if (layer->type() == Layer::SOUND || layer->type() == Layer::CAMERA)
+        return;
+
+    int maxFrame = layer->getMaxKeyFramePosition();
+    PreviewFramesDialog* preview = new PreviewFramesDialog(maxFrame, currFrame);
+    preview->open();
 }
 
 void MainWindow2::lockWidgets(bool shouldLock)
