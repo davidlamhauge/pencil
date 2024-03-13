@@ -74,9 +74,6 @@ public:
     void setDistance(qreal dist) { mDistance = dist; }
     qreal getDistance() { return mDistance; }
 
-signals:
-    void settingsChanged(qreal mDistance, qreal mAperture);
-
 protected:
     Status saveKeyFrameFile(KeyFrame*, QString path) override;
     KeyFrame* createKeyFrame(int position) override;

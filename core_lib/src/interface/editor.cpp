@@ -95,8 +95,8 @@ bool Editor::init()
 
     makeConnections();
 
-    mIsAutosave = mPreferenceManager->isOn(::AUTO_SAVE);
-    mAutosaveNumber = mPreferenceManager->getInt(::AUTO_SAVE_NUMBER);
+    mIsAutosave = mPreferenceManager->isOn(SETTING::AUTO_SAVE);
+    mAutosaveNumber = mPreferenceManager->getInt(SETTING::AUTO_SAVE_NUMBER);
 
     return true;
 }
@@ -113,7 +113,7 @@ int Editor::fps()
 
 void Editor::setFps(int fps)
 {
-    mPreferenceManager->set(::FPS, fps);
+    mPreferenceManager->set(SETTING::FPS, fps);
     emit fpsChanged(fps);
 }
 
