@@ -24,5 +24,6 @@ PreviewFramesDialog::~PreviewFramesDialog()
 void PreviewFramesDialog::frameChanged(int frame)
 {
     setCurrentFrame(frame);
+    currentFrameChanged(frame);
     ui->labFrame->setText(QString::number(frame));
 }

@@ -17,7 +17,6 @@ GNU General Public License for more details.
 */
 
 #include "mainwindow2.h"
-#include "previewframesdialog.h"
 #include "ui_mainwindow2.h"
 
 // Qt headers
@@ -68,6 +67,7 @@ GNU General Public License for more details.
 #include "onionskinwidget.h"
 #include "pegbaralignmentdialog.h"
 #include "repositionframesdialog.h"
+#include "previewframesdialog.h"
 
 //#include "preview.h"
 #include "errordialog.h"
@@ -968,9 +968,10 @@ void MainWindow2::previewFrames()
     if (layer->type() == Layer::SOUND || layer->type() == Layer::CAMERA)
         return;
 
-    int maxFrame = layer->getMaxKeyFramePosition();
-    PreviewFramesDialog* preview = new PreviewFramesDialog(maxFrame, currFrame);
-    preview->open();
+    int maxFrame = mEditor->layers()->animationLength(true);
+    mPreviewFramesDialog = new PreviewFramesDialog(maxFrame, currFrame);
+    connect(mPreviewFramesDialog, &PreviewFramesDialog::currentFrameChanged, mEditor, &Editor::scrubTo);
+    mPreviewFramesDialog->exec();
 }
 
 void MainWindow2::lockWidgets(bool shouldLock)
