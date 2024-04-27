@@ -1,8 +1,8 @@
 /*
 
-Pencil - Traditional Animation Software
+Pencil2D - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,7 +19,9 @@ GNU General Public License for more details.
 #define BRUSHTOOL_H
 
 #include "stroketool.h"
+#include <QColor>
 
+class Layer;
 
 class BrushTool : public StrokeTool
 {
@@ -37,16 +39,13 @@ public:
     void pointerReleaseEvent(PointerEvent*) override;
 
     void drawStroke();
-    void paintVectorStroke();
-    void paintBitmapStroke();
+    void paintVectorStroke(Layer* layer);
     void paintAt(QPointF point);
 
     void setWidth(const qreal width) override;
     void setFeather(const qreal feather) override;
-    void setUseFeather(const bool usingFeather) override;
     void setPressure(const bool pressure) override;
     void setInvisibility(const bool invisibility) override;
-    void setAA(const int useAA) override;
     void setStabilizerLevel(const int level) override;
 
 protected:

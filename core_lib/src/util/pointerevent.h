@@ -7,19 +7,34 @@
 class PointerEvent
 {
 public:
-    PointerEvent(QMouseEvent* event);
-    PointerEvent(QTabletEvent* event);
+    enum InputType {
+        Mouse,
+        Tablet,
+        Touch,
+        Unknown
+    };
+
+    enum Type {
+        Press,
+        Move,
+        Release,
+        Unmapped
+    };
+
+    PointerEvent(QMouseEvent* event, const QPointF& canvasPos);
+    PointerEvent(QTabletEvent* event, const QPointF& canvasPos);
     ~PointerEvent();
 
     /**
-     * Returns QPoint of the device */
-    QPoint pos() const;
+     * Returns the QPointF of the device, in canvas coordinates
+     */
+    QPointF canvasPos() const;
 
     /**
-     * Returns the QPointF of the device
+     * Returns the QPointF of the device, in viewport coordinates
      * Returns pos() if used on mouse event
      */
-    QPointF posF() const;
+    QPointF viewportPos() const;
 
     /**
      * Returns a value between 0 and 1 for tablet events,
@@ -61,14 +76,23 @@ public:
     void accept();
     void ignore();
 
-    QEvent::Type type() const;
+    bool isAccepted();
 
+    Type eventType() const;
+    InputType inputType() const;
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QInputDevice::DeviceType device() const;
+    QPointingDevice::PointerType pointerType() const;
+#else
     QTabletEvent::TabletDevice device() const;
     QTabletEvent::PointerType pointerType() const;
+#endif
 
 private:
     QTabletEvent* mTabletEvent = nullptr;
     QMouseEvent* mMouseEvent = nullptr;
+    QPointF mCanvasPos;
 };
 
 #endif // POINTEREVENT_H

@@ -1,8 +1,8 @@
 /*
 
-Pencil - Traditional Animation Software
+Pencil2D - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -20,6 +20,8 @@ GNU General Public License for more details.
 
 #include "basetool.h"
 
+class LayerBitmap;
+class LayerVector;
 
 class EyedropperTool : public BaseTool
 {
@@ -29,14 +31,20 @@ public:
     ToolType type() override { return EYEDROPPER; }
     void loadSettings() override;
     QCursor cursor() override;
-    QCursor cursor( const QColor colour );
+    QCursor cursor( const QColor color );
 
     void pointerPressEvent( PointerEvent* ) override;
     void pointerReleaseEvent( PointerEvent* event ) override;
-    void pointerMoveEvent( PointerEvent* ) override;
+    void pointerMoveEvent( PointerEvent* event ) override;
 
     /** Updates front color for bitmap and color index for vector */
-    void updateFrontColor();
+    void updateFrontColor(const QPointF& pos);
+
+private:
+    /** Retrieves color of the pixel under the cursor for a bitmap layer */
+    QColor getBitmapColor(LayerBitmap* layer, const QPointF& pos);
+    /** Retrieves the color index of the pixel under the cursor for a vector layer */
+    int getVectorColor(LayerVector *layer, const QPointF& pos);
 };
 
 #endif // EYEDROPPERTOOL_H

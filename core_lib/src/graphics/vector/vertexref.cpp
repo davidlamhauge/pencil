@@ -1,8 +1,8 @@
 /*
 
-Pencil - Traditional Animation Software
+Pencil2D - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -27,17 +27,17 @@ VertexRef::VertexRef(int curveN, int vertexN)
     vertexNumber = vertexN;
 }
 
-VertexRef VertexRef::nextVertex()
+VertexRef VertexRef::nextVertex() const
 {
     return VertexRef(curveNumber, vertexNumber+1);
 }
 
-VertexRef VertexRef::prevVertex()
+VertexRef VertexRef::prevVertex() const
 {
     return VertexRef(curveNumber, vertexNumber-1);
 }
 
-bool VertexRef::operator==(VertexRef vertexRef1)
+bool VertexRef::operator==(VertexRef vertexRef1) const
 {
     if ( (curveNumber == vertexRef1.curveNumber) && (vertexNumber == vertexRef1.vertexNumber))
     {
@@ -49,7 +49,7 @@ bool VertexRef::operator==(VertexRef vertexRef1)
     }
 }
 
-bool VertexRef::operator!=(VertexRef vertexRef1)
+bool VertexRef::operator!=(VertexRef vertexRef1) const
 {
     if ( (curveNumber != vertexRef1.curveNumber) || (vertexNumber != vertexRef1.vertexNumber))
     {

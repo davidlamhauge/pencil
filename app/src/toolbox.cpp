@@ -1,8 +1,8 @@
 /*
 
-Pencil - Traditional Animation Software
+Pencil2D - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2013-2018 Matt Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -23,11 +23,13 @@ GNU General Public License for more details.
 #include <QToolButton>
 #include <QGridLayout>
 #include <QKeySequence>
+#include <QResizeEvent>
 
 #include "flowlayout.h"
 #include "spinslider.h"
 #include "editor.h"
 #include "toolmanager.h"
+#include "layermanager.h"
 #include "pencilsettings.h"
 
 // ----------------------------------------------------------------------------------
@@ -70,7 +72,6 @@ void ToolBoxWidget::initUI()
     ui->bucketButton->setStyleSheet(sStyle);
     ui->brushButton->setStyleSheet(sStyle);
     ui->eyedropperButton->setStyleSheet(sStyle);
-    ui->clearButton->setStyleSheet(sStyle);
     ui->smudgeButton->setStyleSheet(sStyle);
 #endif
 
@@ -95,8 +96,6 @@ void ToolBoxWidget::initUI()
     ui->eyedropperButton->setToolTip( tr( "Eyedropper Tool (%1): "
             "Set color from the stage<br>[ALT] for instant access" )
         .arg( GetToolTips( CMD_TOOL_EYEDROPPER ) ) );
-    ui->clearButton->setToolTip( tr( "Clear Frame (%1): Erases content of selected frame" )
-        .arg( GetToolTips( CMD_CLEAR_FRAME ) ) );
     ui->smudgeButton->setToolTip( tr( "Smudge Tool (%1):<br>Edit polyline/curves<br>"
             "Liquify bitmap pixels<br> (%1)+[Alt]: Smooth" )
         .arg( GetToolTips( CMD_TOOL_SMUDGE ) ) );
@@ -121,12 +120,9 @@ void ToolBoxWidget::initUI()
         .arg( GetToolTips( CMD_TOOL_BRUSH ) ) );
     ui->eyedropperButton->setWhatsThis( tr( "Eyedropper Tool (%1)" )
         .arg( GetToolTips( CMD_TOOL_EYEDROPPER ) ) );
-    ui->clearButton->setWhatsThis( tr( "Clear Tool (%1)" )
-        .arg( GetToolTips( CMD_CLEAR_FRAME ) ) );
     ui->smudgeButton->setWhatsThis( tr( "Smudge Tool (%1)" )
         .arg( GetToolTips( CMD_TOOL_SMUDGE ) ) );
 
-    connect(ui->clearButton, &QToolButton::clicked, this, &ToolBoxWidget::clearButtonClicked);
     connect(ui->pencilButton, &QToolButton::clicked, this, &ToolBoxWidget::pencilOn);
     connect(ui->eraserButton, &QToolButton::clicked, this, &ToolBoxWidget::eraserOn);
     connect(ui->selectButton, &QToolButton::clicked, this, &ToolBoxWidget::selectOn);
@@ -139,10 +135,11 @@ void ToolBoxWidget::initUI()
     connect(ui->brushButton, &QToolButton::clicked, this, &ToolBoxWidget::brushOn);
     connect(ui->smudgeButton, &QToolButton::clicked, this, &ToolBoxWidget::smudgeOn);
 
-    delete ui->toolGroup->layout();
+    connect(editor()->layers(), &LayerManager::currentLayerChanged, this, &ToolBoxWidget::onLayerDidChange);
+
+
     FlowLayout* flowlayout = new FlowLayout;
 
-    flowlayout->addWidget(ui->clearButton);
     flowlayout->addWidget(ui->pencilButton);
     flowlayout->addWidget(ui->eraserButton);
     flowlayout->addWidget(ui->selectButton);
@@ -154,7 +151,9 @@ void ToolBoxWidget::initUI()
     flowlayout->addWidget(ui->eyedropperButton);
     flowlayout->addWidget(ui->brushButton);
     flowlayout->addWidget(ui->smudgeButton);
-    ui->toolGroup->setLayout(flowlayout);
+
+    delete ui->scrollAreaWidgetContents_2->layout();
+    ui->scrollAreaWidgetContents_2->setLayout(flowlayout);
 
     QSettings settings(PENCIL2D, PENCIL2D);
     restoreGeometry(settings.value("ToolBoxGeom").toByteArray());
@@ -164,112 +163,111 @@ void ToolBoxWidget::updateUI()
 {
 }
 
+void ToolBoxWidget::onToolSetActive(ToolType toolType)
+{
+    deselectAllTools();
+    switch (toolType) {
+    case ToolType::BRUSH:
+        ui->brushButton->setChecked(true);
+        break;
+    case ToolType::PEN:
+        ui->penButton->setChecked(true);
+        break;
+    case ToolType::PENCIL:
+        ui->pencilButton->setChecked(true);
+        break;
+    case ToolType::SELECT:
+        ui->selectButton->setChecked(true);
+        break;
+    case ToolType::HAND:
+        ui->handButton->setChecked(true);
+        break;
+    case ToolType::MOVE:
+    case ToolType::CAMERA:
+        ui->moveButton->setChecked(true);
+        break;
+    case ToolType::ERASER:
+        ui->eraserButton->setChecked(true);
+        break;
+    case ToolType::POLYLINE:
+        ui->polylineButton->setChecked(true);
+        break;
+    case ToolType::SMUDGE:
+        ui->smudgeButton->setChecked(true);
+        break;
+    case ToolType::BUCKET:
+        ui->bucketButton->setChecked(true);
+        break;
+    case ToolType::EYEDROPPER:
+        ui->eyedropperButton->setChecked(true);
+        break;
+    default:
+        break;
+    }
+}
+
 void ToolBoxWidget::pencilOn()
 {
-    if (!leavingTool(ui->pencilButton)) { return; }
-
-    editor()->tools()->setCurrentTool(PENCIL);
-
-    deselectAllTools();
-    ui->pencilButton->setChecked(true);
+    toolOn(PENCIL, ui->pencilButton);
 }
 
 void ToolBoxWidget::eraserOn()
 {
-    if (!leavingTool(ui->eraserButton)) { return; }
-
-    editor()->tools()->setCurrentTool(ERASER);
-
-    deselectAllTools();
-    ui->eraserButton->setChecked(true);
+    toolOn(ERASER, ui->eraserButton);
 }
 
 void ToolBoxWidget::selectOn()
 {
-    if (!leavingTool(ui->selectButton)) { return; }
-
-    editor()->tools()->setCurrentTool(SELECT);
-
-    deselectAllTools();
-    ui->selectButton->setChecked(true);
+    toolOn(SELECT, ui->selectButton);
 }
 
 void ToolBoxWidget::moveOn()
 {
-    if (!leavingTool(ui->moveButton)) { return; }
-
-    editor()->tools()->setCurrentTool(MOVE);
-
-    deselectAllTools();
-    ui->moveButton->setChecked(true);
+    if (editor()->layers()->currentLayer()->type() == Layer::CAMERA) {
+        toolOn(CAMERA, ui->moveButton);
+    } else {
+        toolOn(MOVE, ui->moveButton);
+    }
 }
 
 void ToolBoxWidget::penOn()
 {
-    if (!leavingTool(ui->penButton)) { return; }
-
-    editor()->tools()->setCurrentTool(PEN);
-
-    deselectAllTools();
-    ui->penButton->setChecked(true);
+    toolOn(PEN, ui->penButton);
 }
 
 void ToolBoxWidget::handOn()
 {
-    if (!leavingTool(ui->handButton)) { return; }
-
-    editor()->tools()->setCurrentTool( HAND );
-
-    deselectAllTools();
-    ui->handButton->setChecked(true);
+    toolOn(HAND, ui->handButton);
 }
 
 void ToolBoxWidget::polylineOn()
 {
-    if (!leavingTool(ui->polylineButton)) { return; }
-
-    editor()->tools()->setCurrentTool(POLYLINE);
-
-    deselectAllTools();
-    ui->polylineButton->setChecked(true);
+    toolOn(POLYLINE, ui->polylineButton);
 }
 
 void ToolBoxWidget::bucketOn()
 {
-    if (!leavingTool(ui->bucketButton)) { return; }
-
-    editor()->tools()->setCurrentTool(BUCKET);
-
-    deselectAllTools();
-    ui->bucketButton->setChecked(true);
+    toolOn(BUCKET, ui->bucketButton);
 }
 
 void ToolBoxWidget::eyedropperOn()
 {
-    if (!leavingTool(ui->eyedropperButton)) { return; }
-    editor()->tools()->setCurrentTool(EYEDROPPER);
-
-    deselectAllTools();
-    ui->eyedropperButton->setChecked(true);
+    toolOn(EYEDROPPER, ui->eyedropperButton);
 }
 
 void ToolBoxWidget::brushOn()
 {
-    if (!leavingTool(ui->brushButton)) { return; }
-
-    editor()->tools()->setCurrentTool( BRUSH );
-
-    deselectAllTools();
-    ui->brushButton->setChecked(true);
+    toolOn(BRUSH, ui->brushButton);
 }
 
 void ToolBoxWidget::smudgeOn()
 {
-    if (!leavingTool(ui->smudgeButton)) { return; }
-    editor()->tools()->setCurrentTool(SMUDGE);
+    toolOn(SMUDGE, ui->smudgeButton);
+}
 
-    deselectAllTools();
-    ui->smudgeButton->setChecked(true);
+int ToolBoxWidget::getMinHeightForWidth(int width)
+{
+    return ui->toolGroup->layout()->heightForWidth(width);
 }
 
 void ToolBoxWidget::deselectAllTools()
@@ -287,14 +285,22 @@ void ToolBoxWidget::deselectAllTools()
     ui->smudgeButton->setChecked(false);
 }
 
-bool ToolBoxWidget::leavingTool(QToolButton* toolButton)
+bool ToolBoxWidget::toolOn(ToolType toolType, QToolButton* toolButton)
 {
     if (!editor()->tools()->leavingThisTool())
     {
-        if (toolButton->isChecked()) {
-            toolButton->setChecked(false);
-        }
+        toolButton->setChecked(false);
         return false;
     }
+    editor()->tools()->setCurrentTool(toolType);
     return true;
+}
+
+void ToolBoxWidget::onLayerDidChange(int)
+{
+    BaseTool* currentTool = editor()->tools()->currentTool();
+    if (currentTool->type() == MOVE || currentTool->type() == CAMERA)
+    {
+        moveOn();
+    }
 }

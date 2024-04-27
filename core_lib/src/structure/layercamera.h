@@ -1,8 +1,8 @@
 /*
 
-Pencil - Traditional Animation Software
+Pencil2D - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,69 +17,76 @@ GNU General Public License for more details.
 #ifndef LAYERCAMERA_H
 #define LAYERCAMERA_H
 
-#include <QList>
-#include <QDialog>
+#include <QRect>
+#include <QColor>
 #include "layer.h"
+#include "camerafieldoption.h"
+#include "cameraeasingtype.h"
+#include "pencildef.h"
 
-class QLineEdit;
-class QSpinBox;
 class Camera;
-
-namespace Ui {
-class CameraPropertiesDialog;
-}
-
-class CameraPropertiesDialog : public QDialog
-{
-    Q_OBJECT
-public:
-    CameraPropertiesDialog(QString name, int width, int height);
-    ~CameraPropertiesDialog();
-    QString getName();
-    void setName(QString);
-    int getWidth();
-    void setWidth(int);
-    int getHeight();
-    void setHeight(int);
-private:
-    Ui::CameraPropertiesDialog* ui = nullptr;
-};
 
 class LayerCamera : public Layer
 {
     Q_OBJECT
-
 public:
-    LayerCamera(Object* object);
-    ~LayerCamera();
+    explicit LayerCamera(int id);
+    ~LayerCamera() override;
 
-    void loadImageAtFrame(int frame, qreal dx, qreal dy, qreal rotate, qreal scale);
-    
-    void editProperties() override;
-    QDomElement createDomElement(QDomDocument& doc) override;
-    void loadDomElement(QDomElement element, QString dataDirPath, ProgressCallback progressStep) override;
+    void loadImageAtFrame(int frame, qreal dx, qreal dy, qreal rotate, qreal scale, CameraEasingType easing, const QPointF& pathPoint, bool pathMoved);
 
-    Camera* getCameraAtFrame(int frameNumber);
-    Camera* getLastCameraAtFrame(int frameNumber, int increment);
-    QTransform getViewAtFrame(int frameNumber);
+    QDomElement createDomElement(QDomDocument& doc) const override;
+    void loadDomElement(const QDomElement& element, QString dataDirPath, ProgressCallback progressStep) override;
 
-    QRect getViewRect();
-    QSize getViewSize();
+    bool addKeyFrame(int position, KeyFrame* pKeyFrame) override;
+    bool removeKeyFrame(int position) override;
 
-signals:
-    void resolutionChanged();
+    Camera* getCameraAtFrame(int frameNumber) const;
+    Camera* getLastCameraAtFrame(int frameNumber, int increment) const;
+    QTransform getViewAtFrame(int frameNumber) const;
+
+    QRect getViewRect() const;
+    QSize getViewSize() const;
+    void setViewRect(QRect newViewRect);
+
+    // Functions for camera path
+    void setShowCameraPath(bool show) { mShowPath = show; }
+    bool getShowCameraPath() const { return mShowPath; }
+    void setCameraEasingAtFrame(CameraEasingType type, int frame) const;
+    void resetCameraAtFrame(CameraFieldOption type, int frame) const;
+    void updateDotColor(DotColorType color);
+    QColor getDotColor() const { return mDotColor; }
+    DotColorType getDotColorType() const { return mDotColorType; }
+
+    QString getInterpolationTextAtFrame(int frame) const;
+    QPointF getPathControlPointAtFrame(int frame) const;
+    bool hasSameTranslation(int frame1, int frame2) const;
+    QList<QPointF> getBezierPointsAtFrame(int frame) const;
+    QPointF getCenteredPathPoint(int frame) const;
+    void updatePathControlPointAtFrame(const QPointF& point, int frame) const;
+    void setPathMovedAtFrame(int frame, bool moved) const;
+
+    void splitControlPointIfNeeded(int frame) const;
+    void mergeControlPointIfNeeded(int frame) const;
 
 protected:
     Status saveKeyFrameFile(KeyFrame*, QString path) override;
-    KeyFrame* createKeyFrame(int position, Object*) override;
+    KeyFrame* createKeyFrame(int position) override;
 
 private:
     void linearInterpolateTransform(Camera*);
+    qreal getInterpolationPercent(CameraEasingType type, qreal percent) const;
+    QPointF getBezierPoint(const QPointF& first, const QPointF& last, const QPointF& pathPoint, qreal percent) const;
 
     int mFieldW = 800;
     int mFieldH = 600;
     QRect viewRect;
-    CameraPropertiesDialog* dialog = nullptr;
+
+    bool mShowPath = false;
+    QColor mDotColor = Qt::red;
+    DotColorType mDotColorType = DotColorType::RED;
+
+    const int mControlPointMergeThreshold = 2000;
 };
 
 #endif

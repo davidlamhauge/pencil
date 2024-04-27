@@ -1,8 +1,8 @@
 /*
 
-Pencil - Traditional Animation Software
+Pencil2D - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,11 +17,10 @@ GNU General Public License for more details.
 
 #include "polylinetool.h"
 
-
+#include <QSettings>
 #include "editor.h"
 #include "scribblearea.h"
 
-#include "strokemanager.h"
 #include "layermanager.h"
 #include "colormanager.h"
 #include "viewmanager.h"
@@ -31,7 +30,7 @@ GNU General Public License for more details.
 #include "vectorimage.h"
 
 
-PolylineTool::PolylineTool(QObject* parent) : BaseTool(parent)
+PolylineTool::PolylineTool(QObject* parent) : StrokeTool(parent)
 {
 }
 
@@ -42,6 +41,8 @@ ToolType PolylineTool::type()
 
 void PolylineTool::loadSettings()
 {
+    StrokeTool::loadSettings();
+
     mPropertyEnabled[WIDTH] = true;
     mPropertyEnabled[BEZIER] = true;
     mPropertyEnabled[ANTI_ALIASING] = true;
@@ -55,6 +56,8 @@ void PolylineTool::loadSettings()
     properties.preserveAlpha = OFF;
     properties.useAA = settings.value("brushAA").toBool();
     properties.stabilizerLevel = -1;
+
+    mQuickSizingProperties.insert(Qt::ShiftModifier, WIDTH);
 }
 
 void PolylineTool::resetToDefault()
@@ -91,18 +94,47 @@ void PolylineTool::setAA(const int AA)
     settings.sync();
 }
 
+bool PolylineTool::leavingThisTool()
+{
+    StrokeTool::leavingThisTool();
+    if (mPoints.size() > 0)
+    {
+        cancelPolyline();
+    }
+    return true;
+}
+
+bool PolylineTool::isActive() const
+{
+    return !mPoints.isEmpty();
+}
+
 QCursor PolylineTool::cursor()
 {
-    return Qt::CrossCursor;
+    return QCursor(QPixmap(":icons/general/cross.png"), 10, 10);
 }
 
 void PolylineTool::clearToolData()
 {
+    if (mPoints.empty()) {
+        return;
+    }
+
     mPoints.clear();
+    emit isActiveChanged(POLYLINE, false);
+
+    // Clear the in-progress polyline from the bitmap buffer.
+    mScribbleArea->clearDrawingBuffer();
+    mScribbleArea->updateFrame();
 }
 
 void PolylineTool::pointerPressEvent(PointerEvent* event)
 {
+    mInterpolator.pointerPressEvent(event);
+    if (handleQuickSizing(event)) {
+        return;
+    }
+
     Layer* layer = mEditor->layers()->currentLayer();
 
     if (event->button() == Qt::LeftButton)
@@ -113,39 +145,57 @@ void PolylineTool::pointerPressEvent(PointerEvent* event)
 
             if (layer->type() == Layer::VECTOR)
             {
-                ((LayerVector *)layer)->getLastVectorImageAtFrame(mEditor->currentFrame(), 0)->deselectAll();
+                VectorImage* vectorImage = static_cast<LayerVector*>(layer)->getLastVectorImageAtFrame(mEditor->currentFrame(), 0);
+                Q_CHECK_PTR(vectorImage);
+                vectorImage->deselectAll();
                 if (mScribbleArea->makeInvisible() && !mEditor->preference()->isOn(SETTING::INVISIBLE_LINES))
                 {
                     mScribbleArea->toggleThinLines();
                 }
             }
             mPoints << getCurrentPoint();
-            mScribbleArea->setAllDirty();
+            emit isActiveChanged(POLYLINE, true);
         }
     }
+
+    StrokeTool::pointerPressEvent(event);
 }
 
-void PolylineTool::pointerMoveEvent(PointerEvent*)
+void PolylineTool::pointerMoveEvent(PointerEvent* event)
 {
+    mInterpolator.pointerMoveEvent(event);
+    if (handleQuickSizing(event)) {
+        return;
+    }
+
     Layer* layer = mEditor->layers()->currentLayer();
     if (layer->type() == Layer::BITMAP || layer->type() == Layer::VECTOR)
     {
         drawPolyline(mPoints, getCurrentPoint());
     }
+
+    StrokeTool::pointerMoveEvent(event);
 }
 
-void PolylineTool::pointerReleaseEvent(PointerEvent *)
-{}
-
-void PolylineTool::pointerDoubleClickEvent(PointerEvent*)
+void PolylineTool::pointerReleaseEvent(PointerEvent* event)
 {
+    mInterpolator.pointerReleaseEvent(event);
+    if (handleQuickSizing(event)) {
+        return;
+    }
+
+    StrokeTool::pointerReleaseEvent(event);
+}
+
+void PolylineTool::pointerDoubleClickEvent(PointerEvent* event)
+{
+    mInterpolator.pointerPressEvent(event);
     // include the current point before ending the line.
     mPoints << getCurrentPoint();
 
     mEditor->backup(typeName());
 
     endPolyline(mPoints);
-    clearToolData();
 }
 
 
@@ -157,7 +207,6 @@ bool PolylineTool::keyPressEvent(QKeyEvent* event)
         if (mPoints.size() > 0)
         {
             endPolyline(mPoints);
-            clearToolData();
             return true;
         }
         break;
@@ -166,25 +215,19 @@ bool PolylineTool::keyPressEvent(QKeyEvent* event)
         if (mPoints.size() > 0)
         {
             cancelPolyline();
-            clearToolData();
             return true;
         }
         break;
 
     default:
-        return false;
+        break;
     }
 
-    return false;
+    return BaseTool::keyPressEvent(event);
 }
 
 void PolylineTool::drawPolyline(QList<QPointF> points, QPointF endPoint)
 {
-    if (!mScribbleArea->areLayersSane())
-    {
-        return;
-    }
-
     if (points.size() > 0)
     {
         QPen pen(mEditor->color()->frontColor(),
@@ -211,7 +254,6 @@ void PolylineTool::drawPolyline(QList<QPointF> points, QPointF endPoint)
         {
             if (mEditor->layers()->currentLayer()->type() == Layer::VECTOR)
             {
-                tempPath = mEditor->view()->mapCanvasToScreen(tempPath);
                 if (mScribbleArea->makeInvisible() == true)
                 {
                     pen.setWidth(0);
@@ -219,7 +261,7 @@ void PolylineTool::drawPolyline(QList<QPointF> points, QPointF endPoint)
                 }
                 else
                 {
-                    pen.setWidth(properties.width * mEditor->view()->scaling());
+                    pen.setWidth(properties.width);
                 }
             }
         }
@@ -231,23 +273,16 @@ void PolylineTool::drawPolyline(QList<QPointF> points, QPointF endPoint)
 
 void PolylineTool::cancelPolyline()
 {
-    // Clear the in-progress polyline from the bitmap buffer.
-    mScribbleArea->clearBitmapBuffer();
-    mScribbleArea->updateCurrentFrame();
+    clearToolData();
 }
 
 void PolylineTool::endPolyline(QList<QPointF> points)
 {
-    if (!mScribbleArea->areLayersSane())
-    {
-        return;
-    }
-
     Layer* layer = mEditor->layers()->currentLayer();
 
     if (layer->type() == Layer::VECTOR)
     {
-        BezierCurve curve = BezierCurve(points);
+        BezierCurve curve = BezierCurve(points, properties.bezier_state);
         if (mScribbleArea->makeInvisible() == true)
         {
             curve.setWidth(0);
@@ -256,18 +291,20 @@ void PolylineTool::endPolyline(QList<QPointF> points)
         {
             curve.setWidth(properties.width);
         }
-        curve.setColourNumber(mEditor->color()->frontColorNumber());
+        curve.setColorNumber(mEditor->color()->frontColorNumber());
         curve.setVariableWidth(false);
         curve.setInvisibility(mScribbleArea->makeInvisible());
 
-        ((LayerVector *)layer)->getLastVectorImageAtFrame(mEditor->currentFrame(), 0)->addCurve(curve, mEditor->view()->scaling());
+        VectorImage* vectorImage = static_cast<LayerVector*>(layer)->getLastVectorImageAtFrame(mEditor->currentFrame(), 0);
+        if (vectorImage == nullptr) { return; } // Can happen if the first frame is deleted while drawing
+        vectorImage->addCurve(curve, mEditor->view()->scaling());
     }
     if (layer->type() == Layer::BITMAP)
     {
         drawPolyline(points, points.last());
-        BitmapImage *bitmapImage = ((LayerBitmap *)layer)->getLastBitmapImageAtFrame(mEditor->currentFrame(), 0);
-        bitmapImage->paste(mScribbleArea->mBufferImg);
     }
-    mScribbleArea->mBufferImg->clear();
-    mScribbleArea->setModified(mEditor->layers()->currentLayerIndex(), mEditor->currentFrame());
+    mScribbleArea->endStroke();
+    mEditor->setModified(mEditor->layers()->currentLayerIndex(), mEditor->currentFrame());
+
+    clearToolData();
 }

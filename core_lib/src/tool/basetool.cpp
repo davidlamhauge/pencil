@@ -1,8 +1,8 @@
 /*
 
-Pencil - Traditional Animation Software
+Pencil2D - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,20 +17,12 @@ GNU General Public License for more details.
 
 #include "basetool.h"
 
-#include "pointerevent.h"
 #include <array>
-#include <QtMath>
 #include "editor.h"
 #include "viewmanager.h"
-#include "toolmanager.h"
 #include "scribblearea.h"
-#include "strokemanager.h"
-
-
-// ---- shared static variables ---- ( only one instance for all the tools )
-qreal BaseTool::msOriginalPropertyValue;  // start value (width, feather ..)
-bool BaseTool::msIsAdjusting = false;
-
+#include "strokeinterpolator.h"
+#include "pointerevent.h"
 
 QString BaseTool::TypeName(ToolType type)
 {
@@ -63,12 +55,23 @@ BaseTool::BaseTool(QObject* parent) : QObject(parent)
     mPropertyEnabled.insert(PRESERVEALPHA, false);
     mPropertyEnabled.insert(BEZIER, false);
     mPropertyEnabled.insert(ANTI_ALIASING, false);
+    mPropertyEnabled.insert(FILL_MODE, false);
     mPropertyEnabled.insert(STABILIZATION, false);
+    mPropertyEnabled.insert(CAMERAPATH, false);
 }
 
 QCursor BaseTool::cursor()
 {
     return Qt::ArrowCursor;
+}
+
+bool BaseTool::leavingThisTool()
+{
+   for (auto& connection : mActiveConnections) {
+       disconnect(connection);
+       mActiveConnections.removeOne(connection);
+   }
+   return true;
 }
 
 void BaseTool::initialize(Editor* editor)
@@ -78,7 +81,6 @@ void BaseTool::initialize(Editor* editor)
     mScribbleArea = editor->getScribbleArea();
     Q_ASSERT(mScribbleArea);
 
-    mStrokeManager = mEditor->getScribbleArea()->getStrokeManager();
     loadSettings();
 }
 
@@ -109,280 +111,16 @@ void BaseTool::pointerDoubleClickEvent(PointerEvent* event)
  */
 bool BaseTool::isDrawingTool()
 {
-    if (type() == ToolType::HAND || type() == ToolType::MOVE || type() == ToolType::SELECT )
+    if (type() == ToolType::HAND || type() == ToolType::MOVE || type() == ToolType::CAMERA || type() == ToolType::SELECT )
     {
         return false;
     }
     return true;
 }
 
-/**
- * @brief precision circular cursor: used for drawing a cursor within scribble area.
- * @return QPixmap
- */
-QPixmap BaseTool::canvasCursor(float width, float feather, bool useFeather, float scalingFac, int windowWidth)
+bool BaseTool::isActive() const
 {
-    float propWidth = width * scalingFac;
-    float propFeather = feather * scalingFac;
-
-    float cursorWidth = 0.0f;
-    float xyA = 0.0f;
-    float xyB = 0.0f;
-    float whA = 0.0f;
-    float whB = 0.0f;
-
-    if (useFeather)
-    {
-        cursorWidth = propWidth + 0.5 * propFeather;
-        xyA = 1 + propFeather / 2;
-        xyB = 1 + propFeather / 8;
-        whA = qMax<float>(0, propWidth - xyA - 1);
-        whB = qMax<float>(0, cursorWidth - propFeather / 4 - 2);
-    }
-    else
-    {
-        cursorWidth = (propWidth + 0.5);
-        whA = qMax<float>(0, propWidth - 1);
-        whB = qMax<float>(0, cursorWidth / 4 - 2);
-    }
-
-    float radius = cursorWidth / 2;
-
-    // deallocate when cursor width gets some value larger than the widget
-    if (cursorWidth > windowWidth * 2)
-    {
-        return QPixmap(0, 0);
-    }
-
-    if (cursorWidth < 1) { cursorWidth = 1; }
-
-    QPixmap cursorPixmap = QPixmap(cursorWidth, cursorWidth);
-    if (!cursorPixmap.isNull())
-    {
-        cursorPixmap.fill(QColor(255, 255, 255, 0));
-        QPainter cursorPainter(&cursorPixmap);
-        QPen cursorPen = cursorPainter.pen();
-        cursorPainter.setRenderHint(QPainter::HighQualityAntialiasing);
-
-        // Draw cross in center
-        cursorPen.setStyle(Qt::SolidLine);
-        cursorPen.setColor(QColor(0, 0, 0, 127));
-        cursorPainter.setPen(cursorPen);
-        cursorPainter.drawLine(QPointF(radius - 2, radius), QPointF(radius + 2, radius));
-        cursorPainter.drawLine(QPointF(radius, radius - 2), QPointF(radius, radius + 2));
-
-        // Draw outer circle
-        if (useFeather)
-        {
-            cursorPen.setStyle(Qt::DotLine);
-            cursorPen.setColor(QColor(0, 0, 0, 255));
-            cursorPainter.setPen(cursorPen);
-            cursorPainter.drawEllipse(QRectF(xyB, xyB, whB, whB));
-            cursorPen.setDashOffset(4);
-            cursorPen.setColor(QColor(255, 255, 255, 255));
-            cursorPainter.setPen(cursorPen);
-            cursorPainter.drawEllipse(QRectF(xyB, xyB, whB, whB));
-        }
-
-        // Draw inner circle
-        cursorPen.setStyle(Qt::DotLine);
-        cursorPen.setColor(QColor(0, 0, 0, 255));
-        cursorPainter.setPen(cursorPen);
-        cursorPainter.drawEllipse(QRectF(xyA, xyA, whA, whA));
-        cursorPen.setDashOffset(4);
-        cursorPen.setColor(QColor(255, 255, 255, 255));
-        cursorPainter.setPen(cursorPen);
-        cursorPainter.drawEllipse(QRectF(xyA, xyA, whA, whA));
-
-        cursorPainter.end();
-    }
-    return cursorPixmap;
-}
-
-QCursor BaseTool::selectMoveCursor(MoveMode mode, ToolType type)
-{
-    QPixmap cursorPixmap = QPixmap(24, 24);
-    if (!cursorPixmap.isNull())
-    {
-        cursorPixmap.fill(QColor(255, 255, 255, 0));
-        QPainter cursorPainter(&cursorPixmap);
-        cursorPainter.setRenderHint(QPainter::HighQualityAntialiasing);
-
-        switch(mode)
-        {
-            case MoveMode::MIDDLE:
-            {
-                if (type == SELECT) {
-                    cursorPainter.drawImage(QPoint(6,6),QImage("://icons/new/arrow-selectmove.png"));
-                } else {
-                    return Qt::ArrowCursor;
-                }
-                break;
-            }
-            case MoveMode::TOPLEFT:
-            case MoveMode::BOTTOMRIGHT:
-            {
-                cursorPainter.drawImage(QPoint(6,6),QImage("://icons/new/arrow-diagonalleft.png"));
-                break;
-            }
-            case MoveMode::TOPRIGHT:
-            case MoveMode::BOTTOMLEFT:
-            {
-                cursorPainter.drawImage(QPoint(6,6),QImage("://icons/new/arrow-diagonalright.png"));
-                break;
-            }
-            default:
-                return (type == SELECT) ? Qt::CrossCursor : Qt::ArrowCursor;
-                break;
-        }
-        cursorPainter.end();
-    }
-    return QCursor(cursorPixmap);
-}
-
-/**
- * @brief precision circular cursor: used for drawing stroke size while adjusting
- * @return QPixmap
- */
-QPixmap BaseTool::quickSizeCursor(float brushWidth, float brushFeather, float scalingFac)
-{
-    float propWidth = brushWidth * scalingFac;
-    float propFeather = brushFeather * scalingFac;
-    float cursorWidth = propWidth + 0.5 * propFeather;
-
-    if (cursorWidth < 1) { cursorWidth = 1; }
-    float radius = cursorWidth / 2;
-    float xyA = 1 + propFeather / 2;
-    float xyB = 1 + propFeather / 8;
-    float whA = qMax<float>(0, propWidth - xyA - 1);
-    float whB = qMax<float>(0, cursorWidth - propFeather / 4 - 2);
-    QPixmap cursorPixmap = QPixmap(cursorWidth, cursorWidth);
-    if (!cursorPixmap.isNull())
-    {
-        cursorPixmap.fill(QColor(255, 255, 255, 0));
-        QPainter cursorPainter(&cursorPixmap);
-        cursorPainter.setPen(QColor(0, 0, 0, 255));
-        cursorPainter.drawLine(QPointF(radius - 2, radius), QPointF(radius + 2, radius));
-        cursorPainter.drawLine(QPointF(radius, radius - 2), QPointF(radius, radius + 2));
-        cursorPainter.setRenderHints(QPainter::Antialiasing, true);
-        cursorPainter.setPen(QColor(0, 0, 0, 0));
-        cursorPainter.setBrush(QColor(0, 255, 127, 64));
-        cursorPainter.setCompositionMode(QPainter::CompositionMode_Exclusion);
-        cursorPainter.drawEllipse(QRectF(xyB, xyB, whB, whB)); // outside circle
-        cursorPainter.setBrush(QColor(255, 64, 0, 255));
-        cursorPainter.drawEllipse(QRectF(xyA, xyA, whA, whA)); // inside circle
-        cursorPainter.end();
-    }
-    return cursorPixmap;
-}
-
-void BaseTool::startAdjusting(ToolPropertyType propertyType, qreal step)
-{
-    msIsAdjusting = true;
-    mAdjustmentStep = step;
-    if (propertyType == WIDTH)
-    {
-        msOriginalPropertyValue = properties.width;
-    }
-    else if (propertyType == FEATHER)
-    {
-        msOriginalPropertyValue = properties.feather;
-    }
-    mScribbleArea->updateCanvasCursor();
-}
-
-void BaseTool::stopAdjusting()
-{
-    msIsAdjusting = false;
-    mAdjustmentStep = 0;
-    msOriginalPropertyValue = 0;
-    mEditor->getScribbleArea()->updateCanvasCursor();
-}
-
-void BaseTool::adjustCursor(qreal argOffsetX, Qt::KeyboardModifiers keyMod) //offsetx x-lastx ...
-{
-    ToolPropertyType propertyType;
-    propertyType = (keyMod & Qt::ControlModifier) ? FEATHER : WIDTH;
-
-    qreal inc = qPow(msOriginalPropertyValue * 100, 0.5);
-    qreal newValue = inc + argOffsetX;
-    int max = (propertyType == FEATHER) ? 200 : 200;
-    int min = (propertyType == FEATHER) ? 2 : 1;
-
-    if (newValue < 0)
-    {
-        newValue = 0;
-    }
-
-    newValue = qPow(newValue, 2) / 100;
-    if (mAdjustmentStep > 0)
-    {
-        int tempValue = (int)(newValue / mAdjustmentStep); // + 0.5 ?
-        newValue = tempValue * mAdjustmentStep;
-    }
-    if (newValue < min) // can be optimized for size: min(200,max(0.2,newValueX))
-    {
-        newValue = min;
-    }
-    else if (newValue > max)
-    {
-        newValue = max;
-    }
-
-    switch (propertyType)
-    {
-    case FEATHER:
-        if ((type() == BRUSH) || (type() == ERASER) || (this->type() == SMUDGE))
-        {
-            mEditor->tools()->setFeather(newValue);
-        }
-        break;
-    case WIDTH:
-        mEditor->tools()->setWidth(newValue);
-        break;
-    default:
-        break;
-    };
-}
-
-QPointF BaseTool::getCurrentPressPixel()
-{
-    return strokeManager()->getCurrentPressPixel();
-}
-
-QPointF BaseTool::getCurrentPressPoint()
-{
-    return mEditor->view()->mapScreenToCanvas(strokeManager()->getCurrentPressPixel());
-}
-
-QPointF BaseTool::getCurrentPixel()
-{
-    return strokeManager()->getCurrentPixel();
-}
-
-QPointF BaseTool::getCurrentPoint()
-{
-    return mEditor->view()->mapScreenToCanvas(getCurrentPixel());
-}
-
-QPointF BaseTool::getLastPixel()
-{
-    return strokeManager()->getLastPixel();
-}
-
-QPointF BaseTool::getLastPoint()
-{
-    return mEditor->view()->mapScreenToCanvas(getLastPixel());
-}
-
-QPointF BaseTool::getLastPressPixel()
-{
-    return strokeManager()->getLastPressPixel();
-}
-
-QPointF BaseTool::getLastPressPoint()
-{
-    return mEditor->view()->mapScreenToCanvas(getLastPressPixel());
+    return false;
 }
 
 void BaseTool::setWidth(const qreal width)
@@ -430,6 +168,11 @@ void BaseTool::setAA(const int useAA)
     properties.useAA = useAA;
 }
 
+void BaseTool::setFillMode(const int mode)
+{
+    properties.fillMode = mode;
+}
+
 void BaseTool::setStabilizerLevel(const int level)
 {
     properties.stabilizerLevel = level;
@@ -440,7 +183,46 @@ void BaseTool::setTolerance(const int tolerance)
     properties.tolerance = tolerance;
 }
 
+void BaseTool::setToleranceEnabled(const bool enabled)
+{
+    properties.toleranceEnabled = enabled;
+}
+
+void BaseTool::setFillExpand(const int fillExpandValue)
+{
+    properties.bucketFillExpand = fillExpandValue;
+}
+
+void BaseTool::setFillReferenceMode(int referenceMode)
+{
+    properties.bucketFillReferenceMode = referenceMode;
+}
+
+void BaseTool::setFillExpandEnabled(const bool enabled)
+{
+    properties.bucketFillExpandEnabled = enabled;
+}
+
 void BaseTool::setUseFillContour(const bool useFillContour)
 {
     properties.useFillContour = useFillContour;
+}
+
+void BaseTool::setShowSelectionInfo(const bool b)
+{
+    properties.showSelectionInfo = b;
+}
+
+void BaseTool::setShowCameraPath(const bool showCameraPath)
+{
+    properties.cameraShowPath = showCameraPath;
+}
+
+void BaseTool::setPathDotColorType(const DotColorType dotColorType)
+{
+    properties.cameraPathDotColorType = dotColorType;
+}
+
+void BaseTool::resetCameraPath()
+{
 }

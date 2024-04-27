@@ -1,8 +1,8 @@
 /*
 
-Pencil - Traditional Animation Software
+Pencil2D - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -15,15 +15,15 @@ GNU General Public License for more details.
 
 */
 #include "selecttool.h"
-
+#include <QSettings>
 #include "pointerevent.h"
 #include "vectorimage.h"
 #include "editor.h"
-#include "strokemanager.h"
 #include "layervector.h"
 #include "scribblearea.h"
 #include "layermanager.h"
 #include "toolmanager.h"
+#include "selectionmanager.h"
 
 SelectTool::SelectTool(QObject* parent) : BaseTool(parent)
 {
@@ -35,163 +35,251 @@ void SelectTool::loadSettings()
     properties.feather = -1;
     properties.stabilizerLevel = -1;
     properties.useAA = -1;
+    QSettings settings(PENCIL2D, PENCIL2D);
+    properties.showSelectionInfo = settings.value("ShowSelectionInfo").toBool();
+    mPropertyEnabled[SHOWSELECTIONINFO] = true;
 }
 
 QCursor SelectTool::cursor()
 {
-    MoveMode mode = mScribbleArea->getMoveModeForSelectionAnchor();
-    return mScribbleArea->currentTool()->selectMoveCursor(mode, type());
+    // Don't update cursor while we're moving the selection
+    if (mScribbleArea->isPointerInUse()) { return QCursor(mCursorPixmap); }
+
+    MoveMode mode = mEditor->select()->getMoveMode();
+
+    mCursorPixmap.fill(QColor(255, 255, 255, 0));
+    QPainter cursorPainter(&mCursorPixmap);
+    cursorPainter.setRenderHint(QPainter::Antialiasing);
+
+    switch(mode)
+    {
+    case MoveMode::TOPLEFT:
+    case MoveMode::BOTTOMRIGHT:
+    {
+        cursorPainter.drawPixmap(QPoint(6,6),QPixmap("://icons/general/cursor-diagonal-left.svg"));
+        break;
+    }
+    case MoveMode::TOPRIGHT:
+    case MoveMode::BOTTOMLEFT:
+    {
+        cursorPainter.drawPixmap(QPoint(6,6),QPixmap("://icons/general/cursor-diagonal-right.svg"));
+        break;
+    }
+    case MoveMode::MIDDLE:
+    {
+        cursorPainter.drawPixmap(QPoint(6,6),QPixmap("://icons/general/cursor-move.svg"));
+        break;
+    }
+    case MoveMode::NONE:
+        cursorPainter.drawPixmap(QPoint(3,3), QPixmap(":icons/general/cross.png"));
+        break;
+    default:
+        Q_UNREACHABLE();
+        break;
+    }
+    return QCursor(mCursorPixmap);
 }
 
-void SelectTool::beginSelection()
+void SelectTool::resetToDefault()
 {
-    // Store original click position for help with selection rectangle.
-    mAnchorOriginPoint = getLastPoint();
+    setShowSelectionInfo(false);
+}
 
-    mScribbleArea->calculateSelectionTransformation();
+void SelectTool::setShowSelectionInfo(const bool b)
+{
+    properties.showSelectionInfo = b;
 
-    // paint and apply the transformation
-    mScribbleArea->paintTransformedSelection();
-    mScribbleArea->applyTransformedSelection();
+    QSettings settings(PENCIL2D, PENCIL2D);
+    settings.setValue("ShowSelectionInfo", b);
+}
 
-    if (mScribbleArea->isSomethingSelected()) // there is something selected
+void SelectTool::beginSelection(Layer* currentLayer, const QPointF& pos)
+{
+    auto selectMan = mEditor->select();
+
+    if (selectMan->somethingSelected() && mMoveMode != MoveMode::NONE) // there is something selected
     {
-        if (mCurrentLayer->type() == Layer::VECTOR)
+        if (currentLayer->type() == Layer::VECTOR)
         {
-            static_cast<LayerVector*>(mCurrentLayer)->getLastVectorImageAtFrame(mEditor->currentFrame(), 0)->deselectAll();
+            VectorImage* vectorImage = static_cast<LayerVector*>(currentLayer)->getLastVectorImageAtFrame(mEditor->currentFrame(), 0);
+            if (vectorImage != nullptr) {
+                vectorImage->deselectAll();
+            }
         }
-
-        mScribbleArea->findMoveModeOfCornerInRange();
-        mAnchorOriginPoint = whichAnchorPoint();
-
-        // the user did not click on one of the corners
-        if (mScribbleArea->getMoveMode() == MoveMode::NONE)
-        {
-            mScribbleArea->mySelection.setTopLeft(getLastPoint());
-            mScribbleArea->mySelection.setBottomRight(getLastPoint());
-        }
+        mSelectionRect = mEditor->select()->mapToSelection(mEditor->select()->mySelectionRect()).boundingRect();
     }
     else
     {
-        mScribbleArea->setSelection(QRectF(getCurrentPoint().x(),
-                                           getCurrentPoint().y(),1,1));
+        selectMan->setSelection(QRectF(pos.x(), pos.y(), 1, 1), mEditor->layers()->currentLayer()->type() == Layer::BITMAP);
+        mAnchorOriginPoint = pos;
     }
-    mScribbleArea->update();
-}
 
-QPointF SelectTool::whichAnchorPoint()
-{
-    return mScribbleArea->whichAnchorPoint(mAnchorOriginPoint);
+    mScribbleArea->updateFrame();
 }
 
 void SelectTool::pointerPressEvent(PointerEvent* event)
 {
-    mCurrentLayer = mEditor->layers()->currentLayer();
-    if (mCurrentLayer == nullptr) return;
-    if (!mCurrentLayer->isPaintable()) { return; }
+    Layer* currentLayer = mEditor->layers()->currentLayer();
+    if (currentLayer == nullptr) return;
+    if (!currentLayer->isPaintable()) { return; }
     if (event->button() != Qt::LeftButton) { return; }
+    auto selectMan = mEditor->select();
 
-    beginSelection();
+    mPressPoint = event->canvasPos();
+    selectMan->setMoveModeForAnchorInRange(mPressPoint);
+    mMoveMode = selectMan->getMoveMode();
+    mStartMoveMode = mMoveMode;
+
+    beginSelection(currentLayer, mPressPoint);
 }
 
 void SelectTool::pointerMoveEvent(PointerEvent* event)
 {
-    mCurrentLayer = mEditor->layers()->currentLayer();
-    if (mCurrentLayer == nullptr) { return; }
-    if (!mCurrentLayer->isPaintable()) { return; }
-    if (!mScribbleArea->isSomethingSelected()) { return; }
+    Layer* currentLayer = mEditor->layers()->currentLayer();
+    if (currentLayer == nullptr) { return; }
+    if (!currentLayer->isPaintable()) { return; }
+    auto selectMan = mEditor->select();
 
+    if (!selectMan->somethingSelected()) { return; }
+
+    selectMan->setMoveModeForAnchorInRange(event->canvasPos());
+    mMoveMode = selectMan->getMoveMode();
     mScribbleArea->updateToolCursor();
 
-    if (mScribbleArea->isPointerInUse()) // !mAnchorOriginPoint.isNull()
+    if (mScribbleArea->isPointerInUse())
     {
-        controlOffsetOrigin();
+        controlOffsetOrigin(event->canvasPos(), mAnchorOriginPoint);
 
-        if (mCurrentLayer->type() == Layer::VECTOR)
+        if (currentLayer->type() == Layer::VECTOR)
         {
-            static_cast<LayerVector*>(mCurrentLayer)->
-                    getLastVectorImageAtFrame(mEditor->currentFrame(), 0)->
-                    select(mScribbleArea->myTempTransformedSelection);
+            VectorImage* vectorImage = static_cast<LayerVector*>(currentLayer)->getLastVectorImageAtFrame(mEditor->currentFrame(), 0);
+            if (vectorImage != nullptr) {
+                vectorImage->select(selectMan->mapToSelection(QPolygonF(selectMan->mySelectionRect())).boundingRect());
+            }
         }
     }
 
-    mScribbleArea->updateCurrentFrame();
+    mScribbleArea->updateFrame();
 }
 
 void SelectTool::pointerReleaseEvent(PointerEvent* event)
 {
-    mCurrentLayer = mEditor->layers()->currentLayer();
-    if (mCurrentLayer == nullptr) return;
+    Layer* currentLayer = mEditor->layers()->currentLayer();
+    if (currentLayer == nullptr) return;
     if (event->button() != Qt::LeftButton) return;
 
     // if there's a small very small distance between current and last point
     // discard the selection...
     // TODO: improve by adding a timer to check if the user is deliberately selecting
-    if (QLineF(mAnchorOriginPoint, getCurrentPoint()).length() < 5.0)
+    if (QLineF(mAnchorOriginPoint, event->canvasPos()).length() < 5.0)
     {
-        mScribbleArea->deselectAll();
+        mEditor->deselectAll();
     }
-    if (maybeDeselect())
+    if (maybeDeselect(event->canvasPos()))
     {
-        mScribbleArea->deselectAll();
+        mEditor->deselectAll();
     }
     else
     {
-        keepSelection();
+        keepSelection(currentLayer);
     }
+
+    mStartMoveMode = MoveMode::NONE;
+    mSelectionRect = mEditor->select()->mapToSelection(mEditor->select()->mySelectionRect()).boundingRect();
 
     mScribbleArea->updateToolCursor();
-
-    mScribbleArea->updateCurrentFrame();
-    mScribbleArea->setAllDirty();
+    mScribbleArea->updateFrame();
 }
 
-bool SelectTool::maybeDeselect()
+bool SelectTool::maybeDeselect(const QPointF& pos)
 {
-    return (!isSelectionPointValid() && mScribbleArea->getMoveMode() == MoveMode::NONE);
-}
-
-void SelectTool::controlOffsetOrigin()
-{
-    QPointF offset = QPointF(mScribbleArea->getTransformOffset().x(),
-                 mScribbleArea->getTransformOffset().y()).toPoint();
-
-    if (mScribbleArea->getMoveMode() != MoveMode::NONE)
-    {
-        if (mCurrentLayer->type() == Layer::BITMAP) {
-            offset = QPointF(mScribbleArea->getTransformOffset());
-        }
-
-        mScribbleArea->adjustSelection(offset.x(),offset.y(), mScribbleArea->myRotatedAngle);
-    }
-    else
-    {
-        // when the selection is none, manage the selection Origin
-        mScribbleArea->manageSelectionOrigin(getCurrentPoint(), mAnchorOriginPoint);
-    }
+    return (!isSelectionPointValid(pos) && mEditor->select()->getMoveMode() == MoveMode::NONE);
 }
 
 /**
  * @brief SelectTool::keepSelection
  * Keep selection rect and normalize if invalid
  */
-void SelectTool::keepSelection()
+void SelectTool::keepSelection(Layer* currentLayer)
 {
-    if (mCurrentLayer->type() == Layer::BITMAP) {
-        if (!mScribbleArea->myTempTransformedSelection.isValid())
-        {
-            mScribbleArea->setSelection(mScribbleArea->myTempTransformedSelection.normalized());
-        }
-        else
-        {
-            mScribbleArea->setSelection(mScribbleArea->myTempTransformedSelection);
-        }
-    }
-    else if (mCurrentLayer->type() == Layer::VECTOR)
+    if (currentLayer->type() == Layer::VECTOR)
     {
-        VectorImage* vectorImage = static_cast<LayerVector*>(mCurrentLayer)->getLastVectorImageAtFrame(mEditor->currentFrame(), 0);
-        mScribbleArea->setSelection(vectorImage->getSelectionRect());
+        VectorImage* vectorImage = static_cast<LayerVector*>(currentLayer)->getLastVectorImageAtFrame(mEditor->currentFrame(), 0);
+        if (vectorImage == nullptr) { return; }
+        auto selectMan = mEditor->select();
+        selectMan->setSelection(vectorImage->getSelectionRect(), false);
     }
+}
+
+void SelectTool::controlOffsetOrigin(QPointF currentPoint, QPointF anchorPoint)
+{
+    // when the selection is none, manage the selection Origin
+    if (mStartMoveMode != MoveMode::NONE) {
+        QRectF rect = mSelectionRect;
+
+        QPointF offset = offsetFromPressPos(currentPoint);
+        if (mStartMoveMode == MoveMode::TOPLEFT) {
+            rect.adjust(offset.x(), offset.y(), 0, 0);
+        } else if (mStartMoveMode == MoveMode::TOPRIGHT) {
+            rect.adjust(0, offset.y(), offset.x(), 0);
+        } else if (mStartMoveMode == MoveMode::BOTTOMRIGHT) {
+            rect.adjust(0, 0, offset.x(), offset.y());
+        } else if (mStartMoveMode == MoveMode::BOTTOMLEFT) {
+            rect.adjust(offset.x(), 0, 0, offset.y());
+        } else {
+            rect.translate(offset.x(), offset.y());
+        }
+
+        rect = rect.normalized();
+        if (rect.isValid()) {
+            mEditor->select()->setSelection(rect, true);
+        }
+    } else {
+        manageSelectionOrigin(currentPoint, anchorPoint);
+    }
+}
+
+/**
+ * @brief SelectTool::manageSelectionOrigin
+ * switches anchor point when crossing threshold
+ */
+void SelectTool::manageSelectionOrigin(QPointF currentPoint, QPointF originPoint)
+{
+    qreal mouseX = currentPoint.x();
+    qreal mouseY = currentPoint.y();
+
+    QRectF selectRect = mSelectionRect;
+
+    if (mouseX <= originPoint.x())
+    {
+        selectRect.setLeft(mouseX);
+        selectRect.setRight(originPoint.x());
+    }
+    else
+    {
+        selectRect.setLeft(originPoint.x());
+        selectRect.setRight(mouseX);
+    }
+
+    if (mouseY <= originPoint.y())
+    {
+        selectRect.setTop(mouseY);
+        selectRect.setBottom(originPoint.y());
+    }
+    else
+    {
+        selectRect.setTop(originPoint.y());
+        selectRect.setBottom(mouseY);
+    }
+
+    if (selectRect.width() <= 0) {
+        selectRect.setWidth(1);
+    }
+    if (selectRect.height() <= 0) {
+        selectRect.setHeight(1);
+    }
+
+    editor()->select()->setSelection(selectRect);
 }
 
 bool SelectTool::keyPressEvent(QKeyEvent* event)
@@ -199,12 +287,20 @@ bool SelectTool::keyPressEvent(QKeyEvent* event)
     switch (event->key())
     {
     case Qt::Key_Alt:
-        mScribbleArea->setTemporaryTool(MOVE);
+        if (mEditor->tools()->setTemporaryTool(MOVE, {}, Qt::AltModifier))
+        {
+            return true;
+        }
         break;
     default:
         break;
     }
 
-    // Follow the generic behaviour anyway
-    return false;
+    // Follow the generic behavior anyway
+    return BaseTool::keyPressEvent(event);
+}
+
+QPointF SelectTool::offsetFromPressPos(const QPointF& pos)
+{
+    return pos - mPressPoint;
 }

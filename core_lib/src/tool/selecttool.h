@@ -1,8 +1,8 @@
 /*
 
-Pencil - Traditional Animation Software
+Pencil2D - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,18 +19,25 @@ GNU General Public License for more details.
 #define SELECTTOOL_H
 
 #include "basetool.h"
+#include "movemode.h"
+
+#include <QRectF>
 
 class Layer;
+class SelectionManager;
 
 class SelectTool : public BaseTool
 {
     Q_OBJECT
 
 public:
-    explicit SelectTool(QObject* parent = 0);
+    explicit SelectTool(QObject* parent = nullptr);
     ToolType type() override { return SELECT; }
     void loadSettings() override;
     QCursor cursor() override;
+
+    void resetToDefault() override;
+    void setShowSelectionInfo(const bool b) override;
 
 private:
 
@@ -40,20 +47,26 @@ private:
 
     bool keyPressEvent(QKeyEvent* event) override;
 
-    QPointF whichAnchorPoint();
-    void controlOffsetOrigin();
+    void manageSelectionOrigin(QPointF currentPoint, QPointF originPoint);
+    void controlOffsetOrigin(QPointF currentPoint, QPointF anchorPoint);
 
-    void beginSelection();
-    void keepSelection();
+    void beginSelection(Layer* currentLayer, const QPointF& pos);
+    void keepSelection(Layer* currentLayer);
 
-    inline bool isSelectionPointValid() { return mAnchorOriginPoint != getLastPoint(); }
-    bool maybeDeselect();
+    QPointF offsetFromPressPos(const QPointF& pos);
 
-    // Store selection origin so we can calculate
+    inline bool isSelectionPointValid(const QPointF& pos) { return mAnchorOriginPoint != pos; }
+    bool maybeDeselect(const QPointF& pos);
+
+    // Store selection origin, so we can calculate
     // the selection rectangle in mousePressEvent.
     QPointF mAnchorOriginPoint;
-    MoveMode mOldMoveMode;
-    Layer* mCurrentLayer = nullptr;
+    QPointF mPressPoint;
+    MoveMode mMoveMode;
+    MoveMode mStartMoveMode = MoveMode::NONE;
+    QRectF mSelectionRect;
+
+    QPixmap mCursorPixmap = QPixmap(24, 24);
 };
 
 #endif

@@ -1,7 +1,7 @@
 /*
 
-Pencil - Traditional Animation Software
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Pencil2D - Traditional Animation Software
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -29,11 +29,19 @@ Camera::Camera(QPointF translation, qreal rotation, qreal scaling)
     updateViewTransform();
 }
 
+Camera::Camera(QPointF translation, qreal rotation, qreal scaling, CameraEasingType type)
+{
+    mEasingType = type;
+    Camera(translation, rotation, scaling);
+}
+
 Camera::Camera(const Camera& c2) : KeyFrame(c2)
 {
     mTranslate = c2.mTranslate;
     mRotate = c2.mRotate;
     mScale = c2.mScale;
+    mPathControlPoint = c2.mPathControlPoint;
+    mEasingType = c2.mEasingType;
     mNeedUpdateView = true;
 }
 
@@ -41,7 +49,7 @@ Camera::~Camera()
 {
 }
 
-Camera* Camera::clone()
+Camera* Camera::clone() const
 {
     return new Camera(*this);
 }
@@ -51,6 +59,10 @@ void Camera::assign(const Camera& rhs)
     mTranslate = rhs.mTranslate;
     mRotate = rhs.mRotate;
     mScale = rhs.mScale;
+    mPathControlPoint = rhs.mPathControlPoint;
+    mEasingType = rhs.mEasingType;
+
+    mNeedUpdateView = true;
     updateViewTransform();
     modification();
 }
@@ -59,10 +71,10 @@ QTransform Camera::getView()
 {
     if (mNeedUpdateView)
         updateViewTransform();
-    return view;
+    return mView;
 }
 
-void Camera::reset()
+void Camera::resetTransform()
 {
     mTranslate = QPointF(0, 0);
     mRotate = 0.;
@@ -84,7 +96,7 @@ void Camera::updateViewTransform()
         QTransform s;
         s.scale(mScale, mScale);
 
-        view = t * r * s;
+        mView = t * r * s;
     }
     mNeedUpdateView = false;
 }
@@ -128,11 +140,27 @@ void Camera::scale(qreal scaleValue)
     modification();
 }
 
-bool Camera::operator==(const Camera& rhs) const
+void Camera::setEasingType(CameraEasingType type)
 {
-    bool b = (mTranslate == rhs.mTranslate)
-        && qFuzzyCompare(mRotate, rhs.mRotate)
-        && qFuzzyCompare(mScale, rhs.mScale);
+    mEasingType = type;
+    modification();
+}
 
-    return b;
+void Camera::setPathControlPoint(QPointF point)
+{
+    mPathControlPoint = point;
+    modification();
+}
+
+void Camera::setPathControlPointMoved(bool moved)
+{
+    mPathControlPointMoved = moved;
+    modification();
+}
+
+bool Camera::compare(const Camera& rhs) const
+{
+    return ((mTranslate == rhs.mTranslate)
+        && qFuzzyCompare(mRotate, rhs.mRotate)
+        && qFuzzyCompare(mScale, rhs.mScale));
 }

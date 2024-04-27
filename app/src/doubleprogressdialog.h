@@ -1,8 +1,8 @@
 /*
 
-Pencil - Traditional Animation Software
+Pencil2D - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -18,14 +18,14 @@ GNU General Public License for more details.
 #ifndef DOUBLEPROGRESSDIALOG_H
 #define DOUBLEPROGRESSDIALOG_H
 
-#include <QDialog>
+#include <QProgressDialog>
 #include <QProgressBar>
 
 namespace Ui {
 class DoubleProgressDialog;
 }
 
-class DoubleProgressDialog : public QDialog
+class DoubleProgressDialog : public QProgressDialog
 {
     Q_OBJECT
 
@@ -62,9 +62,6 @@ public:
     };
 
     ProgressBarControl *major, *minor;
-
-signals:
-    void canceled();
 
 private:
     Ui::DoubleProgressDialog *ui;

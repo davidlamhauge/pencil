@@ -6,15 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>831</width>
     <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
-  </property>
-  <property name="styleSheet">
-   <string notr="true">this-&gt;setStyleSheet(&quot;background-color:yellow;&quot;);</string>
   </property>
   <widget class="BackgroundWidget" name="background">
    <layout class="QVBoxLayout" name="layout">
@@ -42,14 +39,14 @@
     </item>
    </layout>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QMenuBar" name="menubar">
+  <widget class="StatusBar" name="statusBar"/>
+  <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>22</height>
+     <width>831</width>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -63,12 +60,16 @@
      <addaction name="separator"/>
      <addaction name="actionImport_Image"/>
      <addaction name="actionImport_ImageSeq"/>
-     <addaction name="actionImport_Movie"/>
      <addaction name="actionImport_ImageSeqNum"/>
-     <addaction name="actionImport_Gif"/>
-     <addaction name="actionImport_Sound"/>
+     <addaction name="actionImport_MovieVideo"/>
+     <addaction name="actionImport_AnimatedImage"/>
+     <addaction name="actionImportLayers_from_pclx"/>
      <addaction name="separator"/>
-     <addaction name="actionImport_Palette"/>
+     <addaction name="actionImport_Sound"/>
+     <addaction name="actionImport_MovieAudio"/>
+     <addaction name="separator"/>
+     <addaction name="actionImport_Replace_Palette"/>
+     <addaction name="actionImport_Append_Palette"/>
     </widget>
     <widget class="QMenu" name="menuExport">
      <property name="title">
@@ -90,7 +91,6 @@
     <addaction name="menuImport"/>
     <addaction name="menuExport"/>
     <addaction name="separator"/>
-    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -110,12 +110,15 @@
     <addaction name="actionCut"/>
     <addaction name="actionCopy"/>
     <addaction name="actionPaste"/>
+    <addaction name="actionPaste_Previous"/>
     <addaction name="actionClearFrame"/>
     <addaction name="separator"/>
     <addaction name="menuSelection"/>
     <addaction name="separator"/>
     <addaction name="actionSelect_All"/>
     <addaction name="actionDeselect_All"/>
+    <addaction name="separator"/>
+    <addaction name="actionPegbarAlignment"/>
     <addaction name="separator"/>
     <addaction name="actionPreference"/>
    </widget>
@@ -129,11 +132,14 @@
      </property>
      <addaction name="actionOnionPrev"/>
      <addaction name="actionOnionNext"/>
-     <addaction name="actionMultiLayerOnionSkin"/>
     </widget>
     <widget class="QMenu" name="menuZoom">
      <property name="title">
       <string>Zoom</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../data/app.qrc">
+       <normaloff>:/icons/themes/playful/menubar/zoom-select.svg</normaloff>:/icons/themes/playful/menubar/zoom-select.svg</iconset>
      </property>
      <addaction name="actionZoom400"/>
      <addaction name="actionZoom300"/>
@@ -143,28 +149,82 @@
      <addaction name="actionZoom33"/>
      <addaction name="actionZoom25"/>
     </widget>
+    <widget class="QMenu" name="menuLayer_Visibility">
+     <property name="title">
+      <string>Layer Visibility</string>
+     </property>
+     <addaction name="actionVisibilityCurrentLayerOnly"/>
+     <addaction name="actionVisibilityRelative"/>
+     <addaction name="actionVisibilityAll"/>
+    </widget>
+    <widget class="QMenu" name="menuOverlays">
+     <property name="title">
+      <string>Overlays</string>
+     </property>
+     <widget class="QMenu" name="menuPerspectiveLinesAngle">
+      <property name="title">
+       <string>Perspective Lines Angle</string>
+      </property>
+      <property name="icon">
+       <iconset resource="../data/app.qrc">
+        <normaloff>:/icons/themes/playful/display/perspective-angle.svg</normaloff>:/icons/themes/playful/display/perspective-angle.svg</iconset>
+      </property>
+      <addaction name="action2Degrees"/>
+      <addaction name="action3Degrees"/>
+      <addaction name="action5Degrees"/>
+      <addaction name="action7_5Degrees"/>
+      <addaction name="action10Degrees"/>
+      <addaction name="action15Degrees"/>
+      <addaction name="action20Degrees"/>
+      <addaction name="action30Degrees"/>
+     </widget>
+     <addaction name="actionGrid"/>
+     <addaction name="actionCenter"/>
+     <addaction name="actionThirds"/>
+     <addaction name="actionGoldenRatio"/>
+     <addaction name="actionSafeAreas"/>
+     <addaction name="actionOnePointPerspective"/>
+     <addaction name="actionTwoPointPerspective"/>
+     <addaction name="actionThreePointPerspective"/>
+     <addaction name="menuPerspectiveLinesAngle"/>
+    </widget>
     <addaction name="actionReset_View"/>
+    <addaction name="actionCenter_View"/>
     <addaction name="separator"/>
     <addaction name="actionZoom_In"/>
     <addaction name="actionZoom_Out"/>
     <addaction name="menuZoom"/>
     <addaction name="separator"/>
     <addaction name="actionRotate_Clockwise"/>
-    <addaction name="actionRotate_Anticlosewise"/>
+    <addaction name="actionRotate_Anticlockwise"/>
+    <addaction name="actionReset_Rotation"/>
     <addaction name="separator"/>
     <addaction name="actionHorizontal_Flip"/>
     <addaction name="actionVertical_Flip"/>
     <addaction name="separator"/>
-    <addaction name="actionPreview"/>
-    <addaction name="separator"/>
-    <addaction name="actionGrid"/>
-    <addaction name="separator"/>
+    <addaction name="menuOverlays"/>
     <addaction name="menuOnion_Skin"/>
+    <addaction name="menuLayer_Visibility"/>
+    <addaction name="separator"/>
+    <addaction name="actionShowInvisibleLines"/>
+    <addaction name="actionShowOutlinesOnly"/>
+    <addaction name="separator"/>
+    <addaction name="actionPreview"/>
    </widget>
    <widget class="QMenu" name="menuAnimation">
     <property name="title">
      <string>Animation</string>
     </property>
+    <widget class="QMenu" name="menuTimeline_Selection">
+     <property name="title">
+      <string>Timeline Selection</string>
+     </property>
+     <addaction name="actionAdd_Frame_Exposure"/>
+     <addaction name="actionSubtract_Frame_Exposure"/>
+     <addaction name="separator"/>
+     <addaction name="actionReverse_Frames_Order"/>
+     <addaction name="actionRemove_Frames"/>
+    </widget>
     <addaction name="actionPlay"/>
     <addaction name="actionLoop"/>
     <addaction name="actionLoopControl"/>
@@ -183,22 +243,25 @@
     <addaction name="separator"/>
     <addaction name="actionFlip_inbetween"/>
     <addaction name="actionFlip_rolling"/>
+    <addaction name="separator"/>
+    <addaction name="actionReposition_Selected_Frames"/>
+    <addaction name="menuTimeline_Selection"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
      <string>Tools</string>
     </property>
-    <addaction name="actionMove"/>
+    <addaction name="actionPencil"/>
+    <addaction name="actionEraser"/>
     <addaction name="actionSelect"/>
-    <addaction name="actionBrush"/>
-    <addaction name="actionPolyline"/>
-    <addaction name="actionSmudge"/>
+    <addaction name="actionMove"/>
     <addaction name="actionPen"/>
     <addaction name="actionHand"/>
-    <addaction name="actionPencil"/>
+    <addaction name="actionPolyline"/>
     <addaction name="actionBucket"/>
     <addaction name="actionEyedropper"/>
-    <addaction name="actionEraser"/>
+    <addaction name="actionBrush"/>
+    <addaction name="actionSmudge"/>
     <addaction name="separator"/>
     <addaction name="actionResetToolsDefault"/>
    </widget>
@@ -206,12 +269,23 @@
     <property name="title">
      <string>Layer</string>
     </property>
+    <widget class="QMenu" name="menuChange_line_color">
+     <property name="title">
+      <string>Change line color</string>
+     </property>
+     <addaction name="actionChangeLineColorCurrent_keyframe"/>
+     <addaction name="actionChangeLineColorAll_keyframes_on_layer"/>
+    </widget>
     <addaction name="actionNew_Bitmap_Layer"/>
     <addaction name="actionNew_Vector_Layer"/>
     <addaction name="actionNew_Sound_Layer"/>
     <addaction name="actionNew_Camera_Layer"/>
     <addaction name="separator"/>
     <addaction name="actionDelete_Current_Layer"/>
+    <addaction name="separator"/>
+    <addaction name="menuChange_line_color"/>
+    <addaction name="separator"/>
+    <addaction name="actionChangeLayerOpacity"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -226,6 +300,7 @@
     <addaction name="separator"/>
     <addaction name="actionCheck_for_Updates"/>
     <addaction name="actionReport_Bug"/>
+    <addaction name="actionOpen_Temporary_Directory"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
    </widget>
@@ -233,7 +308,16 @@
     <property name="title">
      <string>Windows</string>
     </property>
-    <addaction name="actionReset_Windows"/>
+    <widget class="QMenu" name="menuToolbars">
+     <property name="title">
+      <string>Toolbars</string>
+     </property>
+    </widget>
+    <addaction name="actionResetWindows"/>
+    <addaction name="actionLockWindows"/>
+    <addaction name="separator"/>
+    <addaction name="menuToolbars"/>
+    <addaction name="actionStatusBar"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -247,7 +331,7 @@
   <action name="actionNew">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/new.png</normaloff>:/icons/new.png</iconset>
+     <normaloff>:/icons/themes/playful/menubar/new.svg</normaloff>:/icons/themes/playful/menubar/new.svg</iconset>
    </property>
    <property name="text">
     <string>New</string>
@@ -256,7 +340,7 @@
   <action name="actionOpen">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/open.png</normaloff>:/icons/open.png</iconset>
+     <normaloff>:/icons/themes/playful/menubar/open.svg</normaloff>:/icons/themes/playful/menubar/open.svg</iconset>
    </property>
    <property name="text">
     <string>Open</string>
@@ -265,7 +349,7 @@
   <action name="actionSave">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/save.png</normaloff>:/icons/save.png</iconset>
+     <normaloff>:/icons/themes/playful/menubar/save.svg</normaloff>:/icons/themes/playful/menubar/save.svg</iconset>
    </property>
    <property name="text">
     <string>Save</string>
@@ -274,17 +358,13 @@
   <action name="actionSave_as">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/saveas.png</normaloff>:/icons/saveas.png</iconset>
+     <normaloff>:/icons/themes/playful/menubar/save.svg</normaloff>:/icons/themes/playful/menubar/save.svg</iconset>
    </property>
    <property name="text">
     <string>Save As...</string>
    </property>
   </action>
   <action name="actionExit">
-   <property name="icon">
-    <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/exit.png</normaloff>:/icons/exit.png</iconset>
-   </property>
    <property name="text">
     <string>Exit</string>
    </property>
@@ -309,7 +389,7 @@
   </action>
   <action name="actionExport_Palette">
    <property name="text">
-    <string>Palette...</string>
+    <string>Palette</string>
    </property>
   </action>
   <action name="actionImport_Image">
@@ -322,12 +402,9 @@
     <string>Image Sequence...</string>
    </property>
   </action>
-  <action name="actionImport_Movie">
+  <action name="actionImport_MovieVideo">
    <property name="text">
-    <string>Movie...</string>
-   </property>
-   <property name="visible">
-    <bool>false</bool>
+    <string>Movie Video...</string>
    </property>
   </action>
   <action name="actionImport_Sound">
@@ -335,72 +412,63 @@
     <string>Sound...</string>
    </property>
   </action>
-  <action name="actionImport_Palette">
-   <property name="text">
-    <string>Palette...</string>
-   </property>
-  </action>
   <action name="actionImport_ImageSeqNum">
    <property name="text">
-    <string>Image Sequence Numbered...</string>
+    <string>Image Predefined set...</string>
    </property>
   </action>
   <action name="actionUndo">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/undo.png</normaloff>:/icons/undo.png</iconset>
+     <normaloff>:/icons/themes/playful/menubar/undo.svg</normaloff>:/icons/themes/playful/menubar/undo.svg</iconset>
    </property>
    <property name="text">
     <string>Undo</string>
    </property>
   </action>
   <action name="actionRedo">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/redo.png</normaloff>:/icons/redo.png</iconset>
+     <normaloff>:/icons/themes/playful/menubar/redo.svg</normaloff>:/icons/themes/playful/menubar/redo.svg</iconset>
    </property>
    <property name="text">
     <string>Redo</string>
    </property>
   </action>
   <action name="actionCut">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/cut.png</normaloff>:/icons/cut.png</iconset>
+     <normaloff>:/icons/themes/playful/menubar/cut.svg</normaloff>:/icons/themes/playful/menubar/cut.svg</iconset>
    </property>
    <property name="text">
     <string>Cut</string>
    </property>
   </action>
   <action name="actionCopy">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/copy.png</normaloff>:/icons/copy.png</iconset>
+     <normaloff>:/icons/themes/playful/menubar/copy.svg</normaloff>:/icons/themes/playful/menubar/copy.svg</iconset>
    </property>
    <property name="text">
     <string>Copy</string>
    </property>
   </action>
   <action name="actionPaste">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/paste.png</normaloff>:/icons/paste.png</iconset>
+     <normaloff>:/icons/themes/playful/menubar/paste.svg</normaloff>:/icons/themes/playful/menubar/paste.svg</iconset>
    </property>
    <property name="text">
     <string>Paste</string>
-   </property>
-  </action>
-  <action name="actionCrop">
-   <property name="text">
-    <string>Crop</string>
-   </property>
-  </action>
-  <action name="actionCrop_To_Selection">
-   <property name="text">
-    <string>Crop To Selection</string>
    </property>
   </action>
   <action name="actionSelect_All">
@@ -416,7 +484,7 @@
   <action name="actionClearFrame">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/clear.png</normaloff>:/icons/clear.png</iconset>
+     <normaloff>:/icons/themes/playful/menubar/clear-canvas.svg</normaloff>:/icons/themes/playful/menubar/clear-canvas.svg</iconset>
    </property>
    <property name="text">
     <string>Clear Frame</string>
@@ -430,7 +498,7 @@
     <enum>QAction::PreferencesRole</enum>
    </property>
   </action>
-  <action name="actionReset_Windows">
+  <action name="actionResetWindows">
    <property name="text">
     <string>Reset Windows</string>
    </property>
@@ -438,7 +506,7 @@
   <action name="actionZoom_In">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/magnify.png</normaloff>:/icons/magnify.png</iconset>
+     <normaloff>:/icons/themes/playful/menubar/zoom-in.svg</normaloff>:/icons/themes/playful/menubar/zoom-in.svg</iconset>
    </property>
    <property name="text">
     <string>Zoom In</string>
@@ -447,7 +515,7 @@
   <action name="actionZoom_Out">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/magnify.png</normaloff>:/icons/magnify.png</iconset>
+     <normaloff>:/icons/themes/playful/menubar/zoom-out.svg</normaloff>:/icons/themes/playful/menubar/zoom-out.svg</iconset>
    </property>
    <property name="text">
     <string>Zoom Out</string>
@@ -458,29 +526,39 @@
     <string>Rotate Clockwise</string>
    </property>
   </action>
-  <action name="actionRotate_Anticlosewise">
+  <action name="actionRotate_Anticlockwise">
    <property name="text">
-    <string>Rotate AntiClosewise</string>
+    <string>Rotate Anticlockwise</string>
    </property>
   </action>
   <action name="actionReset_View">
+   <property name="icon">
+    <iconset resource="../data/app.qrc">
+     <normaloff>:/icons/themes/playful/menubar/view-reset.svg</normaloff>:/icons/themes/playful/menubar/view-reset.svg</iconset>
+   </property>
    <property name="text">
-    <string>Reset Zoom/Rotate</string>
+    <string>Reset</string>
    </property>
   </action>
   <action name="actionHorizontal_Flip">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
-    <iconset>
-     <normaloff>:/icons/mirror.png</normaloff>:/icons/mirror.png</iconset>
+    <iconset resource="../data/app.qrc">
+     <normaloff>:/icons/themes/playful/display/mirror-horizontal.svg</normaloff>:/icons/themes/playful/display/mirror-horizontal.svg</iconset>
    </property>
    <property name="text">
     <string>Horizontal Flip</string>
    </property>
   </action>
   <action name="actionVertical_Flip">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
-    <iconset>
-     <normaloff>:/icons/mirrorV.png</normaloff>:/icons/mirrorV.png</iconset>
+    <iconset resource="../data/app.qrc">
+     <normaloff>:/icons/themes/playful/display/mirror-vertical.svg</normaloff>:/icons/themes/playful/display/mirror-vertical.svg</iconset>
    </property>
    <property name="text">
     <string>Vertical Flip</string>
@@ -498,6 +576,10 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset resource="../data/app.qrc">
+     <normaloff>:/icons/themes/playful/display/overlay-grid.svg</normaloff>:/icons/themes/playful/display/overlay-grid.svg</iconset>
+   </property>
    <property name="text">
     <string>Grid</string>
    </property>
@@ -508,7 +590,7 @@
    </property>
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/app/icons/onionPrev.png</normaloff>:/app/icons/onionPrev.png</iconset>
+     <normaloff>:/icons/themes/playful/onion/onionskin-red.svg</normaloff>:/icons/themes/playful/onion/onionskin-red.svg</iconset>
    </property>
    <property name="text">
     <string>Previous</string>
@@ -523,7 +605,7 @@
    </property>
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/app/icons/onionNext.png</normaloff>:/app/icons/onionNext.png</iconset>
+     <normaloff>:/icons/themes/playful/onion/onionskin-blue.svg</normaloff>:/icons/themes/playful/onion/onionskin-blue.svg</iconset>
    </property>
    <property name="text">
     <string>Next</string>
@@ -535,7 +617,7 @@
   <action name="actionPlay">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/controls/play.png</normaloff>:/icons/controls/play.png</iconset>
+     <normaloff>:/icons/themes/playful/controls/control-play.svg</normaloff>:/icons/themes/playful/controls/control-play.svg</iconset>
    </property>
    <property name="text">
     <string>Play</string>
@@ -547,39 +629,26 @@
    </property>
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/controls/loop.png</normaloff>:/icons/controls/loop.png</iconset>
+     <normaloff>:/icons/themes/playful/controls/control-loop.svg</normaloff>:/icons/themes/playful/controls/control-loop.svg</iconset>
    </property>
    <property name="text">
     <string>Loop</string>
    </property>
   </action>
   <action name="actionNext_Frame">
-   <property name="icon">
-    <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/next.png</normaloff>:/icons/next.png</iconset>
-   </property>
    <property name="text">
     <string>Next Frame</string>
    </property>
   </action>
   <action name="actionPrevious_Frame">
-   <property name="icon">
-    <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/prev.png</normaloff>:/icons/prev.png</iconset>
-   </property>
    <property name="text">
     <string>Previous Frame</string>
-   </property>
-  </action>
-  <action name="actionExtend_Frame">
-   <property name="text">
-    <string>Extend Frame</string>
    </property>
   </action>
   <action name="actionAdd_Frame">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/add.png</normaloff>:/icons/add.png</iconset>
+     <normaloff>:/icons/themes/playful/timeline/frame-add.svg</normaloff>:/icons/themes/playful/timeline/frame-add.svg</iconset>
    </property>
    <property name="text">
     <string>Add Frame</string>
@@ -588,7 +657,7 @@
   <action name="actionDuplicate_Frame">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/controls/duplicate.png</normaloff>:/icons/controls/duplicate.png</iconset>
+     <normaloff>:/icons/themes/playful/timeline/frame-duplicate.svg</normaloff>:/icons/themes/playful/timeline/frame-duplicate.svg</iconset>
    </property>
    <property name="text">
     <string>Duplicate Frame</string>
@@ -597,7 +666,7 @@
   <action name="actionRemove_Frame">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/remove.png</normaloff>:/icons/remove.png</iconset>
+     <normaloff>:/icons/themes/playful/timeline/frame-remove.svg</normaloff>:/icons/themes/playful/timeline/frame-remove.svg</iconset>
    </property>
    <property name="text">
     <string>Remove Frame</string>
@@ -606,25 +675,16 @@
   <action name="actionMove">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/new/svg/arrow.svg</normaloff>:/icons/new/svg/arrow.svg</iconset>
+     <normaloff>:/icons/themes/playful/tools/tool-move.svg</normaloff>:/icons/themes/playful/tools/tool-move.svg</iconset>
    </property>
    <property name="text">
     <string>Move</string>
    </property>
   </action>
-  <action name="actionClear">
-   <property name="icon">
-    <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/clear.png</normaloff>:/icons/clear.png</iconset>
-   </property>
-   <property name="text">
-    <string>Clear Frame</string>
-   </property>
-  </action>
   <action name="actionSelect">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/new/svg/selection.svg</normaloff>:/icons/new/svg/selection.svg</iconset>
+     <normaloff>:/icons/themes/playful/tools/tool-select.svg</normaloff>:/icons/themes/playful/tools/tool-select.svg</iconset>
    </property>
    <property name="text">
     <string>Select</string>
@@ -633,7 +693,7 @@
   <action name="actionBrush">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/new/svg/brush_detailed.svg</normaloff>:/icons/new/svg/brush_detailed.svg</iconset>
+     <normaloff>:/icons/themes/playful/tools/tool-brush.svg</normaloff>:/icons/themes/playful/tools/tool-brush.svg</iconset>
    </property>
    <property name="text">
     <string>Brush</string>
@@ -642,7 +702,7 @@
   <action name="actionPolyline">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/new/svg/line.svg</normaloff>:/icons/new/svg/line.svg</iconset>
+     <normaloff>:/icons/themes/playful/tools/tool-polyline.svg</normaloff>:/icons/themes/playful/tools/tool-polyline.svg</iconset>
    </property>
    <property name="text">
     <string>Polyline</string>
@@ -651,7 +711,7 @@
   <action name="actionSmudge">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/new/svg/smudge_detailed.svg</normaloff>:/icons/new/svg/smudge_detailed.svg</iconset>
+     <normaloff>:/icons/themes/playful/tools/tool-smudge.svg</normaloff>:/icons/themes/playful/tools/tool-smudge.svg</iconset>
    </property>
    <property name="text">
     <string>Smudge</string>
@@ -660,7 +720,7 @@
   <action name="actionPen">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/new/svg/pen_detailed.svg</normaloff>:/icons/new/svg/pen_detailed.svg</iconset>
+     <normaloff>:/icons/themes/playful/tools/tool-pen.svg</normaloff>:/icons/themes/playful/tools/tool-pen.svg</iconset>
    </property>
    <property name="text">
     <string>Pen</string>
@@ -669,7 +729,7 @@
   <action name="actionHand">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/new/svg/hand_detailed.svg</normaloff>:/icons/new/svg/hand_detailed.svg</iconset>
+     <normaloff>:/icons/themes/playful/tools/tool-hand.svg</normaloff>:/icons/themes/playful/tools/tool-hand.svg</iconset>
    </property>
    <property name="text">
     <string>Hand</string>
@@ -678,7 +738,7 @@
   <action name="actionPencil">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/new/svg/pencil_detailed.svg</normaloff>:/icons/new/svg/pencil_detailed.svg</iconset>
+     <normaloff>:/icons/themes/playful/tools/tool-pencil.svg</normaloff>:/icons/themes/playful/tools/tool-pencil.svg</iconset>
    </property>
    <property name="text">
     <string>Pencil</string>
@@ -687,7 +747,7 @@
   <action name="actionBucket">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/new/svg/bucket_detailed.svg</normaloff>:/icons/new/svg/bucket_detailed.svg</iconset>
+     <normaloff>:/icons/themes/playful/tools/tool-bucket.svg</normaloff>:/icons/themes/playful/tools/tool-bucket.svg</iconset>
    </property>
    <property name="text">
     <string>Bucket</string>
@@ -696,7 +756,7 @@
   <action name="actionEyedropper">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/new/svg/eyedropper_detailed.svg</normaloff>:/icons/new/svg/eyedropper_detailed.svg</iconset>
+     <normaloff>:/icons/themes/playful/tools/tool-eyedropper.svg</normaloff>:/icons/themes/playful/tools/tool-eyedropper.svg</iconset>
    </property>
    <property name="text">
     <string>Eyedropper</string>
@@ -705,7 +765,7 @@
   <action name="actionEraser">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/new/svg/eraser_detailed.svg</normaloff>:/icons/new/svg/eraser_detailed.svg</iconset>
+     <normaloff>:/icons/themes/playful/tools/tool-eraser.svg</normaloff>:/icons/themes/playful/tools/tool-eraser.svg</iconset>
    </property>
    <property name="text">
     <string>Eraser</string>
@@ -714,7 +774,7 @@
   <action name="actionNew_Bitmap_Layer">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/layer-bitmap.png</normaloff>:/icons/layer-bitmap.png</iconset>
+     <normaloff>:/icons/themes/playful/timeline/cell-bitmap.svg</normaloff>:/icons/themes/playful/timeline/cell-bitmap.svg</iconset>
    </property>
    <property name="text">
     <string>New Bitmap Layer</string>
@@ -723,7 +783,7 @@
   <action name="actionNew_Vector_Layer">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/layer-vector.png</normaloff>:/icons/layer-vector.png</iconset>
+     <normaloff>:/icons/themes/playful/timeline/cell-vector.svg</normaloff>:/icons/themes/playful/timeline/cell-vector.svg</iconset>
    </property>
    <property name="text">
     <string>New Vector Layer</string>
@@ -732,7 +792,7 @@
   <action name="actionNew_Sound_Layer">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/layer-sound.png</normaloff>:/icons/layer-sound.png</iconset>
+     <normaloff>:/icons/themes/playful/timeline/cell-sound.svg</normaloff>:/icons/themes/playful/timeline/cell-sound.svg</iconset>
    </property>
    <property name="text">
     <string>New Sound Layer</string>
@@ -741,13 +801,17 @@
   <action name="actionNew_Camera_Layer">
    <property name="icon">
     <iconset resource="../data/app.qrc">
-     <normaloff>:/icons/layer-camera.png</normaloff>:/icons/layer-camera.png</iconset>
+     <normaloff>:/icons/themes/playful/timeline/cell-camera.svg</normaloff>:/icons/themes/playful/timeline/cell-camera.svg</iconset>
    </property>
    <property name="text">
     <string>New Camera Layer</string>
    </property>
   </action>
   <action name="actionDelete_Current_Layer">
+   <property name="icon">
+    <iconset resource="../data/app.qrc">
+     <normaloff>:/icons/themes/playful/timeline/layer-remove.svg</normaloff>:/icons/themes/playful/timeline/layer-remove.svg</iconset>
+   </property>
    <property name="text">
     <string>Delete Current Layer</string>
    </property>
@@ -777,10 +841,10 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Next KeyFrame</string>
+    <string>Next Keyframe</string>
    </property>
    <property name="toolTip">
-    <string>Next KeyFrame</string>
+    <string>Next Keyframe</string>
    </property>
   </action>
   <action name="actionPrev_KeyFrame">
@@ -796,17 +860,6 @@
     <string>Previous KeyFrame</string>
    </property>
   </action>
-  <action name="actionMultiLayerOnionSkin">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>MultiLayer Onion Skin</string>
-   </property>
-  </action>
   <action name="actionLoopControl">
    <property name="checkable">
     <bool>true</bool>
@@ -816,54 +869,6 @@
    </property>
    <property name="text">
     <string>Range</string>
-   </property>
-  </action>
-  <action name="actionToolsWidget">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Tools</string>
-   </property>
-  </action>
-  <action name="actionTimeline">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Timeline</string>
-   </property>
-  </action>
-  <action name="actionOptionsWidget">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Options</string>
-   </property>
-  </action>
-  <action name="actionColorWheel">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Color Wheel</string>
-   </property>
-  </action>
-  <action name="actionColorPalette">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Color Palette</string>
-   </property>
-  </action>
-  <action name="actionDisplayOptions">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Display Options</string>
    </property>
   </action>
   <action name="actionFlip_X">
@@ -904,9 +909,9 @@
     <string>F1</string>
    </property>
   </action>
-  <action name="actionImport_Gif">
+  <action name="actionImport_AnimatedImage">
    <property name="text">
-    <string>Animated GIF...</string>
+    <string>Animated Image...</string>
    </property>
   </action>
   <action name="actionExport_Animated_GIF">
@@ -979,6 +984,309 @@
     <string>Merge Layers</string>
    </property>
   </action>
+  <action name="actionPegbarAlignment">
+   <property name="text">
+    <string>Peg bar Alignment</string>
+   </property>
+  </action>
+  <action name="actionImport_MovieAudio">
+   <property name="text">
+    <string>Movie Audio...</string>
+   </property>
+  </action>
+  <action name="actionImport_Append_Palette">
+   <property name="text">
+    <string>Append to Palette...</string>
+   </property>
+  </action>
+  <action name="actionImport_Replace_Palette">
+   <property name="text">
+    <string>Replace Palette...</string>
+   </property>
+  </action>
+  <action name="actionChangeLineColorCurrent_keyframe">
+   <property name="text">
+    <string>Current keyframe</string>
+   </property>
+  </action>
+  <action name="actionChangeLineColorAll_keyframes_on_layer">
+   <property name="text">
+    <string>All keyframes on layer</string>
+   </property>
+  </action>
+  <action name="actionImportLayers_from_pclx">
+   <property name="text">
+    <string>Layers from Project file...</string>
+   </property>
+  </action>
+  <action name="actionVisibilityCurrentLayerOnly">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Current layer only</string>
+   </property>
+  </action>
+  <action name="actionVisibilityRelative">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Relative</string>
+   </property>
+  </action>
+  <action name="actionVisibilityAll">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>All layers</string>
+   </property>
+  </action>
+  <action name="actionReposition_Selected_Frames">
+   <property name="text">
+    <string>Reposition Selected Frames</string>
+   </property>
+  </action>
+  <action name="actionChangeLayerOpacity">
+   <property name="text">
+    <string>Layer / Keyframe opacity</string>
+   </property>
+  </action>
+  <action name="actionOpen_Temporary_Directory">
+   <property name="text">
+    <string>Open Temporary Directory</string>
+   </property>
+  </action>
+  <action name="actionLockWindows">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Lock Windows</string>
+   </property>
+  </action>
+  <action name="actionCenter_View">
+   <property name="text">
+    <string>Center</string>
+   </property>
+  </action>
+  <action name="actionReset_Rotation">
+   <property name="text">
+    <string>Reset Rotation</string>
+   </property>
+  </action>
+  <action name="actionAdd_Frame_Exposure">
+   <property name="text">
+    <string>Add Exposure</string>
+   </property>
+  </action>
+  <action name="actionSubtract_Frame_Exposure">
+   <property name="text">
+    <string>Subtract Exposure</string>
+   </property>
+  </action>
+  <action name="actionReverse_Frames_Order">
+   <property name="text">
+    <string>Reverse Frames Order</string>
+   </property>
+  </action>
+  <action name="actionRemove_Frames">
+   <property name="text">
+    <string>Remove Frames</string>
+   </property>
+  </action>
+  <action name="actionStatusBar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Status Bar</string>
+   </property>
+  </action>
+  <action name="actionPaste_Previous">
+   <property name="text">
+    <string>Paste from Previous Keyframe</string>
+   </property>
+   <property name="toolTip">
+    <string>Paste from Previous Keyframe</string>
+   </property>
+  </action>
+  <action name="actionShowInvisibleLines">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../data/app.qrc">
+     <normaloff>:/icons/themes/playful/display/lines-invisible.svg</normaloff>:/icons/themes/playful/display/lines-invisible.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Show Invisible Lines</string>
+   </property>
+  </action>
+  <action name="actionShowOutlinesOnly">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../data/app.qrc">
+     <normaloff>:/icons/themes/playful/display/lines-outline.svg</normaloff>:/icons/themes/playful/display/lines-outline.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Show Outlines Only</string>
+   </property>
+  </action>
+  <action name="actionCenter">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../data/app.qrc">
+     <normaloff>:/icons/themes/playful/display/overlay-center.svg</normaloff>:/icons/themes/playful/display/overlay-center.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Center</string>
+   </property>
+  </action>
+  <action name="actionThirds">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../data/app.qrc">
+     <normaloff>:/icons/themes/playful/display/overlay-thirds.svg</normaloff>:/icons/themes/playful/display/overlay-thirds.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Thirds</string>
+   </property>
+  </action>
+  <action name="actionGoldenRatio">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../data/app.qrc">
+     <normaloff>:/icons/themes/playful/display/overlay-golden-ratio.svg</normaloff>:/icons/themes/playful/display/overlay-golden-ratio.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Golden Ratio</string>
+   </property>
+  </action>
+  <action name="actionSafeAreas">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../data/app.qrc">
+     <normaloff>:/icons/themes/playful/display/overlay-safe.svg</normaloff>:/icons/themes/playful/display/overlay-safe.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Safe Areas</string>
+   </property>
+  </action>
+  <action name="actionOnePointPerspective">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../data/app.qrc">
+     <normaloff>:/icons/themes/playful/display/perspective-onepoint.svg</normaloff>:/icons/themes/playful/display/perspective-onepoint.svg</iconset>
+   </property>
+   <property name="text">
+    <string>One Point Perspective</string>
+   </property>
+  </action>
+  <action name="actionTwoPointPerspective">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../data/app.qrc">
+     <normaloff>:/icons/themes/playful/display/perspective-twopoints.svg</normaloff>:/icons/themes/playful/display/perspective-twopoints.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Two Point Perspective</string>
+   </property>
+  </action>
+  <action name="actionThreePointPerspective">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../data/app.qrc">
+     <normaloff>:/icons/themes/playful/display/perspective-threepoints.svg</normaloff>:/icons/themes/playful/display/perspective-threepoints.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Three Point Perspective</string>
+   </property>
+  </action>
+  <action name="action2Degrees">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>2°</string>
+   </property>
+  </action>
+  <action name="action3Degrees">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>3°</string>
+   </property>
+  </action>
+  <action name="action5Degrees">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>5°</string>
+   </property>
+  </action>
+  <action name="action7_5Degrees">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>7.5°</string>
+   </property>
+  </action>
+  <action name="action10Degrees">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>10°</string>
+   </property>
+  </action>
+  <action name="action15Degrees">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>15°</string>
+   </property>
+  </action>
+  <action name="action20Degrees">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>20°</string>
+   </property>
+  </action>
+  <action name="action30Degrees">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>30°</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -992,6 +1300,11 @@
    <extends>QWidget</extends>
    <header>scribblearea.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StatusBar</class>
+   <extends>QStatusBar</extends>
+   <header>statusbar.h</header>
   </customwidget>
  </customwidgets>
  <resources>

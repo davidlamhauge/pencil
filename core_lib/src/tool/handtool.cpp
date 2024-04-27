@@ -1,8 +1,8 @@
 /*
 
-Pencil - Traditional Animation Software
+Pencil2D - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,16 +17,14 @@ GNU General Public License for more details.
 
 #include "handtool.h"
 
-#include <cmath>
 #include <QtMath>
-#include <QPixmap>
 #include <QVector2D>
 #include <pointerevent.h>
 
 #include "layer.h"
 #include "layercamera.h"
 #include "editor.h"
-#include "strokemanager.h"
+#include "strokeinterpolator.h"
 #include "viewmanager.h"
 #include "scribblearea.h"
 
@@ -42,16 +40,34 @@ void HandTool::loadSettings()
     properties.useFeather = false;
     properties.stabilizerLevel = -1;
     properties.useAA = -1;
+
+    mDeltaFactor = mEditor->preference()->isOn(SETTING::INVERT_DRAG_ZOOM_DIRECTION) ? -1 : 1;
+    connect(mEditor->preference(), &PreferenceManager::optionChanged, this, &HandTool::updateSettings);
+}
+
+void HandTool::updateSettings(const SETTING setting)
+{
+    switch (setting)
+    {
+    case SETTING::INVERT_DRAG_ZOOM_DIRECTION:
+    {
+        mDeltaFactor = mEditor->preference()->isOn(SETTING::INVERT_DRAG_ZOOM_DIRECTION) ? -1 : 1;
+        break;
+    }
+    default:
+        break;
+    }
 }
 
 QCursor HandTool::cursor()
 {
-    return mIsHeld ? Qt::ClosedHandCursor : Qt::OpenHandCursor;
+    return mIsHeld ? QCursor(Qt::ClosedHandCursor) : QCursor(Qt::OpenHandCursor);
 }
 
-void HandTool::pointerPressEvent(PointerEvent*)
+void HandTool::pointerPressEvent(PointerEvent* event)
 {
-    mLastPixel = getCurrentPixel();
+    mLastPixel = event->viewportPos();
+    mStartPoint = event->canvasPos();
     mIsHeld = true;
 
     mScribbleArea->updateToolCursor();
@@ -64,18 +80,13 @@ void HandTool::pointerMoveEvent(PointerEvent* event)
         return;
     }
 
-    transformView(event->modifiers(), event->buttons());
-    mLastPixel = getCurrentPixel();
+    transformView(event->modifiers(), event->viewportPos(), event->buttons());
+    mLastPixel = event->viewportPos();
 }
 
 void HandTool::pointerReleaseEvent(PointerEvent* event)
 {
-    //---- stop the hand tool if this was mid button
-    if (event->button() == Qt::MidButton)
-    {
-        qDebug("[HandTool] Stop Hand Tool");
-        mScribbleArea->setPrevTool();
-    }
+    Q_UNUSED(event)
     mIsHeld = false;
     mScribbleArea->updateToolCursor();
 }
@@ -88,7 +99,7 @@ void HandTool::pointerDoubleClickEvent(PointerEvent* event)
     }
 }
 
-void HandTool::transformView(Qt::KeyboardModifiers keyMod, Qt::MouseButtons buttons)
+void HandTool::transformView(Qt::KeyboardModifiers keyMod, const QPointF& pos, Qt::MouseButtons buttons)
 {
     bool isTranslate = keyMod == Qt::NoModifier;
     bool isRotate = keyMod & Qt::AltModifier;
@@ -98,24 +109,27 @@ void HandTool::transformView(Qt::KeyboardModifiers keyMod, Qt::MouseButtons butt
 
     if (isTranslate)
     {
-        QPointF d = getCurrentPoint() - getLastPoint();
+        QPointF d = viewMgr->mapScreenToCanvas(pos) - viewMgr->mapScreenToCanvas(mLastPixel);
         QPointF offset = viewMgr->translation() + d;
         viewMgr->translate(offset);
     }
     else if (isRotate)
     {
         QPoint centralPixel(mScribbleArea->width() / 2, mScribbleArea->height() / 2);
-        QVector2D startV(getLastPixel() - centralPixel);
-        QVector2D curV(getCurrentPixel() - centralPixel);
+        QVector2D startV(mLastPixel - centralPixel);
+        QVector2D curV(pos - centralPixel);
 
-        float angleOffset = (atan2(curV.y(), curV.x()) - atan2(startV.y(), startV.x())) * 180.0 / M_PI;
-        float newAngle = viewMgr->rotation() + angleOffset;
-        viewMgr->rotate(newAngle);
+        qreal angleOffset = static_cast<qreal>(std::atan2(curV.y(), curV.x()) - std::atan2(startV.y(), startV.x()));
+        angleOffset = qRadiansToDegrees(angleOffset);
+        // Invert rotation direction if view is flipped either vertically or horizontally
+        const float delta = viewMgr->isFlipHorizontal() == !viewMgr->isFlipVertical()
+            ? static_cast<float>(angleOffset * -1) : static_cast<float>(angleOffset);
+        viewMgr->rotateRelative(delta);
     }
     else if (isScale)
     {
-        float delta = (getCurrentPixel().y() - mLastPixel.y()) / 100.f;
-        float scaleValue = viewMgr->scaling() * (1.f + delta);
-        viewMgr->scale(scaleValue);
+        const float delta = (static_cast<float>(pos.y() - mLastPixel.y())) / 100.f;
+        const qreal scaleValue = viewMgr->scaling() * (1 + (delta * mDeltaFactor));
+        viewMgr->scaleAtOffset(scaleValue, mStartPoint);
     }
 }

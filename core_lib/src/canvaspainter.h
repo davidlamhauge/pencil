@@ -1,7 +1,7 @@
 /*
 
-Pencil - Traditional Animation Software
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Pencil2D - Traditional Animation Software
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -18,98 +18,119 @@ GNU General Public License for more details.
 #define CANVASPAINTER_H
 
 #include <memory>
+#include <QCoreApplication>
 #include <QObject>
 #include <QTransform>
 #include <QPainter>
 #include "log.h"
+#include "pencildef.h"
+
+#include "layer.h"
+
+#include "onionskinpainteroptions.h"
+#include "onionskinsubpainter.h"
 
 
+class TiledBuffer;
 class Object;
-class Layer;
 class BitmapImage;
 class ViewManager;
 
 struct CanvasPainterOptions
 {
-    bool  bPrevOnionSkin = false;
-    bool  bNextOnionSkin = false;
-    int   nPrevOnionSkinCount = 3;
-    int   nNextOnionSkinCount = 3;
-    float fOnionSkinMaxOpacity = 0.5f;
-    float fOnionSkinMinOpacity = 0.1f;
-    bool  bColorizePrevOnion = false;
-    bool  bColorizeNextOnion = false;
     bool  bAntiAlias = false;
-    bool  bGrid = false;
-    int   nGridSizeW = 50; /* This is the grid Width IN PIXELS. The grid will scale with the image, though */
-    int   nGridSizeH = 50; /* This is the grid Heigth IN PIXELS. The grid will scale with the image, though */
-    bool  bAxis = false;
     bool  bThinLines = false;
     bool  bOutlines = false;
-    int   nShowAllLayers = 3;
-    bool  bIsOnionAbsolute = false;
+
+    LayerVisibility eLayerVisibility = LayerVisibility::RELATED;
+    float fLayerVisibilityThreshold = 0.f;
     float scaling = 1.0f;
-    bool isPlaying = false;
-    bool onionWhilePlayback = false;
+    QPainter::CompositionMode cmBufferBlendMode = QPainter::CompositionMode_SourceOver;
+    OnionSkinPainterOptions mOnionSkinOptions;
 };
 
-
-class CanvasPainter : public QObject
+class CanvasPainter
 {
-    Q_OBJECT
-
+    Q_DECLARE_TR_FUNCTIONS(CanvasPainter)
 public:
-    explicit CanvasPainter(QObject* parent = 0);
+    explicit CanvasPainter(QPixmap& canvas);
     virtual ~CanvasPainter();
 
-    void setCanvas(QPixmap* canvas);
+    void reset();
     void setViewTransform(const QTransform view, const QTransform viewInverse);
+
+    void setOnionSkinOptions(const OnionSkinPainterOptions& onionSkinOptions) { mOnionSkinPainterOptions = onionSkinOptions;}
     void setOptions(const CanvasPainterOptions& p) { mOptions = p; }
     void setTransformedSelection(QRect selection, QTransform transform);
     void ignoreTransformedSelection();
-    QRect getCameraRect();
 
-    void paint(const Object* object, int layer, int frame, QRect rect);
-    void renderGrid(QPainter& painter);
-
-private:
-    void paintBackground();
-    void paintOnionSkin(QPainter& painter);
-
-    void paintCurrentFrame(QPainter& painter);
-
-    void paintBitmapFrame(QPainter&, Layer* layer, int nFrame, bool colorize, bool useLastKeyFrame);
-    void paintVectorFrame(QPainter&, Layer* layer, int nFrame, bool colorize, bool useLastKeyFrame);
-
-    void paintTransformedSelection(QPainter& painter);
-    void paintGrid(QPainter& painter);
-    void paintCameraBorder(QPainter& painter);
-    void paintAxis(QPainter& painter);
-    void prescale(BitmapImage* bitmapImage);
+    void setPaintSettings(const Object* object, int currentLayer, int frame, TiledBuffer* tilledBuffer);
+    void paint(const QRect& blitRect);
+    void paintCached(const QRect& blitRect);
+    void resetLayerCache();
 
 private:
+
+    /**
+     * CanvasPainter::initializePainter
+     * Enriches the painter with a context and sets it's initial matrix.
+     * @param painter The in/out painter
+     * @param pixmap The paint device ie. a pixmap
+     * @param blitRect The rect where the blitting will occur
+     */
+    void initializePainter(QPainter& painter, QPaintDevice& device, const QRect& blitRect);
+
+    void paintOnionSkin(QPainter& painter, const QRect& blitRect);
+
+    void renderPostLayers(QPainter& painter, const QRect& blitRect);
+    void renderPreLayers(QPainter& painter, const QRect& blitRect);
+
+    void paintCurrentFrame(QPainter& painter, const QRect& blitRect, int startLayer, int endLayer);
+
+    void paintTransformedSelection(QPainter& painter, BitmapImage* bitmapImage, const QRect& selection) const;
+
+    void paintBitmapOnionSkinFrame(QPainter& painter, const QRect& blitRect, Layer* layer, int nFrame, bool colorize);
+    void paintVectorOnionSkinFrame(QPainter& painter, const QRect& blitRect, Layer* layer, int nFrame, bool colorize);
+    void paintOnionSkinFrame(QPainter& painter, QPainter& onionSkinPainter, int nFrame, bool colorize, qreal frameOpacity);
+
+    void paintCurrentBitmapFrame(QPainter& painter, const QRect& blitRect, Layer* layer, bool isCurrentLayer);
+    void paintCurrentVectorFrame(QPainter& painter, const QRect& blitRect, Layer* layer, bool isCurrentLayer);
+
     CanvasPainterOptions mOptions;
 
     const Object* mObject = nullptr;
-    QPixmap* mCanvas = nullptr;
+    QPixmap& mCanvas;
     QTransform mViewTransform;
     QTransform mViewInverse;
 
-    QRect mCameraRect;
-
     int mCurrentLayerIndex = 0;
     int mFrameNumber = 0;
+    TiledBuffer* mTiledBuffer = nullptr;
 
     QImage mScaledBitmap;
-
-    bool bMultiLayerOnionSkin = false;
 
     // Handle selection transformation
     bool mRenderTransform = false;
     QRect mSelection;
     QTransform mSelectionTransform;
 
-    QLoggingCategory mLog;
+    // Caches specifically for when drawing on the canvas
+    QPixmap mPostLayersPixmap;
+    QPixmap mPreLayersPixmap;
+    QPixmap mCurrentLayerPixmap;
+    QPixmap mOnionSkinPixmap;
+    bool mPreLayersPixmapCacheValid = false;
+    bool mPostLayersPixmapCacheValid = false;
+
+    // There's a considerable amount of overhead in simply allocating a QPointF on the fly.
+    // Since we just need to draw it at 0,0, we might as well make a const value for that purpose
+    const QPointF mPointZero;
+
+
+    OnionSkinSubPainter mOnionSkinSubPainter;
+    OnionSkinPainterOptions mOnionSkinPainterOptions;
+
+    const static int OVERLAY_SAFE_CENTER_CROSS_SIZE = 25;
 };
 
 #endif // CANVASRENDERER_H

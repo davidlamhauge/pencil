@@ -1,4 +1,22 @@
+﻿/*
+
+Pencil2D - Traditional Animation Software
+Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
+Copyright (C) 2012-2020 Matthew Chiawen Chang
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; version 2 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+*/
+
 #include "checkupdatesdialog.h"
+#include <QDebug>
 #include <QNetworkReply>
 #include <QNetworkAccessManager>
 #include <QHBoxLayout>
@@ -7,6 +25,7 @@
 #include <QProgressBar>
 #include <QPushButton>
 #include <QDesktopServices>
+#include <QRegularExpression>
 #include <QVersionNumber>
 #include <QXmlStreamReader>
 
@@ -29,7 +48,7 @@ CheckUpdatesDialog::CheckUpdatesDialog()
     mDetailLabel = new QLabel;
     mDetailLabel->setWordWrap(true);
 
-    //If minimum and maximum both are set to 0, the bar shows a busy indicator instead of a percentage of steps. 
+    //If minimum and maximum both are set to 0, the bar shows a busy indicator instead of a percentage of steps.
     mProgressBar = new QProgressBar;
     mProgressBar->setMaximum(0);
     mProgressBar->setMinimum(0);
@@ -42,7 +61,7 @@ CheckUpdatesDialog::CheckUpdatesDialog()
     QHBoxLayout* hButtonLayout = new QHBoxLayout;
     hButtonLayout->addWidget(mDownloadButton);
     hButtonLayout->addWidget(mCloseButton);
-    
+
     QVBoxLayout* vLayout = new QVBoxLayout;
     vLayout->addWidget(mTitleLabel);
     vLayout->addWidget(mDetailLabel);
@@ -67,8 +86,8 @@ CheckUpdatesDialog::~CheckUpdatesDialog()
 }
 
 void CheckUpdatesDialog::startChecking()
-{   
-#ifdef NIGHTLY
+{
+#ifdef PENCIL2D_NIGHTLY_BUILD
     nightlyBuildCheck();
 #else
     regularBuildCheck();
@@ -92,7 +111,7 @@ void CheckUpdatesDialog::nightlyBuildCheck()
 {
     mTitleLabel->setText(tr("<b>You are using a Pencil2D nightly build</b>"));
     mDetailLabel->setText(tr("Please go %1 here %2 to check new nightly builds.")
-                          .arg("<a href=\"https://www.pencil2d.org/download/#nightlybuild\">").arg("</a>"));
+                          .arg("<a href=\"https://www.pencil2d.org/download/#nightlybuild\">", "</a>"));
     mDetailLabel->setOpenExternalLinks(true);
     mProgressBar->setRange(0, 1);
     mProgressBar->setValue(1);
@@ -103,6 +122,24 @@ void CheckUpdatesDialog::networkErrorHappened()
 {
     mTitleLabel->setText(tr("<b>An error occurred while checking for updates</b>", "error msg of check-for-update"));
     mDetailLabel->setText(tr("Please check your internet connection and try again later.", "error msg of check-for-update"));
+    mProgressBar->setRange(0, 1);
+    mProgressBar->setValue(1);
+    mDownloadButton->setEnabled(false);
+}
+
+void CheckUpdatesDialog::networkResponseIsEmpty()
+{
+    mTitleLabel->setText(tr("<b>An error occurred while checking for updates</b>", "error msg of check-for-update"));
+    mDetailLabel->setText(tr("Network response is empty", "error msg of check-for-update"));
+    mProgressBar->setRange(0, 1);
+    mProgressBar->setValue(1);
+    mDownloadButton->setEnabled(false);
+}
+
+void CheckUpdatesDialog::invalidReleaseXml()
+{
+    mTitleLabel->setText(tr("<b>An error occurred while checking for updates</b>", "error msg of check-for-update"));
+    mDetailLabel->setText(tr("Couldn't retrieve the version information", "error msg of check-for-update"));
     mProgressBar->setRange(0, 1);
     mProgressBar->setValue(1);
     mDownloadButton->setEnabled(false);
@@ -122,24 +159,32 @@ void CheckUpdatesDialog::networkRequestFinished(QNetworkReply* reply)
     }
 
     auto releasesAtom = QString::fromUtf8(reply->readAll()).trimmed();
-    //qDebug() << releasesAtom;
+    if (releasesAtom.isEmpty())
+    {
+        networkResponseIsEmpty();
+        return;
+    }
 
     QString latestVersionString = getVersionNumberFromXml(releasesAtom);
+    if (latestVersionString == "0.0.1")
+    {
+        invalidReleaseXml();
+        return;
+    }
 
     bool isNewVersionAvailable = compareVersion(APP_VERSION, latestVersionString);
     if (isNewVersionAvailable)
     {
         mTitleLabel->setText(tr("<b>A new version of Pencil2D is available!</b>"));
         mDetailLabel->setText(tr("Pencil2D %1 is now available -- you have %2. Would you like to download it?")
-                              .arg(latestVersionString)
-                              .arg(APP_VERSION));
+                              .arg(latestVersionString, APP_VERSION));
         mProgressBar->hide();
         mDownloadButton->setEnabled(true);
     }
     else
     {
         mTitleLabel->setText(tr("<b>Pencil2D is up to date</b>"));
-        mDetailLabel->setText(tr("Version") + " " APP_VERSION);
+        mDetailLabel->setText(tr("Version %1").arg(APP_VERSION));
         mProgressBar->setRange(0, 1);
         mProgressBar->setValue(1);
         mDownloadButton->setEnabled(false);
@@ -154,21 +199,21 @@ bool CheckUpdatesDialog::compareVersion(QString currentVersion, QString latestVe
 QString CheckUpdatesDialog::getVersionNumberFromXml(QString xml)
 {
     // XML source: https://github.com/pencil2d/pencil/releases.atom
-    
+
     QXmlStreamReader xmlReader(xml);
 
     while (!xmlReader.atEnd() && !xmlReader.hasError())
     {
         QXmlStreamReader::TokenType tokenType = xmlReader.readNext();
-        if (tokenType == QXmlStreamReader::StartElement && xmlReader.name() == "entry")
+        if (tokenType == QXmlStreamReader::StartElement && xmlReader.name() == QLatin1String("entry"))
         {
             while (!xmlReader.atEnd() && !xmlReader.hasError())
             {
                 xmlReader.readNext();
-                if (xmlReader.name() == "title")
+                if (xmlReader.name() == QLatin1String("title"))
                 {
                     QString titleTag = xmlReader.readElementText();
-                    return titleTag.remove(QRegExp("^v")); // remove the leading 'v'
+                    return titleTag.remove(QRegularExpression("^v")); // remove the leading 'v'
                 }
             }
         }

@@ -1,7 +1,7 @@
 /*
 
-Pencil - Traditional Animation Software
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Pencil2D - Traditional Animation Software
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -21,6 +21,7 @@ GNU General Public License for more details.
 #include "object.h"
 #include "camera.h"
 #include "layercamera.h"
+#include "cameraeasingtype.h"
 
 
 TEST_CASE("ViewManager: Init")
@@ -216,77 +217,6 @@ TEST_CASE("ViewManager: Reset view")
     }
     delete editor;
 }
-
-TEST_CASE("ViewManager: working with camera layers")
-{
-    Object* object = new Object;
-    Editor* editor = new Editor;
-    editor->setObject(object);
-    
-    SECTION("Empty Camera Layer")
-    {
-        ViewManager v(editor);
-        v.init();
-
-        LayerCamera* layerCam = editor->object()->addNewCameraLayer();
-        REQUIRE(layerCam != nullptr);
-
-        Camera* k = static_cast<Camera*>(layerCam->getKeyFrameAt(1));
-        k->translate(100, 0);
-        v.setCameraLayer(layerCam);
-
-        REQUIRE(k->getView() == v.getView());
-        REQUIRE(v.translation() == QPointF(100, 0));
-
-        editor->object()->deleteLayer(0);
-    }
-
-    SECTION("Camera Layer with 2 keys")
-    {
-        ViewManager v(editor);
-        v.init();
-
-        // a default key at frame 0
-        // 2nd key at frame 10
-        LayerCamera* layerCam = editor->object()->addNewCameraLayer();
-        layerCam->addKeyFrame(10, new Camera(QPointF(100, 0), 0, 1));
-
-        v.setCameraLayer(layerCam);
-        editor->scrubTo(10);
-
-        // get the view matrix from camera layer at frame 10
-        QTransform t = v.getView();
-        REQUIRE(t.dx() == 100.0);
-        REQUIRE(t.dy() == 0);
-        REQUIRE(v.mapCanvasToScreen(QPointF(1, 5)) == QPointF(101, 5));
-
-        editor->object()->deleteLayer(0);
-    }
-
-    SECTION("Set CameraLayer And then remove it")
-    {
-        ViewManager v(editor);
-        v.init();
-
-        QPointF originalOffset(0, 100);
-        v.translate(originalOffset.x(), originalOffset.y());
-
-        LayerCamera* layerCam = editor->object()->addNewCameraLayer();
-
-        auto cam = layerCam->getCameraAtFrame(1);
-        cam->translate(100, 0);
-
-        layerCam->addKeyFrame(5, new Camera(QPoint(200, 0), 0, 2.0));
-
-        v.setCameraLayer(layerCam);
-        v.setCameraLayer(nullptr);
-
-        REQUIRE(v.translation() == originalOffset);
-    }
-
-    delete editor;
-}
-
 
 TEST_CASE("ViewManager: canvas size")
 {

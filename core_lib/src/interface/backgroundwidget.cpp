@@ -1,8 +1,8 @@
 /*
 
-Pencil - Traditional Animation Software
+Pencil2D - Traditional Animation Software
 Copyright (C) 2005-2007 Patrick Corrieri & Pascal Naidon
-Copyright (C) 2012-2018 Matthew Chiawen Chang
+Copyright (C) 2012-2020 Matthew Chiawen Chang
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,6 +19,7 @@ GNU General Public License for more details.
 
 #include <QStyleOption>
 #include <QPainter>
+#include <QPaintEvent>
 
 
 BackgroundWidget::BackgroundWidget(QWidget* parent) : QWidget(parent)
@@ -66,11 +67,13 @@ void BackgroundWidget::settingUpdated(SETTING setting)
     }
 }
 
-void BackgroundWidget::paintEvent(QPaintEvent *)
+void BackgroundWidget::paintEvent(QPaintEvent* event)
 {
     QStyleOption opt;
-    opt.init(this);
+    opt.initFrom(this);
     QPainter painter(this);
+    painter.setClipRect(event->rect());
+
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
 
     if (mHasShadow)
@@ -112,20 +115,20 @@ void BackgroundWidget::loadBackgroundStyle()
     setStyleSheet(mStyle);
 }
 
-void BackgroundWidget::drawShadow( QPainter& painter )
+void BackgroundWidget::drawShadow(QPainter& painter)
 {
     int radius1 = 12;
     int radius2 = 8;
 
-    QColor colour = Qt::black;
+    QColor color = Qt::black;
     qreal opacity = 0.15;
 
     QLinearGradient shadow = QLinearGradient( 0, 0, 0, radius1 );
 
-    int r = colour.red();
-    int g = colour.green();
-    int b = colour.blue();
-    qreal a = colour.alphaF();
+    int r = color.red();
+    int g = color.green();
+    int b = color.blue();
+    qreal a = color.alphaF();
     shadow.setColorAt( 0.0, QColor( r, g, b, qRound( a * 255 * opacity ) ) );
     shadow.setColorAt( 1.0, QColor( r, g, b, 0 ) );
 
