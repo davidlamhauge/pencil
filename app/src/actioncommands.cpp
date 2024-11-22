@@ -46,6 +46,7 @@ GNU General Public License for more details.
 #include "vectorimage.h"
 #include "soundclip.h"
 #include "camera.h"
+#include "previewframesdialog.h"
 
 #include "importimageseqdialog.h"
 #include "importpositiondialog.h"

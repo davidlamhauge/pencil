@@ -1186,6 +1186,7 @@ void TimeLineCells::editCameraLayerProperties(LayerCamera* cameraLayer) const
     cameraLayer->setAperture(dialog.getAperture());
     cameraLayer->setDistance(dialog.getDistance());
 //    emit cameraLayer->settingsChanged(cameraLayer->getDistance(), cameraLayer->getAperture());
+
     mEditor->view()->forceUpdateViewTransform();
 }
 

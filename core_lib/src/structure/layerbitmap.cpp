@@ -59,12 +59,6 @@ QRect LayerBitmap::getFrameBounds(int frame)
     return image->bounds();
 }
 
-void LayerBitmap::updateDistanceNearFar()
-{
-    qreal distance = getDistance();
-    qreal hyperFocalDist = getHyperfocalDistance(50.0f, 2.8f);
-}
-
 void LayerBitmap::loadImageAtFrame(QString path, QPoint topLeft, int frameNumber, qreal opacity)
 {
     BitmapImage* pKeyFrame = new BitmapImage(topLeft, path);

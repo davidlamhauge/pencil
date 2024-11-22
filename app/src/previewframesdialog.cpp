@@ -1,25 +1,29 @@
 #include "previewframesdialog.h"
 #include "ui_previewframesdialog.h"
 
-previewFramesDialog::previewFramesDialog(int maxFrame, int currentFrame) :
+PreviewFramesDialog::PreviewFramesDialog(int maxFrame, int currentFrame) :
     QDialog(),
-    ui(new Ui::previewFramesDialog)
+    ui(new Ui::PreviewFramesDialog)
 {
     ui->setupUi(this);
     ui->frameSpinBox->setMinimum(1);
     ui->frameSpinBox->setMaximum(maxFrame);
     ui->frameSpinBox->setValue(currentFrame);
-    connect(ui->frameSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &previewFramesDialog::frameChanged);
-
+    setCurrentFrame(currentFrame);
+    setMaxFrame(maxFrame);
+    ui->labMaxNum->setText(QString::number(maxFrame));
+    connect(ui->frameSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &PreviewFramesDialog::frameChanged);
 }
 
-previewFramesDialog::~previewFramesDialog()
+PreviewFramesDialog::~PreviewFramesDialog()
 {
     delete ui;
 }
 
 
-void previewFramesDialog::frameChanged(int frame)
+void PreviewFramesDialog::frameChanged(int frame)
 {
-
+    setCurrentFrame(frame);
+    currentFrameChanged(frame);
+    ui->labFrame->setText(QString::number(frame));
 }

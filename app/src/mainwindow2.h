@@ -45,6 +45,7 @@ class BackupElement;
 class LayerOpacityDialog;
 class PegBarAlignmentDialog;
 class RepositionFramesDialog;
+class PreviewFramesDialog;
 class StatusBar;
 enum class SETTING;
 
@@ -91,6 +92,8 @@ public:
     void importLayers();
     void importMovieVideo();
     void importAnimatedImage();
+
+    void previewFrames();
 
     void lockWidgets(bool shouldLock);
 
@@ -173,6 +176,7 @@ private:
     PegBarAlignmentDialog* mPegAlign = nullptr;
     RepositionFramesDialog* mReposDialog = nullptr;
     LayerOpacityDialog* mLayerOpacityDialog = nullptr;
+    PreviewFramesDialog* mPreviewFramesDialog = nullptr;
 
     void createToolbars();
 private:

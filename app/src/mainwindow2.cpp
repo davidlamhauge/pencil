@@ -67,6 +67,7 @@ GNU General Public License for more details.
 #include "onionskinwidget.h"
 #include "pegbaralignmentdialog.h"
 #include "repositionframesdialog.h"
+#include "previewframesdialog.h"
 
 //#include "preview.h"
 #include "errordialog.h"
@@ -323,6 +324,7 @@ void MainWindow2::createMenus()
     connect(ui->actionHorizontal_Flip, &QAction::triggered, mEditor->view(), &ViewManager::flipHorizontal);
     connect(ui->actionVertical_Flip, &QAction::triggered, mEditor->view(), &ViewManager::flipVertical);
     connect(mEditor->view(), &ViewManager::viewFlipped, this, &MainWindow2::viewFlipped);
+    connect(ui->actionPreview_frames, &QAction::triggered, this , &MainWindow2::previewFrames);
 
     PreferenceManager* prefs = mEditor->preference();
     connect(ui->actionStatusBar, &QAction::triggered, ui->statusBar, &QStatusBar::setVisible);
@@ -959,6 +961,19 @@ void MainWindow2::importAnimatedImage()
     mSuppressAutoSaveDialog = false;
 }
 
+void MainWindow2::previewFrames()
+{
+    int currFrame = mEditor->currentFrame();
+    auto layer = mEditor->layers()->currentLayer();
+    if (layer->type() == Layer::SOUND || layer->type() == Layer::CAMERA)
+        return;
+
+    int maxFrame = mEditor->layers()->animationLength(true);
+    mPreviewFramesDialog = new PreviewFramesDialog(maxFrame, currFrame);
+    connect(mPreviewFramesDialog, &PreviewFramesDialog::currentFrameChanged, mEditor, &Editor::scrubTo);
+    mPreviewFramesDialog->exec();
+}
+
 void MainWindow2::lockWidgets(bool shouldLock)
 {
     QDockWidget::DockWidgetFeatures feat = shouldLock
@@ -1190,6 +1205,8 @@ void MainWindow2::setupKeyboardShortcuts()
     ui->actionPaste_Previous->setShortcut(cmdKeySeq(CMD_PASTE_FROM_PREVIOUS));
     ui->actionPaste->setShortcut(cmdKeySeq(CMD_PASTE));
     ui->actionClearFrame->setShortcut(cmdKeySeq(CMD_CLEAR_FRAME));
+    ui->actionFlip_X->setShortcut(cmdKeySeq(CMD_SELECTION_FLIP_HORIZONTAL));
+    ui->actionFlip_Y->setShortcut(cmdKeySeq(CMD_SELECTION_FLIP_VERTICAL));
     ui->actionSelect_All->setShortcut(cmdKeySeq(CMD_SELECT_ALL));
     ui->actionDeselect_All->setShortcut(cmdKeySeq(CMD_DESELECT_ALL));
     ui->actionPreference->setShortcut(cmdKeySeq(CMD_PREFERENCE));
